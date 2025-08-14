@@ -1,0 +1,56 @@
+# Prometheus configuration for AIOS development
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # AIOS Daemon metrics
+  - job_name: 'aios-daemon'
+    static_configs:
+      - targets: ['aios-daemon:9090']
+    scrape_interval: 5s
+    metrics_path: /metrics
+
+  # AIOS Assistant metrics
+  - job_name: 'aios-assistant'
+    static_configs:
+      - targets: ['aios-assistant:9091']
+    scrape_interval: 5s
+    metrics_path: /metrics
+
+  # AIOS Desktop metrics
+  - job_name: 'aios-desktop'
+    static_configs:
+      - targets: ['aios-desktop:9092']
+    scrape_interval: 5s
+    metrics_path: /metrics
+
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node exporter for system metrics
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+
+  # PostgreSQL metrics
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+
+  # Ollama metrics
+  - job_name: 'ollama'
+    static_configs:
+      - targets: ['ollama:11434']

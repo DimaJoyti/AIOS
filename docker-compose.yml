@@ -1,0 +1,238 @@
+version: '3.8'
+
+services:
+  # Core AIOS Services
+  aios-daemon:
+    build:
+      context: .
+      dockerfile: deployments/Dockerfile.daemon
+    container_name: aios-daemon
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "9090:9090"  # Metrics
+    environment:
+      - AIOS_ENV=production
+      - AIOS_LOG_LEVEL=info
+      - AIOS_DB_HOST=postgres
+      - AIOS_DB_PORT=5432
+      - AIOS_DB_NAME=aios
+      - AIOS_DB_USER=aios
+      - AIOS_DB_PASSWORD=aios_password
+      - AIOS_REDIS_HOST=redis
+      - AIOS_REDIS_PORT=6379
+      - AIOS_JAEGER_ENDPOINT=http://jaeger:14268/api/traces
+    depends_on:
+      - postgres
+      - redis
+      - jaeger
+    volumes:
+      - ./configs:/app/configs:ro
+      - aios_data:/app/data
+    networks:
+      - aios-network
+
+  aios-assistant:
+    build:
+      context: .
+      dockerfile: deployments/Dockerfile.assistant
+    container_name: aios-assistant
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - AIOS_ENV=production
+      - AIOS_LOG_LEVEL=info
+      - AIOS_DAEMON_URL=http://aios-daemon:8080
+      - AIOS_REDIS_HOST=redis
+      - AIOS_REDIS_PORT=6379
+      - AIOS_MODEL_PATH=/app/models
+    depends_on:
+      - aios-daemon
+      - redis
+    volumes:
+      - ./configs:/app/configs:ro
+      - aios_models:/app/models
+      - /dev/snd:/dev/snd  # Audio devices for voice recognition
+    devices:
+      - /dev/dri:/dev/dri  # GPU access for AI models
+    networks:
+      - aios-network
+
+  aios-desktop:
+    build:
+      context: .
+      dockerfile: deployments/Dockerfile.desktop
+    container_name: aios-desktop
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      - AIOS_ENV=production
+      - AIOS_LOG_LEVEL=info
+      - AIOS_DAEMON_URL=http://aios-daemon:8080
+      - AIOS_ASSISTANT_URL=http://aios-assistant:8081
+      - DISPLAY=${DISPLAY}
+    depends_on:
+      - aios-daemon
+      - aios-assistant
+    volumes:
+      - ./configs:/app/configs:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev/input:/dev/input  # Input devices
+    networks:
+      - aios-network
+
+  # Infrastructure Services
+  postgres:
+    image: postgres:16-alpine
+    container_name: aios-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=aios
+      - POSTGRES_USER=aios
+      - POSTGRES_PASSWORD=aios_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - aios-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: aios-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./configs/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - aios-network
+
+  # Monitoring and Observability
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: aios-prometheus
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - aios-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: aios-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    networks:
+      - aios-network
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: aios-jaeger
+    restart: unless-stopped
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    volumes:
+      - jaeger_data:/tmp
+    networks:
+      - aios-network
+
+  # AI Model Services
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aios-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    volumes:
+      - ollama_data:/root/.ollama
+    devices:
+      - /dev/dri:/dev/dri  # GPU access
+    networks:
+      - aios-network
+
+  # Development Tools (optional)
+  adminer:
+    image: adminer:latest
+    container_name: aios-adminer
+    restart: unless-stopped
+    ports:
+      - "8083:8080"
+    depends_on:
+      - postgres
+    networks:
+      - aios-network
+    profiles:
+      - dev
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: aios-redis-commander
+    restart: unless-stopped
+    ports:
+      - "8084:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - aios-network
+    profiles:
+      - dev
+
+# Networks
+networks:
+  aios-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volumes
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  jaeger_data:
+    driver: local
+  ollama_data:
+    driver: local
+  aios_data:
+    driver: local
+  aios_models:
+    driver: local

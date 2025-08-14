@@ -1,0 +1,296 @@
+version: '3.8'
+
+services:
+  # Core AIOS Services (Development)
+  aios-daemon:
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile.daemon
+      target: development
+    container_name: aios-daemon-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "9090:9090"  # Metrics
+      - "2345:2345"  # Delve debugger
+    environment:
+      - AIOS_ENV=development
+      - AIOS_LOG_LEVEL=debug
+      - AIOS_CONFIG_PATH=/app/configs/dev.yaml
+      - AIOS_DB_HOST=postgres
+      - AIOS_DB_PORT=5432
+      - AIOS_DB_NAME=aios_dev
+      - AIOS_DB_USER=aios
+      - AIOS_DB_PASSWORD=aios_password
+      - AIOS_REDIS_HOST=redis
+      - AIOS_REDIS_PORT=6379
+      - AIOS_JAEGER_ENDPOINT=http://jaeger:14268/api/traces
+      - AIOS_OLLAMA_HOST=ollama
+      - AIOS_OLLAMA_PORT=11434
+    depends_on:
+      - postgres
+      - redis
+      - jaeger
+      - ollama
+    volumes:
+      - ../:/app:cached
+      - go_mod_cache:/go/pkg/mod
+      - aios_dev_data:/app/data
+    networks:
+      - aios-dev-network
+    command: air -c .air.toml
+
+  aios-assistant:
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile.assistant
+      target: development
+    container_name: aios-assistant-dev
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+      - "2346:2345"  # Delve debugger
+    environment:
+      - AIOS_ENV=development
+      - AIOS_LOG_LEVEL=debug
+      - AIOS_CONFIG_PATH=/app/configs/dev.yaml
+      - AIOS_DAEMON_URL=http://aios-daemon:8080
+      - AIOS_REDIS_HOST=redis
+      - AIOS_REDIS_PORT=6379
+      - AIOS_OLLAMA_HOST=ollama
+      - AIOS_OLLAMA_PORT=11434
+    depends_on:
+      - aios-daemon
+      - redis
+      - ollama
+    volumes:
+      - ../:/app:cached
+      - go_mod_cache:/go/pkg/mod
+      - aios_dev_models:/app/models
+      - /dev/snd:/dev/snd  # Audio devices
+    devices:
+      - /dev/dri:/dev/dri  # GPU access
+    networks:
+      - aios-dev-network
+    command: air -c .air.toml
+
+  # Frontend Development Server
+  aios-web:
+    build:
+      context: ../web
+      dockerfile: Dockerfile.dev
+    container_name: aios-web-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "3001:3001"  # Hot reload
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost:8080
+      - REACT_APP_WS_URL=ws://localhost:8080
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ../web:/app:cached
+      - node_modules_cache:/app/node_modules
+    networks:
+      - aios-dev-network
+    command: npm run dev
+
+  # Infrastructure Services
+  postgres:
+    image: postgres:16-alpine
+    container_name: aios-postgres-dev
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=aios_dev
+      - POSTGRES_USER=aios
+      - POSTGRES_PASSWORD=aios_password
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ../scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - aios-dev-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: aios-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+      - ../configs/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes
+    networks:
+      - aios-dev-network
+
+  # Monitoring and Observability
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: aios-prometheus-dev
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    volumes:
+      - ../configs/prometheus.dev.yml:/etc/prometheus/prometheus.yml
+      - prometheus_dev_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    networks:
+      - aios-dev-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: aios-grafana-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_dev_data:/var/lib/grafana
+      - ../configs/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    networks:
+      - aios-dev-network
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: aios-jaeger-dev
+    restart: unless-stopped
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+    volumes:
+      - jaeger_dev_data:/tmp
+    networks:
+      - aios-dev-network
+
+  # AI Model Services
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aios-ollama-dev
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_ORIGINS=*
+    volumes:
+      - ollama_dev_data:/root/.ollama
+    devices:
+      - /dev/dri:/dev/dri  # GPU access
+    networks:
+      - aios-dev-network
+
+  # Development Tools
+  adminer:
+    image: adminer:latest
+    container_name: aios-adminer-dev
+    restart: unless-stopped
+    ports:
+      - "8083:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres
+    depends_on:
+      - postgres
+    networks:
+      - aios-dev-network
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: aios-redis-commander-dev
+    restart: unless-stopped
+    ports:
+      - "8084:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+      - HTTP_USER=admin
+      - HTTP_PASSWORD=admin
+    depends_on:
+      - redis
+    networks:
+      - aios-dev-network
+
+  # File browser for development
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: aios-filebrowser-dev
+    restart: unless-stopped
+    ports:
+      - "8085:80"
+    volumes:
+      - ../:/srv
+      - filebrowser_dev_data:/database
+    environment:
+      - FB_DATABASE=/database/filebrowser.db
+    networks:
+      - aios-dev-network
+
+  # Code server for remote development
+  code-server:
+    image: codercom/code-server:latest
+    container_name: aios-code-server-dev
+    restart: unless-stopped
+    ports:
+      - "8086:8080"
+    environment:
+      - PASSWORD=aios-dev
+    volumes:
+      - ../:/home/coder/project
+      - code_server_data:/home/coder/.local/share/code-server
+    networks:
+      - aios-dev-network
+
+# Networks
+networks:
+  aios-dev-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+
+# Volumes
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  prometheus_dev_data:
+    driver: local
+  grafana_dev_data:
+    driver: local
+  jaeger_dev_data:
+    driver: local
+  ollama_dev_data:
+    driver: local
+  aios_dev_data:
+    driver: local
+  aios_dev_models:
+    driver: local
+  filebrowser_dev_data:
+    driver: local
+  code_server_data:
+    driver: local
+  go_mod_cache:
+    driver: local
+  node_modules_cache:
+    driver: local
