@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aios/aios/internal/ai"
 	"github.com/aios/aios/pkg/models"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
@@ -20,6 +21,7 @@ type Manager struct {
 	fileSystemAI    *FileSystemAI
 	securityManager *SecurityManager
 	optimizationAI  *OptimizationAI
+	aiOrchestrator  *ai.Orchestrator
 	mu              sync.RWMutex
 	running         bool
 	stopCh          chan struct{}
@@ -49,6 +51,25 @@ func NewManager(logger *logrus.Logger) (*Manager, error) {
 		return nil, fmt.Errorf("failed to create optimization AI: %w", err)
 	}
 
+	// Initialize AI orchestrator with default config
+	aiConfig := ai.AIServiceConfig{
+		OllamaHost:            "localhost",
+		OllamaPort:            11434,
+		OllamaTimeout:         30 * time.Second,
+		DefaultModel:          "llama2",
+		MaxTokens:             2048,
+		Temperature:           0.7,
+		CVEnabled:             true,
+		VoiceEnabled:          false,
+		MaxConcurrentRequests: 10,
+		RequestTimeout:        30 * time.Second,
+		ModelCacheSize:        5,
+		EnableSandbox:         true,
+		DataRetention:         24 * time.Hour,
+	}
+
+	aiOrchestrator := ai.NewOrchestrator(aiConfig, logger)
+
 	return &Manager{
 		logger:          logger,
 		tracer:          tracer,
@@ -56,6 +77,7 @@ func NewManager(logger *logrus.Logger) (*Manager, error) {
 		fileSystemAI:    fileSystemAI,
 		securityManager: securityManager,
 		optimizationAI:  optimizationAI,
+		aiOrchestrator:  aiOrchestrator,
 		stopCh:          make(chan struct{}),
 	}, nil
 }
@@ -92,6 +114,11 @@ func (m *Manager) Start(ctx context.Context) error {
 	// Start optimization AI
 	if err := m.optimizationAI.Start(ctx); err != nil {
 		return fmt.Errorf("failed to start optimization AI: %w", err)
+	}
+
+	// Initialize AI orchestrator
+	if err := m.aiOrchestrator.Initialize(ctx); err != nil {
+		return fmt.Errorf("failed to initialize AI orchestrator: %w", err)
 	}
 
 	// Start monitoring goroutines
@@ -201,6 +228,11 @@ func (m *Manager) GetSecurityManager() *SecurityManager {
 // GetOptimizationAI returns the optimization AI instance
 func (m *Manager) GetOptimizationAI() *OptimizationAI {
 	return m.optimizationAI
+}
+
+// GetAIOrchestrator returns the AI orchestrator instance
+func (m *Manager) GetAIOrchestrator() *ai.Orchestrator {
+	return m.aiOrchestrator
 }
 
 // monitorSystem continuously monitors system health and performance
