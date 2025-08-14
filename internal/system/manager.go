@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aios/aios/internal/ai"
+	"github.com/aios/aios/internal/desktop"
 	"github.com/aios/aios/pkg/models"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
@@ -21,6 +22,7 @@ type Manager struct {
 	fileSystemAI    *FileSystemAI
 	securityManager *SecurityManager
 	optimizationAI  *OptimizationAI
+	desktopManager  *desktop.Manager
 	aiOrchestrator  *ai.Orchestrator
 	mu              sync.RWMutex
 	running         bool
@@ -70,6 +72,63 @@ func NewManager(logger *logrus.Logger) (*Manager, error) {
 
 	aiOrchestrator := ai.NewOrchestrator(aiConfig, logger)
 
+	// Initialize desktop manager with default config
+	desktopConfig := desktop.DesktopConfig{
+		Theme: "dark",
+		AIAssistant: desktop.AIAssistantConfig{
+			VoiceEnabled:    true,
+			WakeWord:        "aios",
+			Language:        "en-US",
+			AutoSuggestions: true,
+			ContextAware:    true,
+		},
+		WindowManager: desktop.WindowManagerConfig{
+			TilingEnabled:     true,
+			SmartGaps:         true,
+			BorderWidth:       2,
+			AnimationSpeed:    1.0,
+			FocusFollowsMouse: false,
+			AutoTiling:        true,
+		},
+		Workspaces: desktop.WorkspaceConfig{
+			DefaultCount:  4,
+			AutoSwitch:    true,
+			SmartNaming:   true,
+			PersistLayout: true,
+			WrapAround:    true,
+		},
+		Notifications: desktop.NotificationConfig{
+			Enabled:       true,
+			Position:      "top-right",
+			Timeout:       5 * time.Second,
+			MaxVisible:    5,
+			SmartGrouping: true,
+			AIFiltering:   true,
+		},
+		Accessibility: desktop.AccessibilityConfig{
+			HighContrast:   false,
+			LargeText:      false,
+			ScreenReader:   false,
+			VoiceControl:   false,
+			ReducedMotion:  false,
+			ColorBlindMode: "none",
+			FontScale:      1.0,
+		},
+		Performance: desktop.PerformanceConfig{
+			EnableCompositing: true,
+			VSync:             true,
+			MaxFPS:            60,
+			ReduceAnimations:  false,
+			PowerSaveMode:     false,
+			GPUAcceleration:   true,
+		},
+	}
+
+	desktopManager, err := desktop.NewManager(logger, aiOrchestrator, desktopConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create desktop manager: %w", err)
+	}
+
 	return &Manager{
 		logger:          logger,
 		tracer:          tracer,
@@ -77,6 +136,7 @@ func NewManager(logger *logrus.Logger) (*Manager, error) {
 		fileSystemAI:    fileSystemAI,
 		securityManager: securityManager,
 		optimizationAI:  optimizationAI,
+		desktopManager:  desktopManager,
 		aiOrchestrator:  aiOrchestrator,
 		stopCh:          make(chan struct{}),
 	}, nil
@@ -121,6 +181,11 @@ func (m *Manager) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to initialize AI orchestrator: %w", err)
 	}
 
+	// Start desktop manager
+	if err := m.desktopManager.Start(ctx); err != nil {
+		return fmt.Errorf("failed to start desktop manager: %w", err)
+	}
+
 	// Start monitoring goroutines
 	go m.monitorSystem()
 	go m.performOptimizations()
@@ -149,6 +214,10 @@ func (m *Manager) Stop(ctx context.Context) error {
 	close(m.stopCh)
 
 	// Stop components in reverse order
+	if err := m.desktopManager.Stop(ctx); err != nil {
+		m.logger.WithError(err).Error("Failed to stop desktop manager")
+	}
+
 	if err := m.optimizationAI.Stop(ctx); err != nil {
 		m.logger.WithError(err).Error("Failed to stop optimization AI")
 	}
@@ -233,6 +302,11 @@ func (m *Manager) GetOptimizationAI() *OptimizationAI {
 // GetAIOrchestrator returns the AI orchestrator instance
 func (m *Manager) GetAIOrchestrator() *ai.Orchestrator {
 	return m.aiOrchestrator
+}
+
+// GetDesktopManager returns the desktop manager instance
+func (m *Manager) GetDesktopManager() *desktop.Manager {
+	return m.desktopManager
 }
 
 // monitorSystem continuously monitors system health and performance

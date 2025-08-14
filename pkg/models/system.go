@@ -659,3 +659,206 @@ type AccessibilityInfo struct {
 	Suggestions []string `json:"suggestions"`
 	Compliance  string   `json:"compliance"` // WCAG level
 }
+
+// Desktop Environment Models
+
+// DesktopStatus represents the overall desktop environment status
+type DesktopStatus struct {
+	Running       bool                 `json:"running"`
+	Version       string               `json:"version"`
+	Theme         string               `json:"theme"`
+	Windows       *WindowManagerStatus `json:"windows"`
+	Workspaces    *WorkspaceStatus     `json:"workspaces"`
+	Applications  *ApplicationStatus   `json:"applications"`
+	Themes        *ThemeStatus         `json:"themes"`
+	Notifications *NotificationStatus  `json:"notifications"`
+	Performance   *DesktopPerformance  `json:"performance"`
+	Timestamp     time.Time            `json:"timestamp"`
+}
+
+// DesktopPerformance represents desktop performance metrics
+type DesktopPerformance struct {
+	FPS           float64       `json:"fps"`
+	MemoryUsage   int64         `json:"memory_usage"`
+	CPUUsage      float64       `json:"cpu_usage"`
+	GPUUsage      float64       `json:"gpu_usage"`
+	CompositorLag time.Duration `json:"compositor_lag"`
+}
+
+// Window represents a desktop window
+type Window struct {
+	ID          string                 `json:"id"`
+	Title       string                 `json:"title"`
+	Application string                 `json:"application"`
+	PID         int                    `json:"pid"`
+	Position    Position               `json:"position"`
+	Size        Size                   `json:"size"`
+	Workspace   int                    `json:"workspace"`
+	Focused     bool                   `json:"focused"`
+	Visible     bool                   `json:"visible"`
+	Minimized   bool                   `json:"minimized"`
+	Maximized   bool                   `json:"maximized"`
+	Fullscreen  bool                   `json:"fullscreen"`
+	Tags        []string               `json:"tags"`
+	Properties  map[string]interface{} `json:"properties,omitempty"`
+	CreatedAt   time.Time              `json:"created_at"`
+	LastFocused time.Time              `json:"last_focused"`
+}
+
+// Position represents a 2D position
+type Position struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
+// Size represents 2D dimensions
+type Size struct {
+	Width  int `json:"width"`
+	Height int `json:"height"`
+}
+
+// WindowManagerStatus represents window manager status
+type WindowManagerStatus struct {
+	Running     bool                `json:"running"`
+	WindowCount int                 `json:"window_count"`
+	Windows     []*Window           `json:"windows"`
+	Layouts     []*WindowLayout     `json:"layouts"`
+	Rules       []WindowRule        `json:"rules"`
+	Config      WindowManagerConfig `json:"config"`
+	Timestamp   time.Time           `json:"timestamp"`
+}
+
+// WindowLayout represents a saved window layout
+type WindowLayout struct {
+	ID        string             `json:"id"`
+	Name      string             `json:"name"`
+	Windows   []WindowLayoutItem `json:"windows"`
+	CreatedAt time.Time          `json:"created_at"`
+	UpdatedAt time.Time          `json:"updated_at"`
+}
+
+// WindowLayoutItem represents a window in a layout
+type WindowLayoutItem struct {
+	WindowID  string   `json:"window_id"`
+	Position  Position `json:"position"`
+	Size      Size     `json:"size"`
+	Workspace int      `json:"workspace"`
+	Visible   bool     `json:"visible"`
+}
+
+// WindowRule represents a window management rule
+type WindowRule struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Priority    int    `json:"priority"`
+	Enabled     bool   `json:"enabled"`
+	AIGenerated bool   `json:"ai_generated"`
+}
+
+// Workspace represents a desktop workspace
+type Workspace struct {
+	ID          int       `json:"id"`
+	Name        string    `json:"name"`
+	Active      bool      `json:"active"`
+	WindowCount int       `json:"window_count"`
+	Windows     []string  `json:"windows"` // Window IDs
+	Layout      string    `json:"layout"`
+	CreatedAt   time.Time `json:"created_at"`
+	LastUsed    time.Time `json:"last_used"`
+}
+
+// WorkspaceStatus represents workspace manager status
+type WorkspaceStatus struct {
+	Running         bool         `json:"running"`
+	ActiveWorkspace int          `json:"active_workspace"`
+	WorkspaceCount  int          `json:"workspace_count"`
+	Workspaces      []*Workspace `json:"workspaces"`
+	Timestamp       time.Time    `json:"timestamp"`
+}
+
+// Application represents a desktop application
+type Application struct {
+	ID           string                 `json:"id"`
+	Name         string                 `json:"name"`
+	DisplayName  string                 `json:"display_name"`
+	Description  string                 `json:"description"`
+	Icon         string                 `json:"icon"`
+	Category     string                 `json:"category"`
+	Executable   string                 `json:"executable"`
+	Keywords     []string               `json:"keywords"`
+	MimeTypes    []string               `json:"mime_types"`
+	Running      bool                   `json:"running"`
+	Windows      []string               `json:"windows"` // Window IDs
+	LaunchCount  int                    `json:"launch_count"`
+	LastLaunched time.Time              `json:"last_launched"`
+	Properties   map[string]interface{} `json:"properties,omitempty"`
+}
+
+// ApplicationStatus represents application launcher status
+type ApplicationStatus struct {
+	Running          bool           `json:"running"`
+	ApplicationCount int            `json:"application_count"`
+	Applications     []*Application `json:"applications"`
+	RecentApps       []*Application `json:"recent_apps"`
+	FavoriteApps     []*Application `json:"favorite_apps"`
+	Timestamp        time.Time      `json:"timestamp"`
+}
+
+// Theme represents a desktop theme
+type Theme struct {
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Author      string                 `json:"author"`
+	Version     string                 `json:"version"`
+	Colors      map[string]string      `json:"colors"`
+	Fonts       map[string]string      `json:"fonts"`
+	Icons       string                 `json:"icons"`
+	Wallpaper   string                 `json:"wallpaper"`
+	Active      bool                   `json:"active"`
+	Properties  map[string]interface{} `json:"properties,omitempty"`
+	CreatedAt   time.Time              `json:"created_at"`
+}
+
+// ThemeStatus represents theme manager status
+type ThemeStatus struct {
+	Running     bool      `json:"running"`
+	ActiveTheme string    `json:"active_theme"`
+	ThemeCount  int       `json:"theme_count"`
+	Themes      []*Theme  `json:"themes"`
+	Timestamp   time.Time `json:"timestamp"`
+}
+
+// Notification represents a desktop notification
+type Notification struct {
+	ID          string                 `json:"id"`
+	Title       string                 `json:"title"`
+	Body        string                 `json:"body"`
+	Icon        string                 `json:"icon"`
+	Category    string                 `json:"category"`
+	Priority    string                 `json:"priority"` // low, normal, high, critical
+	Timeout     time.Duration          `json:"timeout"`
+	Actions     []NotificationAction   `json:"actions"`
+	Source      string                 `json:"source"`
+	Persistent  bool                   `json:"persistent"`
+	Dismissed   bool                   `json:"dismissed"`
+	Properties  map[string]interface{} `json:"properties,omitempty"`
+	CreatedAt   time.Time              `json:"created_at"`
+	DismissedAt *time.Time             `json:"dismissed_at,omitempty"`
+}
+
+// NotificationAction represents an action in a notification
+type NotificationAction struct {
+	ID    string `json:"id"`
+	Label string `json:"label"`
+	Icon  string `json:"icon,omitempty"`
+}
+
+// NotificationStatus represents notification manager status
+type NotificationStatus struct {
+	Running           bool            `json:"running"`
+	NotificationCount int             `json:"notification_count"`
+	Notifications     []*Notification `json:"notifications"`
+	RecentCount       int             `json:"recent_count"`
+	Timestamp         time.Time       `json:"timestamp"`
+}

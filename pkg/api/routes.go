@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/aios/aios/internal/system"
@@ -46,6 +47,25 @@ func RegisterSystemRoutes(router *mux.Router, systemManager *system.Manager, log
 	api.HandleFunc("/ai/status", handleAIStatus(systemManager, logger, tracer)).Methods("GET")
 	api.HandleFunc("/ai/models", handleAIModels(systemManager, logger, tracer)).Methods("GET")
 	api.HandleFunc("/ai/workflow", handleAIWorkflow(systemManager, logger, tracer)).Methods("POST")
+
+	// Desktop environment endpoints
+	api.HandleFunc("/desktop/status", handleDesktopStatus(systemManager, logger, tracer)).Methods("GET")
+	api.HandleFunc("/desktop/windows", handleDesktopWindows(systemManager, logger, tracer)).Methods("GET")
+	api.HandleFunc("/desktop/windows/{id}", handleDesktopWindow(systemManager, logger, tracer)).Methods("GET")
+	api.HandleFunc("/desktop/windows/{id}/focus", handleDesktopWindowFocus(systemManager, logger, tracer)).Methods("POST")
+	api.HandleFunc("/desktop/windows/{id}/close", handleDesktopWindowClose(systemManager, logger, tracer)).Methods("POST")
+	api.HandleFunc("/desktop/windows/{id}/minimize", handleDesktopWindowMinimize(systemManager, logger, tracer)).Methods("POST")
+	api.HandleFunc("/desktop/windows/{id}/maximize", handleDesktopWindowMaximize(systemManager, logger, tracer)).Methods("POST")
+	api.HandleFunc("/desktop/workspaces", handleDesktopWorkspaces(systemManager, logger, tracer)).Methods("GET")
+	api.HandleFunc("/desktop/workspaces/{id}", handleDesktopWorkspace(systemManager, logger, tracer)).Methods("GET")
+	api.HandleFunc("/desktop/workspaces/{id}/switch", handleDesktopWorkspaceSwitch(systemManager, logger, tracer)).Methods("POST")
+	api.HandleFunc("/desktop/applications", handleDesktopApplications(systemManager, logger, tracer)).Methods("GET")
+	api.HandleFunc("/desktop/applications/{id}/launch", handleDesktopApplicationLaunch(systemManager, logger, tracer)).Methods("POST")
+	api.HandleFunc("/desktop/themes", handleDesktopThemes(systemManager, logger, tracer)).Methods("GET")
+	api.HandleFunc("/desktop/themes/{id}/apply", handleDesktopThemeApply(systemManager, logger, tracer)).Methods("POST")
+	api.HandleFunc("/desktop/notifications", handleDesktopNotifications(systemManager, logger, tracer)).Methods("GET")
+	api.HandleFunc("/desktop/notifications", handleDesktopNotificationCreate(systemManager, logger, tracer)).Methods("POST")
+	api.HandleFunc("/desktop/notifications/{id}/dismiss", handleDesktopNotificationDismiss(systemManager, logger, tracer)).Methods("POST")
 }
 
 // RegisterHealthRoutes registers health check endpoints
@@ -643,5 +663,426 @@ func handleAIWorkflow(systemManager *system.Manager, logger *logrus.Logger, trac
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
+	}
+}
+
+// Desktop Environment Handlers
+
+// handleDesktopStatus returns the desktop environment status
+func handleDesktopStatus(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopStatus")
+		defer span.End()
+
+		desktopManager := systemManager.GetDesktopManager()
+		status, err := desktopManager.GetStatus(ctx)
+		if err != nil {
+			logger.WithError(err).Error("Failed to get desktop status")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(status); err != nil {
+			logger.WithError(err).Error("Failed to encode desktop status response")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// handleDesktopWindows returns all windows
+func handleDesktopWindows(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopWindows")
+		defer span.End()
+
+		desktopManager := systemManager.GetDesktopManager()
+		windowManager := desktopManager.GetWindowManager()
+		windows, err := windowManager.ListWindows(ctx)
+		if err != nil {
+			logger.WithError(err).Error("Failed to list windows")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(windows); err != nil {
+			logger.WithError(err).Error("Failed to encode windows response")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// handleDesktopWindow returns a specific window
+func handleDesktopWindow(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopWindow")
+		defer span.End()
+
+		vars := mux.Vars(r)
+		windowID := vars["id"]
+
+		desktopManager := systemManager.GetDesktopManager()
+		windowManager := desktopManager.GetWindowManager()
+		window, err := windowManager.GetWindow(ctx, windowID)
+		if err != nil {
+			logger.WithError(err).Error("Failed to get window")
+			http.Error(w, "Window not found", http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(window); err != nil {
+			logger.WithError(err).Error("Failed to encode window response")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// handleDesktopWindowFocus focuses a window
+func handleDesktopWindowFocus(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopWindowFocus")
+		defer span.End()
+
+		vars := mux.Vars(r)
+		windowID := vars["id"]
+
+		desktopManager := systemManager.GetDesktopManager()
+		windowManager := desktopManager.GetWindowManager()
+		if err := windowManager.FocusWindow(ctx, windowID); err != nil {
+			logger.WithError(err).Error("Failed to focus window")
+			http.Error(w, "Failed to focus window", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+	}
+}
+
+// handleDesktopWindowClose closes a window
+func handleDesktopWindowClose(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopWindowClose")
+		defer span.End()
+
+		vars := mux.Vars(r)
+		windowID := vars["id"]
+
+		desktopManager := systemManager.GetDesktopManager()
+		windowManager := desktopManager.GetWindowManager()
+		if err := windowManager.CloseWindow(ctx, windowID); err != nil {
+			logger.WithError(err).Error("Failed to close window")
+			http.Error(w, "Failed to close window", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+	}
+}
+
+// handleDesktopWindowMinimize minimizes a window
+func handleDesktopWindowMinimize(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopWindowMinimize")
+		defer span.End()
+
+		vars := mux.Vars(r)
+		windowID := vars["id"]
+
+		desktopManager := systemManager.GetDesktopManager()
+		windowManager := desktopManager.GetWindowManager()
+		if err := windowManager.MinimizeWindow(ctx, windowID); err != nil {
+			logger.WithError(err).Error("Failed to minimize window")
+			http.Error(w, "Failed to minimize window", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+	}
+}
+
+// handleDesktopWindowMaximize maximizes a window
+func handleDesktopWindowMaximize(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopWindowMaximize")
+		defer span.End()
+
+		vars := mux.Vars(r)
+		windowID := vars["id"]
+
+		desktopManager := systemManager.GetDesktopManager()
+		windowManager := desktopManager.GetWindowManager()
+		if err := windowManager.MaximizeWindow(ctx, windowID); err != nil {
+			logger.WithError(err).Error("Failed to maximize window")
+			http.Error(w, "Failed to maximize window", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+	}
+}
+
+// handleDesktopWorkspaces returns all workspaces
+func handleDesktopWorkspaces(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopWorkspaces")
+		defer span.End()
+
+		desktopManager := systemManager.GetDesktopManager()
+		workspaceManager := desktopManager.GetWorkspaceManager()
+		workspaces, err := workspaceManager.ListWorkspaces(ctx)
+		if err != nil {
+			logger.WithError(err).Error("Failed to list workspaces")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(workspaces); err != nil {
+			logger.WithError(err).Error("Failed to encode workspaces response")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// handleDesktopWorkspace returns a specific workspace
+func handleDesktopWorkspace(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopWorkspace")
+		defer span.End()
+
+		vars := mux.Vars(r)
+		workspaceID := vars["id"]
+
+		// Convert string to int
+		id := 1 // Default workspace
+		if workspaceID != "" {
+			if parsedID, err := strconv.Atoi(workspaceID); err == nil {
+				id = parsedID
+			}
+		}
+
+		desktopManager := systemManager.GetDesktopManager()
+		workspaceManager := desktopManager.GetWorkspaceManager()
+		workspace, err := workspaceManager.GetWorkspace(ctx, id)
+		if err != nil {
+			logger.WithError(err).Error("Failed to get workspace")
+			http.Error(w, "Workspace not found", http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(workspace); err != nil {
+			logger.WithError(err).Error("Failed to encode workspace response")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// handleDesktopWorkspaceSwitch switches to a workspace
+func handleDesktopWorkspaceSwitch(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopWorkspaceSwitch")
+		defer span.End()
+
+		vars := mux.Vars(r)
+		workspaceID := vars["id"]
+
+		// Convert string to int
+		id := 1 // Default workspace
+		if workspaceID != "" {
+			if parsedID, err := strconv.Atoi(workspaceID); err == nil {
+				id = parsedID
+			}
+		}
+
+		desktopManager := systemManager.GetDesktopManager()
+		workspaceManager := desktopManager.GetWorkspaceManager()
+		if err := workspaceManager.SwitchWorkspace(ctx, id); err != nil {
+			logger.WithError(err).Error("Failed to switch workspace")
+			http.Error(w, "Failed to switch workspace", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+	}
+}
+
+// handleDesktopApplications returns all applications
+func handleDesktopApplications(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopApplications")
+		defer span.End()
+
+		desktopManager := systemManager.GetDesktopManager()
+		appLauncher := desktopManager.GetApplicationLauncher()
+		applications, err := appLauncher.ListApplications(ctx)
+		if err != nil {
+			logger.WithError(err).Error("Failed to list applications")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(applications); err != nil {
+			logger.WithError(err).Error("Failed to encode applications response")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// handleDesktopApplicationLaunch launches an application
+func handleDesktopApplicationLaunch(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopApplicationLaunch")
+		defer span.End()
+
+		vars := mux.Vars(r)
+		appID := vars["id"]
+
+		desktopManager := systemManager.GetDesktopManager()
+		appLauncher := desktopManager.GetApplicationLauncher()
+		if err := appLauncher.LaunchApplication(ctx, appID); err != nil {
+			logger.WithError(err).Error("Failed to launch application")
+			http.Error(w, "Failed to launch application", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+	}
+}
+
+// handleDesktopThemes returns all themes
+func handleDesktopThemes(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopThemes")
+		defer span.End()
+
+		desktopManager := systemManager.GetDesktopManager()
+		themeManager := desktopManager.GetThemeManager()
+		themes, err := themeManager.ListThemes(ctx)
+		if err != nil {
+			logger.WithError(err).Error("Failed to list themes")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(themes); err != nil {
+			logger.WithError(err).Error("Failed to encode themes response")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// handleDesktopThemeApply applies a theme
+func handleDesktopThemeApply(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopThemeApply")
+		defer span.End()
+
+		vars := mux.Vars(r)
+		themeID := vars["id"]
+
+		desktopManager := systemManager.GetDesktopManager()
+		themeManager := desktopManager.GetThemeManager()
+		if err := themeManager.SetTheme(ctx, themeID); err != nil {
+			logger.WithError(err).Error("Failed to apply theme")
+			http.Error(w, "Failed to apply theme", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+	}
+}
+
+// handleDesktopNotifications returns all notifications
+func handleDesktopNotifications(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopNotifications")
+		defer span.End()
+
+		desktopManager := systemManager.GetDesktopManager()
+		notificationManager := desktopManager.GetNotificationManager()
+		notifications, err := notificationManager.GetNotifications(ctx)
+		if err != nil {
+			logger.WithError(err).Error("Failed to get notifications")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(notifications); err != nil {
+			logger.WithError(err).Error("Failed to encode notifications response")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// handleDesktopNotificationCreate creates a new notification
+func handleDesktopNotificationCreate(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopNotificationCreate")
+		defer span.End()
+
+		var notification models.Notification
+		if err := json.NewDecoder(r.Body).Decode(&notification); err != nil {
+			logger.WithError(err).Error("Failed to decode notification request")
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		desktopManager := systemManager.GetDesktopManager()
+		notificationManager := desktopManager.GetNotificationManager()
+		if err := notificationManager.ShowNotification(ctx, &notification); err != nil {
+			logger.WithError(err).Error("Failed to show notification")
+			http.Error(w, "Failed to show notification", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(&notification); err != nil {
+			logger.WithError(err).Error("Failed to encode notification response")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// handleDesktopNotificationDismiss dismisses a notification
+func handleDesktopNotificationDismiss(systemManager *system.Manager, logger *logrus.Logger, tracer trace.Tracer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.Start(r.Context(), "api.handleDesktopNotificationDismiss")
+		defer span.End()
+
+		vars := mux.Vars(r)
+		notificationID := vars["id"]
+
+		desktopManager := systemManager.GetDesktopManager()
+		notificationManager := desktopManager.GetNotificationManager()
+		if err := notificationManager.DismissNotification(ctx, notificationID); err != nil {
+			logger.WithError(err).Error("Failed to dismiss notification")
+			http.Error(w, "Failed to dismiss notification", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "success"})
 	}
 }
