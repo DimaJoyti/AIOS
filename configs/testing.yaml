@@ -1,0 +1,271 @@
+# AIOS Testing Framework Configuration
+
+# Project settings
+project_root: "."
+test_data_path: "testdata"
+report_output_path: "test-reports"
+coverage_threshold: 80.0
+parallel_execution: true
+max_concurrency: 4
+test_timeout: "30s"
+
+# Enabled testing features
+enabled_features:
+  - "coverage"
+  - "contract"
+  - "property"
+  - "performance"
+  - "reporting"
+  - "mocking"
+  - "fixtures"
+
+# Test environment configuration
+environment:
+  name: "aios-test-env"
+  type: "local"
+  working_dir: "./test-workspace"
+  cleanup_on_exit: true
+  parallel_setup: true
+  timeout: "5m"
+  
+  environment:
+    AIOS_ENV: "test"
+    AIOS_LOG_LEVEL: "error"
+    AIOS_TEST_MODE: "true"
+    
+  services:
+    - name: "test-database"
+      image: "postgres:15-alpine"
+      ports:
+        - host: 5433
+          container: 5432
+          protocol: "tcp"
+      environment:
+        POSTGRES_DB: "aios_test"
+        POSTGRES_USER: "test_user"
+        POSTGRES_PASSWORD: "test_pass"
+      health_check:
+        type: "tcp"
+        target: "localhost:5433"
+        interval: "2s"
+        timeout: "5s"
+        retries: 10
+        
+    - name: "test-redis"
+      image: "redis:7-alpine"
+      ports:
+        - host: 6380
+          container: 6379
+          protocol: "tcp"
+      health_check:
+        type: "tcp"
+        target: "localhost:6380"
+        interval: "1s"
+        timeout: "3s"
+        retries: 5
+        
+  databases:
+    - name: "primary"
+      type: "postgres"
+      version: "15"
+      database: "aios_test"
+      username: "test_user"
+      password: "test_pass"
+      port: 5433
+      
+    - name: "cache"
+      type: "redis"
+      version: "7"
+      port: 6380
+      
+  volumes:
+    - name: "test-data"
+      source: "./testdata"
+      target: "/app/testdata"
+      type: "bind"
+      
+  networks:
+    - name: "test-network"
+      driver: "bridge"
+      
+  health_checks:
+    - type: "http"
+      target: "http://localhost:8080/health"
+      interval: "5s"
+      timeout: "10s"
+      retries: 6
+
+# Coverage analysis configuration
+coverage:
+  overall: 80.0
+  package: 75.0
+  function: 70.0
+  line: 80.0
+  branch: 70.0
+  statement: 80.0
+
+# Test reporting configuration
+reporting:
+  output_dir: "test-reports"
+  formats:
+    - "html"
+    - "json"
+    - "xml"
+    - "junit"
+  include_coverage: true
+  include_metrics: true
+  theme: "light"
+
+# Performance testing configuration
+performance:
+  duration: "1m"
+  concurrency: 10
+  ramp_up_time: "10s"
+  ramp_down_time: "10s"
+  request_rate: 100
+  max_requests: 1000
+  timeout: "30s"
+  think_time: "100ms"
+  failure_threshold: 5.0
+
+# Property-based testing configuration
+property:
+  max_tests: 100
+  max_shrinks: 100
+  timeout: "1m"
+  seed: 0
+  min_success: 100
+  max_discarded: 500
+
+# Test suites configuration
+test_suites:
+  unit:
+    name: "Unit Tests"
+    description: "Fast unit tests with mocks"
+    parallel: true
+    timeout: "10s"
+    tags: ["unit", "fast"]
+    
+  integration:
+    name: "Integration Tests"
+    description: "Integration tests with real services"
+    parallel: false
+    timeout: "30s"
+    tags: ["integration", "slow"]
+    
+  e2e:
+    name: "End-to-End Tests"
+    description: "Full system tests"
+    parallel: false
+    timeout: "2m"
+    tags: ["e2e", "slow", "system"]
+    
+  performance:
+    name: "Performance Tests"
+    description: "Load and stress tests"
+    parallel: false
+    timeout: "5m"
+    tags: ["performance", "load"]
+    
+  contract:
+    name: "Contract Tests"
+    description: "API contract validation"
+    parallel: true
+    timeout: "30s"
+    tags: ["contract", "api"]
+
+# Mock configuration
+mocking:
+  auto_generate: true
+  output_dir: "internal/testing/mocks/generated"
+  interfaces:
+    - "github.com/aios/aios/internal/ai.LanguageModelService"
+    - "github.com/aios/aios/internal/ai.ComputerVisionService"
+    - "github.com/aios/aios/internal/ai.VoiceService"
+    - "github.com/aios/aios/internal/ai.NaturalLanguageService"
+    - "github.com/aios/aios/internal/desktop.WindowManager"
+    - "github.com/aios/aios/internal/desktop.ProcessManager"
+    - "github.com/aios/aios/internal/system.SystemMonitor"
+
+# Fixture configuration
+fixtures:
+  base_path: "testdata/fixtures"
+  auto_load: true
+  cache_enabled: true
+  formats: ["json", "yaml"]
+  
+# Test data generation
+data_generation:
+  seed: 42
+  locale: "en_US"
+  providers:
+    - "faker"
+    - "gofakeit"
+  
+# Contract testing configuration
+contract_testing:
+  base_url: "http://localhost:8080"
+  timeout: "30s"
+  contracts_dir: "testdata/contracts"
+  schemas_dir: "testdata/schemas"
+  
+# Mutation testing configuration
+mutation_testing:
+  enabled: false
+  mutators:
+    - "arithmetic"
+    - "conditional"
+    - "logical"
+    - "assignment"
+  exclude_patterns:
+    - "*_test.go"
+    - "*/mocks/*"
+    - "*/testdata/*"
+  threshold: 75.0
+
+# Test execution configuration
+execution:
+  fail_fast: false
+  verbose: true
+  shuffle: false
+  repeat: 1
+  timeout: "10m"
+  
+# CI/CD integration
+ci_integration:
+  junit_output: true
+  coverage_output: true
+  artifacts:
+    - "test-reports/"
+    - "coverage.out"
+    - "coverage.html"
+  
+# Debugging configuration
+debugging:
+  enabled: true
+  breakpoints: false
+  profiling: false
+  memory_profiling: false
+  
+# Notification configuration
+notifications:
+  enabled: false
+  slack:
+    webhook_url: ""
+    channel: "#testing"
+  email:
+    smtp_server: ""
+    recipients: []
+
+# Advanced configuration
+advanced:
+  test_isolation: true
+  cleanup_timeout: "30s"
+  resource_limits:
+    memory: "1GB"
+    cpu: "2"
+  retry_policy:
+    max_retries: 3
+    backoff: "exponential"
+    initial_delay: "1s"
+    max_delay: "30s"

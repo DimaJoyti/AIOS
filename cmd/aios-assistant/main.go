@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -136,7 +137,7 @@ func (s *AssistantServer) registerRoutes(router *mux.Router) {
 }
 
 func (s *AssistantServer) handleHealth(w http.ResponseWriter, r *http.Request) {
-	ctx, span := s.tracer.Start(r.Context(), "assistant.handleHealth")
+	_, span := s.tracer.Start(r.Context(), "assistant.handleHealth")
 	defer span.End()
 
 	response := map[string]interface{}{
@@ -153,7 +154,7 @@ func (s *AssistantServer) handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AssistantServer) handleReady(w http.ResponseWriter, r *http.Request) {
-	ctx, span := s.tracer.Start(r.Context(), "assistant.handleReady")
+	_, span := s.tracer.Start(r.Context(), "assistant.handleReady")
 	defer span.End()
 
 	response := map[string]interface{}{
@@ -169,7 +170,7 @@ func (s *AssistantServer) handleReady(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AssistantServer) handleChat(w http.ResponseWriter, r *http.Request) {
-	ctx, span := s.tracer.Start(r.Context(), "assistant.handleChat")
+	_, span := s.tracer.Start(r.Context(), "assistant.handleChat")
 	defer span.End()
 
 	var request struct {
@@ -197,7 +198,7 @@ func (s *AssistantServer) handleChat(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AssistantServer) handleVoice(w http.ResponseWriter, r *http.Request) {
-	ctx, span := s.tracer.Start(r.Context(), "assistant.handleVoice")
+	_, span := s.tracer.Start(r.Context(), "assistant.handleVoice")
 	defer span.End()
 
 	// TODO: Implement voice processing
@@ -213,11 +214,11 @@ func (s *AssistantServer) handleVoice(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AssistantServer) handleCommands(w http.ResponseWriter, r *http.Request) {
-	ctx, span := s.tracer.Start(r.Context(), "assistant.handleCommands")
+	_, span := s.tracer.Start(r.Context(), "assistant.handleCommands")
 	defer span.End()
 
 	var request struct {
-		Command string `json:"command"`
+		Command string   `json:"command"`
 		Args    []string `json:"args,omitempty"`
 	}
 
@@ -240,7 +241,7 @@ func (s *AssistantServer) handleCommands(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *AssistantServer) handleWebSocket(w http.ResponseWriter, r *http.Request) {
-	ctx, span := s.tracer.Start(r.Context(), "assistant.handleWebSocket")
+	_, span := s.tracer.Start(r.Context(), "assistant.handleWebSocket")
 	defer span.End()
 
 	conn, err := s.upgrader.Upgrade(w, r, nil)
@@ -361,11 +362,9 @@ func initLogger() *logrus.Logger {
 
 // Helper functions
 func readJSON(r *http.Request, v interface{}) error {
-	// TODO: Implement JSON reading with proper error handling
-	return nil
+	return json.NewDecoder(r.Body).Decode(v)
 }
 
 func writeJSON(w http.ResponseWriter, v interface{}) error {
-	// TODO: Implement JSON writing with proper error handling
-	return nil
+	return json.NewEncoder(w).Encode(v)
 }

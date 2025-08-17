@@ -542,3 +542,279 @@ func (s *CVService) buildLayoutHierarchy(elements []models.UIElement) []models.L
 
 	return nodes
 }
+
+// AdvancedObjectDetection performs advanced object detection with segmentation
+func (s *CVService) AdvancedObjectDetection(ctx context.Context, imageData []byte) (*models.ObjectDetectionResponse, error) {
+	ctx, span := s.tracer.Start(ctx, "cv.AdvancedObjectDetection")
+	defer span.End()
+
+	start := time.Now()
+	s.logger.WithField("image_size", len(imageData)).Info("Performing advanced object detection")
+
+	if !s.config.CVEnabled {
+		return nil, fmt.Errorf("computer vision service is disabled")
+	}
+
+	// TODO: Implement actual advanced object detection using YOLO v8, DETR, or similar
+	// This would involve:
+	// 1. Loading advanced object detection model
+	// 2. Image preprocessing and normalization
+	// 3. Running inference with segmentation
+	// 4. Post-processing with NMS and confidence filtering
+
+	// Mock implementation with realistic object detection results
+	objects := []models.AdvancedDetectedObject{
+		{
+			ID:         "obj_1",
+			Class:      "person",
+			Confidence: 0.95,
+			BoundingBox: models.BoundingBox{
+				X:      100,
+				Y:      150,
+				Width:  80,
+				Height: 200,
+			},
+			Segmentation: []models.Point{
+				{X: 100, Y: 150}, {X: 180, Y: 150}, {X: 180, Y: 350}, {X: 100, Y: 350},
+			},
+			Attributes: map[string]interface{}{
+				"age_group": "adult",
+				"gender":    "unknown",
+				"pose":      "standing",
+			},
+		},
+		{
+			ID:         "obj_2",
+			Class:      "car",
+			Confidence: 0.88,
+			BoundingBox: models.BoundingBox{
+				X:      300,
+				Y:      200,
+				Width:  150,
+				Height: 100,
+			},
+			Segmentation: []models.Point{
+				{X: 300, Y: 200}, {X: 450, Y: 200}, {X: 450, Y: 300}, {X: 300, Y: 300},
+			},
+			Attributes: map[string]interface{}{
+				"color": "blue",
+				"type":  "sedan",
+			},
+		},
+		{
+			ID:         "obj_3",
+			Class:      "bicycle",
+			Confidence: 0.82,
+			BoundingBox: models.BoundingBox{
+				X:      50,
+				Y:      250,
+				Width:  60,
+				Height: 80,
+			},
+			Segmentation: []models.Point{
+				{X: 50, Y: 250}, {X: 110, Y: 250}, {X: 110, Y: 330}, {X: 50, Y: 330},
+			},
+			Attributes: map[string]interface{}{
+				"color": "red",
+				"type":  "mountain",
+			},
+		},
+	}
+
+	response := &models.ObjectDetectionResponse{
+		Objects:        objects,
+		TotalCount:     len(objects),
+		Model:          "yolo-v8-advanced",
+		Confidence:     0.88,
+		ProcessingTime: time.Since(start),
+		Metadata: map[string]interface{}{
+			"image_size":       len(imageData),
+			"detection_mode":   "advanced",
+			"segmentation":     true,
+			"classes_detected": []string{"person", "car", "bicycle"},
+		},
+		Timestamp: time.Now(),
+	}
+
+	s.logger.WithFields(logrus.Fields{
+		"objects_detected": len(objects),
+		"processing_time":  time.Since(start),
+		"confidence":       response.Confidence,
+	}).Info("Advanced object detection completed")
+
+	return response, nil
+}
+
+// GenerateImage generates images from text descriptions
+func (s *CVService) GenerateImage(ctx context.Context, prompt string, parameters map[string]interface{}) (*models.ImageGenerationResponse, error) {
+	ctx, span := s.tracer.Start(ctx, "cv.GenerateImage")
+	defer span.End()
+
+	start := time.Now()
+	s.logger.WithField("prompt", prompt).Info("Generating image from text")
+
+	if !s.config.CVEnabled {
+		return nil, fmt.Errorf("computer vision service is disabled")
+	}
+
+	// TODO: Implement actual image generation using Stable Diffusion, DALL-E, or similar
+	// This would involve:
+	// 1. Loading image generation model
+	// 2. Text encoding and conditioning
+	// 3. Diffusion process with sampling
+	// 4. Image post-processing and upscaling
+
+	// Extract parameters with defaults
+	width := 512
+	height := 512
+	steps := 20
+	guidance := 7.5
+
+	if w, exists := parameters["width"]; exists {
+		if wInt, ok := w.(int); ok {
+			width = wInt
+		}
+	}
+	if h, exists := parameters["height"]; exists {
+		if hInt, ok := h.(int); ok {
+			height = hInt
+		}
+	}
+	if s, exists := parameters["steps"]; exists {
+		if sInt, ok := s.(int); ok {
+			steps = sInt
+		}
+	}
+	if g, exists := parameters["guidance"]; exists {
+		if gFloat, ok := g.(float64); ok {
+			guidance = gFloat
+		}
+	}
+
+	// Mock image generation - create dummy image data
+	numImages := 1
+	if count, exists := parameters["num_images"]; exists {
+		if countInt, ok := count.(int); ok {
+			numImages = countInt
+		}
+	}
+
+	images := make([][]byte, numImages)
+	for i := 0; i < numImages; i++ {
+		// Create mock image data
+		imageSize := width * height * 3 // RGB
+		imageData := make([]byte, imageSize)
+		for j := range imageData {
+			imageData[j] = byte((i + j) % 256)
+		}
+		images[i] = imageData
+	}
+
+	response := &models.ImageGenerationResponse{
+		Images:   images,
+		Prompt:   prompt,
+		Model:    "stable-diffusion-xl",
+		Width:    width,
+		Height:   height,
+		Steps:    steps,
+		Guidance: guidance,
+		Seed:     time.Now().UnixNano(),
+		Metadata: map[string]interface{}{
+			"processing_time": time.Since(start).Milliseconds(),
+			"prompt_length":   len(prompt),
+			"num_images":      numImages,
+		},
+		Timestamp: time.Now(),
+	}
+
+	s.logger.WithFields(logrus.Fields{
+		"prompt":          prompt,
+		"images_count":    len(images),
+		"dimensions":      fmt.Sprintf("%dx%d", width, height),
+		"processing_time": time.Since(start),
+	}).Info("Image generation completed")
+
+	return response, nil
+}
+
+// AnalyzeVideo analyzes video content for objects, activities, and scenes
+func (s *CVService) AnalyzeVideo(ctx context.Context, videoData []byte) (*models.VideoAnalysisResponse, error) {
+	ctx, span := s.tracer.Start(ctx, "cv.AnalyzeVideo")
+	defer span.End()
+
+	start := time.Now()
+	s.logger.WithField("video_size", len(videoData)).Info("Analyzing video content")
+
+	if !s.config.CVEnabled {
+		return nil, fmt.Errorf("computer vision service is disabled")
+	}
+
+	// TODO: Implement actual video analysis
+	// This would involve:
+	// 1. Video frame extraction and preprocessing
+	// 2. Temporal object tracking
+	// 3. Activity recognition
+	// 4. Scene segmentation and classification
+	// 5. Audio-visual synchronization analysis
+
+	// Mock implementation
+	estimatedDuration := time.Duration(len(videoData)/1000000) * time.Second
+	frameRate := 30.0
+
+	scenes := []models.VideoScene{
+		{
+			StartTime:   0,
+			EndTime:     estimatedDuration / 3,
+			Description: "Opening scene with outdoor environment",
+			Objects:     []string{"person", "tree", "building", "sky"},
+			Activities:  []string{"walking", "talking"},
+			Confidence:  0.92,
+		},
+		{
+			StartTime:   estimatedDuration / 3,
+			EndTime:     2 * estimatedDuration / 3,
+			Description: "Action sequence with vehicles",
+			Objects:     []string{"car", "person", "road", "traffic_light"},
+			Activities:  []string{"driving", "running", "crossing"},
+			Confidence:  0.88,
+		},
+		{
+			StartTime:   2 * estimatedDuration / 3,
+			EndTime:     estimatedDuration,
+			Description: "Indoor conversation scene",
+			Objects:     []string{"person", "table", "chair", "window"},
+			Activities:  []string{"sitting", "talking", "gesturing"},
+			Confidence:  0.85,
+		},
+	}
+
+	allObjects := []string{"person", "tree", "building", "sky", "car", "road", "traffic_light", "table", "chair", "window"}
+	allActivities := []string{"walking", "talking", "driving", "running", "crossing", "sitting", "gesturing"}
+
+	response := &models.VideoAnalysisResponse{
+		Summary:    fmt.Sprintf("Video analysis of %.1f second clip with %d scenes", estimatedDuration.Seconds(), len(scenes)),
+		Scenes:     scenes,
+		Objects:    allObjects,
+		Activities: allActivities,
+		Duration:   estimatedDuration,
+		FrameRate:  frameRate,
+		Resolution: "1920x1080",
+		Metadata: map[string]interface{}{
+			"processing_time":  time.Since(start).Milliseconds(),
+			"video_size":       len(videoData),
+			"scenes_count":     len(scenes),
+			"objects_count":    len(allObjects),
+			"activities_count": len(allActivities),
+		},
+		Timestamp: time.Now(),
+	}
+
+	s.logger.WithFields(logrus.Fields{
+		"duration":        estimatedDuration,
+		"scenes_count":    len(scenes),
+		"objects_count":   len(allObjects),
+		"processing_time": time.Since(start),
+	}).Info("Video analysis completed")
+
+	return response, nil
+}

@@ -1,0 +1,59 @@
+[
+  {
+    "id": "user-001",
+    "username": "testuser1",
+    "email": "testuser1@example.com",
+    "first_name": "Test",
+    "last_name": "User One",
+    "is_active": true,
+    "is_admin": false,
+    "preferences": {
+      "theme": "dark",
+      "language": "en",
+      "timezone": "UTC",
+      "ai_assistant_enabled": true,
+      "voice_control_enabled": false,
+      "notifications_enabled": true
+    },
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "user-002",
+    "username": "testuser2",
+    "email": "testuser2@example.com",
+    "first_name": "Test",
+    "last_name": "User Two",
+    "is_active": true,
+    "is_admin": false,
+    "preferences": {
+      "theme": "light",
+      "language": "en",
+      "timezone": "America/New_York",
+      "ai_assistant_enabled": true,
+      "voice_control_enabled": true,
+      "notifications_enabled": false
+    },
+    "created_at": "2024-01-02T00:00:00Z",
+    "updated_at": "2024-01-02T00:00:00Z"
+  },
+  {
+    "id": "admin-001",
+    "username": "admin",
+    "email": "admin@example.com",
+    "first_name": "Admin",
+    "last_name": "User",
+    "is_active": true,
+    "is_admin": true,
+    "preferences": {
+      "theme": "dark",
+      "language": "en",
+      "timezone": "UTC",
+      "ai_assistant_enabled": true,
+      "voice_control_enabled": true,
+      "notifications_enabled": true
+    },
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  }
+]

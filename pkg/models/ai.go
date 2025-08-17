@@ -343,17 +343,22 @@ type CommandParsing struct {
 	Target     string                 `json:"target,omitempty"`
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
 	Confidence float64                `json:"confidence"`
+	Safe       bool                   `json:"safe"`
 	Timestamp  time.Time              `json:"timestamp"`
 }
 
 // CommandValidation represents command validation results
 type CommandValidation struct {
-	Valid       bool      `json:"valid"`
-	Risks       []string  `json:"risks,omitempty"`
-	Warnings    []string  `json:"warnings,omitempty"`
-	Suggestions []string  `json:"suggestions,omitempty"`
-	Confidence  float64   `json:"confidence"`
-	Timestamp   time.Time `json:"timestamp"`
+	Valid       bool                   `json:"valid"`
+	Safe        bool                   `json:"safe"`
+	Reason      string                 `json:"reason,omitempty"`
+	Risk        string                 `json:"risk"` // low, medium, high
+	Risks       []string               `json:"risks,omitempty"`
+	Warnings    []string               `json:"warnings,omitempty"`
+	Suggestions []string               `json:"suggestions,omitempty"`
+	Confidence  float64                `json:"confidence"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp   time.Time              `json:"timestamp"`
 }
 
 // AI Service Management Models
@@ -501,4 +506,320 @@ type WorkflowError struct {
 	Error       string    `json:"error"`
 	Recoverable bool      `json:"recoverable"`
 	Timestamp   time.Time `json:"timestamp"`
+}
+
+// Enhanced AI Models for Streaming and Advanced Features
+
+// LLMStreamChunk represents a chunk of streaming LLM response
+type LLMStreamChunk struct {
+	ID        string                 `json:"id"`
+	Content   string                 `json:"content"`
+	Delta     string                 `json:"delta"`
+	Finished  bool                   `json:"finished"`
+	TokenID   int                    `json:"token_id,omitempty"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp time.Time              `json:"timestamp"`
+}
+
+// CodeStreamChunk represents a chunk of streaming code generation
+type CodeStreamChunk struct {
+	ID          string                 `json:"id"`
+	Code        string                 `json:"code"`
+	Delta       string                 `json:"delta"`
+	Language    string                 `json:"language"`
+	Finished    bool                   `json:"finished"`
+	Explanation string                 `json:"explanation,omitempty"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp   time.Time              `json:"timestamp"`
+}
+
+// ChatStreamChunk represents a chunk of streaming chat response
+type ChatStreamChunk struct {
+	ID             string                 `json:"id"`
+	ConversationID string                 `json:"conversation_id"`
+	Content        string                 `json:"content"`
+	Delta          string                 `json:"delta"`
+	Role           string                 `json:"role"`
+	Finished       bool                   `json:"finished"`
+	FunctionCall   *FunctionCall          `json:"function_call,omitempty"`
+	Metadata       map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp      time.Time              `json:"timestamp"`
+}
+
+// FunctionCall represents a function call request
+type FunctionCall struct {
+	Name       string                 `json:"name"`
+	Parameters map[string]interface{} `json:"parameters"`
+	ID         string                 `json:"id,omitempty"`
+}
+
+// FunctionCallResponse represents the response from a function call
+type FunctionCallResponse struct {
+	ID        string                 `json:"id"`
+	Name      string                 `json:"name"`
+	Result    interface{}            `json:"result"`
+	Success   bool                   `json:"success"`
+	Error     string                 `json:"error,omitempty"`
+	Duration  time.Duration          `json:"duration"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp time.Time              `json:"timestamp"`
+}
+
+// EmbeddingResponse represents text embedding response
+type EmbeddingResponse struct {
+	Text      string    `json:"text"`
+	Embedding []float64 `json:"embedding"`
+	Model     string    `json:"model"`
+	Dimension int       `json:"dimension"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// BatchEmbeddingResponse represents batch text embedding response
+type BatchEmbeddingResponse struct {
+	Texts      []string    `json:"texts"`
+	Embeddings [][]float64 `json:"embeddings"`
+	Model      string      `json:"model"`
+	Dimension  int         `json:"dimension"`
+	Timestamp  time.Time   `json:"timestamp"`
+}
+
+// ModelInfo represents detailed model information
+type ModelInfo struct {
+	ID           string                 `json:"id"`
+	Name         string                 `json:"name"`
+	Version      string                 `json:"version"`
+	Type         string                 `json:"type"`
+	Provider     string                 `json:"provider"`
+	Size         int64                  `json:"size"`
+	Parameters   int64                  `json:"parameters"`
+	Description  string                 `json:"description"`
+	Capabilities []string               `json:"capabilities"`
+	Languages    []string               `json:"languages,omitempty"`
+	MaxTokens    int                    `json:"max_tokens"`
+	ContextSize  int                    `json:"context_size"`
+	Precision    string                 `json:"precision"`
+	Quantization string                 `json:"quantization,omitempty"`
+	Hardware     []string               `json:"hardware"`
+	License      string                 `json:"license"`
+	Status       string                 `json:"status"`
+	LoadTime     time.Duration          `json:"load_time,omitempty"`
+	MemoryUsage  int64                  `json:"memory_usage"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt    time.Time              `json:"created_at"`
+	UpdatedAt    time.Time              `json:"updated_at"`
+}
+
+// Multi-Modal AI Models
+
+// MultiModalRequest represents a multi-modal AI request
+type MultiModalRequest struct {
+	ID         string                 `json:"id"`
+	Text       string                 `json:"text,omitempty"`
+	Images     [][]byte               `json:"images,omitempty"`
+	Audio      []byte                 `json:"audio,omitempty"`
+	Video      []byte                 `json:"video,omitempty"`
+	Modalities []string               `json:"modalities"`
+	Task       string                 `json:"task"`
+	Parameters map[string]interface{} `json:"parameters,omitempty"`
+	Timestamp  time.Time              `json:"timestamp"`
+}
+
+// MultiModalResponse represents a multi-modal AI response
+type MultiModalResponse struct {
+	ID         string                 `json:"id"`
+	Text       string                 `json:"text,omitempty"`
+	Images     [][]byte               `json:"images,omitempty"`
+	Audio      []byte                 `json:"audio,omitempty"`
+	Confidence float64                `json:"confidence"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp  time.Time              `json:"timestamp"`
+}
+
+// ImageGenerationResponse represents image generation results
+type ImageGenerationResponse struct {
+	Images    [][]byte               `json:"images"`
+	Prompt    string                 `json:"prompt"`
+	Model     string                 `json:"model"`
+	Width     int                    `json:"width"`
+	Height    int                    `json:"height"`
+	Steps     int                    `json:"steps"`
+	Guidance  float64                `json:"guidance"`
+	Seed      int64                  `json:"seed,omitempty"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp time.Time              `json:"timestamp"`
+}
+
+// ImageDescriptionResponse represents image description results
+type ImageDescriptionResponse struct {
+	Description string                 `json:"description"`
+	Tags        []string               `json:"tags,omitempty"`
+	Objects     []string               `json:"objects,omitempty"`
+	Confidence  float64                `json:"confidence"`
+	Model       string                 `json:"model"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp   time.Time              `json:"timestamp"`
+}
+
+// VideoAnalysisResponse represents video analysis results
+type VideoAnalysisResponse struct {
+	Summary    string                 `json:"summary"`
+	Scenes     []VideoScene           `json:"scenes"`
+	Objects    []string               `json:"objects"`
+	Activities []string               `json:"activities"`
+	Duration   time.Duration          `json:"duration"`
+	FrameRate  float64                `json:"frame_rate"`
+	Resolution string                 `json:"resolution"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp  time.Time              `json:"timestamp"`
+}
+
+// VideoScene represents a scene in video analysis
+type VideoScene struct {
+	StartTime   time.Duration `json:"start_time"`
+	EndTime     time.Duration `json:"end_time"`
+	Description string        `json:"description"`
+	Objects     []string      `json:"objects"`
+	Activities  []string      `json:"activities"`
+	Confidence  float64       `json:"confidence"`
+}
+
+// CrossModalSearchResponse represents cross-modal search results
+type CrossModalSearchResponse struct {
+	Results   []CrossModalResult     `json:"results"`
+	Query     string                 `json:"query"`
+	Total     int                    `json:"total"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp time.Time              `json:"timestamp"`
+}
+
+// CrossModalResult represents a single cross-modal search result
+type CrossModalResult struct {
+	ID       string                 `json:"id"`
+	Type     string                 `json:"type"` // text, image, audio, video
+	Content  interface{}            `json:"content"`
+	Score    float64                `json:"score"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+}
+
+// RAG (Retrieval Augmented Generation) Models
+
+// Document represents a document for RAG indexing
+type Document struct {
+	ID       string                 `json:"id"`
+	Title    string                 `json:"title"`
+	Content  string                 `json:"content"`
+	Type     string                 `json:"type"` // text, pdf, html, etc.
+	Source   string                 `json:"source"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	Created  time.Time              `json:"created"`
+	Updated  time.Time              `json:"updated"`
+}
+
+// DocumentSearchResponse represents document search results
+type DocumentSearchResponse struct {
+	Documents []DocumentResult       `json:"documents"`
+	Query     string                 `json:"query"`
+	Total     int                    `json:"total"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp time.Time              `json:"timestamp"`
+}
+
+// DocumentResult represents a single document search result
+type DocumentResult struct {
+	Document Document `json:"document"`
+	Score    float64  `json:"score"`
+	Snippet  string   `json:"snippet,omitempty"`
+}
+
+// RAGResponse represents a RAG generation response
+type RAGResponse struct {
+	Response  string                 `json:"response"`
+	Sources   []DocumentResult       `json:"sources"`
+	Query     string                 `json:"query"`
+	Model     string                 `json:"model"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp time.Time              `json:"timestamp"`
+}
+
+// WorkflowTemplate represents a workflow template
+type WorkflowTemplate struct {
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Steps       []WorkflowStepTemplate `json:"steps"`
+	Parameters  map[string]interface{} `json:"parameters,omitempty"`
+	Created     time.Time              `json:"created"`
+	Updated     time.Time              `json:"updated"`
+}
+
+// WorkflowStepTemplate represents a step in a workflow template
+type WorkflowStepTemplate struct {
+	ID           string                 `json:"id"`
+	Name         string                 `json:"name"`
+	Type         string                 `json:"type"` // llm, cv, voice, etc.
+	Service      string                 `json:"service"`
+	Parameters   map[string]interface{} `json:"parameters,omitempty"`
+	Dependencies []string               `json:"dependencies,omitempty"`
+	Timeout      time.Duration          `json:"timeout,omitempty"`
+}
+
+// WorkflowStatus represents the status of a running workflow
+type WorkflowStatus struct {
+	ID          string                 `json:"id"`
+	Status      string                 `json:"status"` // running, completed, failed, cancelled
+	Progress    float64                `json:"progress"`
+	CurrentStep string                 `json:"current_step,omitempty"`
+	Results     map[string]interface{} `json:"results,omitempty"`
+	Error       string                 `json:"error,omitempty"`
+	Started     time.Time              `json:"started"`
+	Updated     time.Time              `json:"updated"`
+}
+
+// CacheStats represents cache statistics
+type CacheStats struct {
+	HitRate     float64   `json:"hit_rate"`
+	MissRate    float64   `json:"miss_rate"`
+	TotalHits   int64     `json:"total_hits"`
+	TotalMisses int64     `json:"total_misses"`
+	Size        int64     `json:"size"`
+	MaxSize     int64     `json:"max_size"`
+	Evictions   int64     `json:"evictions"`
+	Timestamp   time.Time `json:"timestamp"`
+}
+
+// Enhanced Computer Vision Models
+
+// ObjectDetectionResponse represents object detection results
+type ObjectDetectionResponse struct {
+	Objects        []AdvancedDetectedObject `json:"objects"`
+	TotalCount     int                      `json:"total_count"`
+	Model          string                   `json:"model"`
+	Confidence     float64                  `json:"confidence"`
+	ProcessingTime time.Duration            `json:"processing_time"`
+	Metadata       map[string]interface{}   `json:"metadata,omitempty"`
+	Timestamp      time.Time                `json:"timestamp"`
+}
+
+// AdvancedDetectedObject represents a detected object with segmentation
+type AdvancedDetectedObject struct {
+	ID           string                 `json:"id"`
+	Class        string                 `json:"class"`
+	Confidence   float64                `json:"confidence"`
+	BoundingBox  BoundingBox            `json:"bounding_box"`
+	Segmentation []Point                `json:"segmentation,omitempty"`
+	Attributes   map[string]interface{} `json:"attributes,omitempty"`
+}
+
+// BoundingBox represents object bounding box coordinates
+type BoundingBox struct {
+	X      int `json:"x"`
+	Y      int `json:"y"`
+	Width  int `json:"width"`
+	Height int `json:"height"`
+}
+
+// Point represents a 2D coordinate point
+type Point struct {
+	X int `json:"x"`
+	Y int `json:"y"`
 }

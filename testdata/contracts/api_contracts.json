@@ -1,0 +1,345 @@
+{
+  "contracts": [
+    {
+      "name": "User Registration",
+      "description": "API contract for user registration endpoint",
+      "endpoint": "/api/v1/users/register",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 50
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "password": {
+              "type": "string",
+              "minLength": 8
+            },
+            "first_name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "last_name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          "required": ["username", "email", "password", "first_name", "last_name"]
+        },
+        "examples": [
+          {
+            "username": "testuser",
+            "email": "testuser@example.com",
+            "password": "securepassword123",
+            "first_name": "Test",
+            "last_name": "User"
+          }
+        ]
+      },
+      "response": {
+        "status_code": 201,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "is_active": {
+              "type": "boolean"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": ["id", "username", "email", "first_name", "last_name", "is_active", "created_at"]
+        }
+      }
+    },
+    {
+      "name": "User Login",
+      "description": "API contract for user login endpoint",
+      "endpoint": "/api/v1/auth/login",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          },
+          "required": ["username", "password"]
+        },
+        "examples": [
+          {
+            "username": "testuser",
+            "password": "securepassword123"
+          }
+        ]
+      },
+      "response": {
+        "status_code": 200,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string"
+            },
+            "expires_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "user": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "username", "email"]
+            }
+          },
+          "required": ["token", "expires_at", "user"]
+        }
+      }
+    },
+    {
+      "name": "AI Chat Completion",
+      "description": "API contract for AI chat completion endpoint",
+      "endpoint": "/api/v1/ai/chat/completions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {token}"
+      },
+      "request": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "type": "string"
+            },
+            "messages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": ["system", "user", "assistant"]
+                  },
+                  "content": {
+                    "type": "string"
+                  }
+                },
+                "required": ["role", "content"]
+              }
+            },
+            "temperature": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "max_tokens": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4096
+            }
+          },
+          "required": ["model", "messages"]
+        },
+        "examples": [
+          {
+            "model": "test-llama-7b",
+            "messages": [
+              {
+                "role": "user",
+                "content": "Hello, how are you?"
+              }
+            ],
+            "temperature": 0.7,
+            "max_tokens": 150
+          }
+        ]
+      },
+      "response": {
+        "status_code": 200,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "object": {
+              "type": "string"
+            },
+            "created": {
+              "type": "integer"
+            },
+            "model": {
+              "type": "string"
+            },
+            "choices": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "index": {
+                    "type": "integer"
+                  },
+                  "message": {
+                    "type": "object",
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "content": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["role", "content"]
+                  },
+                  "finish_reason": {
+                    "type": "string"
+                  }
+                },
+                "required": ["index", "message", "finish_reason"]
+              }
+            },
+            "usage": {
+              "type": "object",
+              "properties": {
+                "prompt_tokens": {
+                  "type": "integer"
+                },
+                "completion_tokens": {
+                  "type": "integer"
+                },
+                "total_tokens": {
+                  "type": "integer"
+                }
+              },
+              "required": ["prompt_tokens", "completion_tokens", "total_tokens"]
+            }
+          },
+          "required": ["id", "object", "created", "model", "choices", "usage"]
+        }
+      }
+    },
+    {
+      "name": "Computer Vision Object Detection",
+      "description": "API contract for computer vision object detection endpoint",
+      "endpoint": "/api/v1/ai/vision/detect",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "multipart/form-data",
+        "Authorization": "Bearer {token}"
+      },
+      "request": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "image": {
+              "type": "string",
+              "format": "binary"
+            },
+            "model": {
+              "type": "string"
+            },
+            "confidence_threshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": ["image"]
+        }
+      },
+      "response": {
+        "status_code": 200,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "detections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "class": {
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "type": "number"
+                  },
+                  "bounding_box": {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "integer"
+                      },
+                      "y": {
+                        "type": "integer"
+                      },
+                      "width": {
+                        "type": "integer"
+                      },
+                      "height": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": ["x", "y", "width", "height"]
+                  }
+                },
+                "required": ["class", "confidence", "bounding_box"]
+              }
+            },
+            "processing_time": {
+              "type": "number"
+            },
+            "model_used": {
+              "type": "string"
+            }
+          },
+          "required": ["detections", "processing_time", "model_used"]
+        }
+      }
+    }
+  ]
+}

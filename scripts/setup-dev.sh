@@ -2,8 +2,17 @@
 
 # AIOS Development Environment Setup Script
 # This script sets up the complete development environment for AIOS
+# Supports: Arch Linux, Ubuntu/Debian, macOS, and Windows (WSL2)
 
 set -euo pipefail
+
+# Script version
+SCRIPT_VERSION="2.0.0"
+
+# Default configuration
+DEFAULT_GO_VERSION="1.23"
+DEFAULT_NODE_VERSION="18"
+AIOS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Colors for output
 RED='\033[0;31m'
@@ -29,13 +38,40 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Check if running on Arch Linux
-check_arch_linux() {
-    if [[ ! -f /etc/arch-release ]]; then
-        log_error "This script is designed for Arch Linux. Please run on an Arch Linux system."
+# Detect operating system
+detect_os() {
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        if [[ -f /etc/arch-release ]]; then
+            OS="arch"
+        elif [[ -f /etc/debian_version ]]; then
+            OS="debian"
+        elif [[ -f /etc/redhat-release ]]; then
+            OS="redhat"
+        else
+            OS="linux"
+        fi
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        OS="macos"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+        OS="windows"
+    else
+        log_error "Unsupported operating system: $OSTYPE"
         exit 1
     fi
-    log_success "Arch Linux detected"
+
+    log_success "$OS detected"
+    export OS
+}
+
+# Check if running in WSL
+check_wsl() {
+    if [[ -f /proc/version ]] && grep -q Microsoft /proc/version; then
+        WSL=true
+        log_info "Running in WSL environment"
+    else
+        WSL=false
+    fi
+    export WSL
 }
 
 # Check if running as root
@@ -49,7 +85,29 @@ check_not_root() {
 # Update system packages
 update_system() {
     log_info "Updating system packages..."
-    sudo pacman -Syu --noconfirm
+
+    case $OS in
+        arch)
+            sudo pacman -Syu --noconfirm
+            ;;
+        debian)
+            sudo apt update && sudo apt upgrade -y
+            ;;
+        redhat)
+            sudo dnf update -y
+            ;;
+        macos)
+            if command -v brew &> /dev/null; then
+                brew update && brew upgrade
+            else
+                log_warning "Homebrew not found. Please install Homebrew first."
+            fi
+            ;;
+        windows)
+            log_info "Please update Windows manually through Windows Update"
+            ;;
+    esac
+
     log_success "System packages updated"
 }
 

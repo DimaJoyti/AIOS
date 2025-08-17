@@ -1,0 +1,314 @@
+# AIOS Production Environment Configuration
+# This configuration is optimized for production with security and performance
+
+environment: production
+version: "1.0.0"
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8080
+  read_timeout: 10s
+  write_timeout: 10s
+  idle_timeout: 30s
+  shutdown_timeout: 30s
+  enable_pprof: false
+
+# Metrics and Monitoring
+metrics:
+  enabled: true
+  host: "127.0.0.1"  # Internal only
+  port: 9090
+  path: "/metrics"
+  collect_interval: 60s
+
+# Logging Configuration
+logging:
+  level: warn
+  format: json
+  output: stdout
+  enable_caller: false
+  enable_stacktrace: false
+  development: false
+  sampling:
+    initial: 100
+    thereafter: 100
+
+# Database Configuration
+database:
+  driver: postgres
+  host: ${POSTGRES_HOST}
+  port: ${POSTGRES_PORT:5432}
+  name: ${POSTGRES_DB}
+  user: ${POSTGRES_USER}
+  password: ${POSTGRES_PASSWORD}
+  ssl_mode: require
+  max_open_conns: 100
+  max_idle_conns: 20
+  conn_max_lifetime: 1800s
+  conn_max_idle_time: 600s
+  log_queries: false
+  slow_query_threshold: 5s
+
+# Redis Configuration
+redis:
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT:6379}
+  password: ${REDIS_PASSWORD}
+  db: 0
+  pool_size: 50
+  min_idle_conns: 20
+  dial_timeout: 5s
+  read_timeout: 3s
+  write_timeout: 3s
+  pool_timeout: 4s
+  idle_timeout: 300s
+  max_retries: 3
+
+# AI Services Configuration
+ai:
+  enabled: true
+  debug: false
+  
+  # Language Model Configuration
+  llm:
+    provider: ${AI_LLM_PROVIDER}
+    endpoint: ${AI_LLM_ENDPOINT}
+    model: ${AI_LLM_MODEL}
+    max_tokens: 2048
+    temperature: 0.7
+    timeout: 120s
+    retry_attempts: 3
+    
+  # Computer Vision Configuration
+  cv:
+    enabled: true
+    provider: ${AI_CV_PROVIDER}
+    models_path: ${AI_CV_MODELS_PATH}
+    confidence_threshold: 0.9
+    
+  # Optimization Service Configuration
+  optimization:
+    enabled: true
+    collection_interval: 300s
+    analysis_interval: 1800s
+    auto_apply: true
+
+# Security Configuration
+security:
+  # JWT Configuration
+  jwt:
+    secret: ${JWT_SECRET}
+    issuer: aios-production
+    audience: aios-users
+    access_token_ttl: 15m
+    refresh_token_ttl: 4h
+    
+  # Encryption Configuration
+  encryption:
+    key: ${ENCRYPTION_KEY}
+    algorithm: AES-256-GCM
+    
+  # CORS Configuration
+  cors:
+    enabled: true
+    allowed_origins:
+      - ${FRONTEND_URL}
+    allowed_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+    allowed_headers:
+      - "Content-Type"
+      - "Authorization"
+    allow_credentials: true
+    max_age: 86400
+    
+  # Rate Limiting
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 100
+    burst: 20
+    
+  # Authentication
+  auth:
+    session_timeout: 4h
+    max_login_attempts: 3
+    lockout_duration: 1h
+
+# Tracing Configuration
+tracing:
+  enabled: true
+  service_name: aios-production
+  service_version: "1.0.0"
+  environment: production
+  
+  # Jaeger Configuration
+  jaeger:
+    endpoint: ${JAEGER_ENDPOINT}
+    sampler_type: probabilistic
+    sampler_param: 0.01
+    
+  # OTLP Configuration
+  otlp:
+    endpoint: ${OTLP_ENDPOINT}
+    insecure: false
+
+# Feature Flags
+features:
+  voice_control: ${FEATURE_VOICE_CONTROL:true}
+  computer_vision: ${FEATURE_COMPUTER_VISION:true}
+  predictive_fs: ${FEATURE_PREDICTIVE_FS:true}
+  developer_tools: ${FEATURE_DEVELOPER_TOOLS:true}
+  ai_optimization: ${FEATURE_AI_OPTIMIZATION:true}
+  advanced_security: true
+  experimental_features: false
+
+# Production Specific Settings
+production:
+  auto_migrate: false
+  seed_data: false
+  mock_external_services: false
+  enable_debug_endpoints: false
+  
+  # High Availability
+  ha:
+    enabled: true
+    leader_election: true
+    health_check_interval: 30s
+    
+  # Disaster Recovery
+  dr:
+    enabled: true
+    backup_frequency: "0 */6 * * *"  # Every 6 hours
+    replication_enabled: true
+
+# External Services
+external_services:
+  # GitHub Integration
+  github:
+    enabled: ${GITHUB_ENABLED:true}
+    token: ${GITHUB_TOKEN}
+    webhook_secret: ${GITHUB_WEBHOOK_SECRET}
+    
+  # Slack Integration
+  slack:
+    enabled: ${SLACK_ENABLED:true}
+    webhook_url: ${SLACK_WEBHOOK_URL}
+    
+  # Email Service
+  email:
+    enabled: ${EMAIL_ENABLED:true}
+    provider: ${EMAIL_PROVIDER}
+    api_key: ${EMAIL_API_KEY}
+    from_address: ${EMAIL_FROM_ADDRESS}
+
+# Storage Configuration
+storage:
+  # Cloud Storage
+  cloud:
+    provider: ${STORAGE_PROVIDER}
+    bucket: ${STORAGE_BUCKET}
+    region: ${STORAGE_REGION}
+    access_key: ${STORAGE_ACCESS_KEY}
+    secret_key: ${STORAGE_SECRET_KEY}
+    max_file_size: 10MB
+    encryption: true
+    
+  # Model Storage
+  models:
+    provider: ${MODEL_STORAGE_PROVIDER}
+    bucket: ${MODEL_STORAGE_BUCKET}
+    cache_size: 5GB
+    auto_download: true
+    encryption: true
+
+# Performance Settings
+performance:
+  # Garbage Collection
+  gc:
+    target_percentage: 100
+    max_heap_size: 4GB
+    
+  # Concurrency
+  concurrency:
+    max_goroutines: 5000
+    worker_pool_size: 50
+    
+  # Caching
+  cache:
+    default_ttl: 1800s
+    max_size: 2GB
+    cleanup_interval: 600s
+
+# Health Checks
+health:
+  enabled: true
+  endpoint: /health
+  detailed_endpoint: /health/detailed
+  check_interval: 15s
+  
+  checks:
+    database: true
+    redis: true
+    ai_services: true
+    external_apis: true
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 1 * * *"  # Daily at 1 AM
+  retention_days: 90
+  storage:
+    provider: ${BACKUP_STORAGE_PROVIDER}
+    bucket: ${BACKUP_STORAGE_BUCKET}
+    encryption: true
+    cross_region_replication: true
+
+# Monitoring and Alerting
+monitoring:
+  prometheus:
+    enabled: true
+    scrape_interval: 60s
+    retention: 30d
+    
+  grafana:
+    enabled: true
+    admin_password: ${GRAFANA_ADMIN_PASSWORD}
+    
+  alerting:
+    enabled: true
+    webhook_url: ${ALERT_WEBHOOK_URL}
+    pagerduty_key: ${PAGERDUTY_KEY}
+    
+    rules:
+      high_cpu: 70
+      high_memory: 80
+      high_disk: 85
+      error_rate: 1
+      response_time: 1000
+
+# Security Hardening
+security_hardening:
+  # TLS Configuration
+  tls:
+    min_version: "1.2"
+    cipher_suites:
+      - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+      - "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
+      - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+    
+  # Security Headers
+  headers:
+    hsts: true
+    content_type_nosniff: true
+    frame_deny: true
+    xss_protection: true
+    
+  # Audit Logging
+  audit:
+    enabled: true
+    log_all_requests: false
+    log_sensitive_operations: true
+    retention_days: 365

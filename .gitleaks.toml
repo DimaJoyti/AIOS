@@ -1,0 +1,164 @@
+# GitLeaks configuration for AIOS
+# This file configures GitLeaks to scan for secrets in the repository
+
+title = "AIOS GitLeaks Configuration"
+
+[extend]
+# Extend the default GitLeaks rules
+useDefault = true
+
+[[rules]]
+id = "aios-api-key"
+description = "AIOS API Key"
+regex = '''(?i)aios[_-]?api[_-]?key[_-]?[:=]\s*['""]?([a-zA-Z0-9]{32,})['""]?'''
+tags = ["api-key", "aios"]
+
+[[rules]]
+id = "aios-secret-key"
+description = "AIOS Secret Key"
+regex = '''(?i)aios[_-]?secret[_-]?key[_-]?[:=]\s*['""]?([a-zA-Z0-9]{32,})['""]?'''
+tags = ["secret-key", "aios"]
+
+[[rules]]
+id = "jwt-secret"
+description = "JWT Secret"
+regex = '''(?i)jwt[_-]?secret[_-]?[:=]\s*['""]?([a-zA-Z0-9+/]{32,})['""]?'''
+tags = ["jwt", "secret"]
+
+[[rules]]
+id = "encryption-key"
+description = "Encryption Key"
+regex = '''(?i)encryption[_-]?key[_-]?[:=]\s*['""]?([a-zA-Z0-9+/]{32,})['""]?'''
+tags = ["encryption", "key"]
+
+[[rules]]
+id = "database-password"
+description = "Database Password"
+regex = '''(?i)(db|database)[_-]?(pass|password)[_-]?[:=]\s*['""]?([^'"\s]{8,})['""]?'''
+tags = ["database", "password"]
+
+[[rules]]
+id = "redis-password"
+description = "Redis Password"
+regex = '''(?i)redis[_-]?(pass|password)[_-]?[:=]\s*['""]?([^'"\s]{8,})['""]?'''
+tags = ["redis", "password"]
+
+[[rules]]
+id = "private-key"
+description = "Private Key"
+regex = '''-----BEGIN [A-Z]+ PRIVATE KEY-----'''
+tags = ["private-key"]
+
+[[rules]]
+id = "aws-access-key"
+description = "AWS Access Key"
+regex = '''AKIA[0-9A-Z]{16}'''
+tags = ["aws", "access-key"]
+
+[[rules]]
+id = "aws-secret-key"
+description = "AWS Secret Key"
+regex = '''(?i)aws[_-]?secret[_-]?access[_-]?key[_-]?[:=]\s*['""]?([a-zA-Z0-9+/]{40})['""]?'''
+tags = ["aws", "secret-key"]
+
+[[rules]]
+id = "github-token"
+description = "GitHub Token"
+regex = '''ghp_[a-zA-Z0-9]{36}'''
+tags = ["github", "token"]
+
+[[rules]]
+id = "slack-webhook"
+description = "Slack Webhook URL"
+regex = '''https://hooks\.slack\.com/services/[A-Z0-9]+/[A-Z0-9]+/[a-zA-Z0-9]+'''
+tags = ["slack", "webhook"]
+
+# Allowlist for false positives
+[[allowlist]]
+description = "Development configuration examples"
+paths = [
+    '''configs/environments/development\.yaml''',
+    '''\.devcontainer/.*''',
+    '''scripts/.*'''
+]
+
+[[allowlist]]
+description = "Test files with dummy secrets"
+paths = [
+    '''.*_test\.go''',
+    '''test/.*''',
+    '''tests/.*'''
+]
+
+[[allowlist]]
+description = "Documentation files"
+paths = [
+    '''.*\.md''',
+    '''docs/.*'''
+]
+
+[[allowlist]]
+description = "Example and template files"
+regexes = [
+    '''example[_-]?secret''',
+    '''template[_-]?key''',
+    '''placeholder[_-]?token''',
+    '''dev[_-]?secret[_-]?key[_-]?change[_-]?in[_-]?production''',
+    '''your[_-]?secret[_-]?here''',
+    '''replace[_-]?with[_-]?actual''',
+]
+
+[[allowlist]]
+description = "Common development placeholders"
+regexes = [
+    '''password.*123''',
+    '''secret.*test''',
+    '''key.*example''',
+    '''token.*demo''',
+]
+
+# Entropy settings
+[allowlist.entropy]
+# Allow lower entropy for development files
+min = 3.0
+max = 8.0
+group = 1
+
+# File type specific settings
+[allowlist.files]
+# Skip binary files
+extensions = [
+    "jpg", "jpeg", "png", "gif", "bmp", "ico",
+    "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx",
+    "zip", "tar", "gz", "bz2", "7z", "rar",
+    "exe", "dll", "so", "dylib",
+    "woff", "woff2", "ttf", "eot",
+    "mp3", "mp4", "avi", "mov", "wmv",
+    "db", "sqlite", "sqlite3"
+]
+
+# Skip large files (over 1MB)
+maxSize = 1048576
+
+# Global settings
+[settings]
+# Scan all commits
+scanAll = true
+
+# Include historical commits
+includeHistory = true
+
+# Maximum file size to scan (1MB)
+maxFileSize = 1048576
+
+# Timeout for scanning (5 minutes)
+timeout = "5m"
+
+# Number of goroutines for scanning
+workers = 4
+
+# Verbose output
+verbose = false
+
+# Exit code on findings
+exitCode = 1

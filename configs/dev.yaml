@@ -56,17 +56,7 @@ optimization:
   memory_threshold: 85.0
   disk_threshold: 90.0
 
-# Security configuration
-security:
-  jwt_secret: "dev-secret-key-change-in-production"
-  session_timeout: "24h"
-  rate_limit:
-    requests_per_minute: 100
-    burst: 20
-  cors:
-    allowed_origins: ["http://localhost:3000", "http://localhost:8082"]
-    allowed_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    allowed_headers: ["*"]
+
 
 # Logging configuration
 logging:
@@ -116,3 +106,585 @@ development:
   debug_mode: true
   profiling_enabled: true
   mock_ai_services: false
+
+# Developer tools configuration
+devtools:
+  enabled: true
+  debug:
+    enabled: true
+    port: 2345
+    remote_debugging: true
+    breakpoints: []
+    watch_variables: []
+    stack_trace_depth: 10
+  profiling:
+    enabled: true
+    cpu_profiling: true
+    memory_profiling: true
+    goroutine_profiling: true
+    block_profiling: true
+    mutex_profiling: true
+    profile_duration: "30s"
+    output_dir: "./profiles"
+  code_analysis:
+    enabled: true
+    static_analysis: true
+    security_scan: true
+    quality_metrics: true
+    dependency_check: true
+    lint_rules: ["gofmt", "govet", "golint", "staticcheck"]
+    exclude_paths: ["vendor", ".git", "node_modules", "tmp"]
+  testing:
+    enabled: true
+    auto_run: false
+    coverage: true
+    benchmarks: true
+    integration: true
+    e2e: false
+    timeout: "5m"
+    parallel: 4
+    verbose: false
+  build:
+    enabled: true
+    auto_build: false
+    optimized_build: false
+    cross_compile: false
+    target_platforms: ["linux/amd64", "darwin/amd64", "windows/amd64"]
+    build_tags: []
+    ld_flags: ""
+    output_dir: "./bin"
+  live_reload:
+    enabled: false
+    port: 3001
+    watch_paths: ["./internal", "./pkg", "./cmd", "./web"]
+    ignore_patterns: ["*.log", "*.tmp", ".git", "node_modules"]
+    extensions: [".go", ".html", ".css", ".js", ".ts", ".tsx"]
+    delay: "500ms"
+  log_analysis:
+    enabled: true
+    real_time: true
+    error_detection: true
+    performance_analysis: true
+    log_sources: ["./logs/aios.log", "/var/log/aios.log"]
+    alert_thresholds:
+      error_rate: 0.05
+      response_time: 1000
+      memory_usage: 0.85
+  metrics:
+    enabled: true
+    collection_interval: "30s"
+    custom_metrics: true
+    performance_metrics: true
+    business_metrics: false
+    export_format: "prometheus"
+  environment:
+    mode: "development"
+    hot_reload: true
+    mock_services: false
+    database_seeding: true
+    feature_flags:
+      new_ui: true
+      experimental_features: true
+    environment:
+      DEBUG: "true"
+      LOG_LEVEL: "debug"
+  security:
+    enabled: true
+    vulnerability_scanning: true
+    secret_detection: true
+    access_control: false
+    audit_logging: true
+    allowed_ips: ["127.0.0.1", "::1"]
+
+# Security and privacy configuration
+security:
+  enabled: true
+  authentication:
+    enabled: true
+    jwt_secret: "dev-secret-key-change-in-production"
+    session_timeout: "24h"
+    mfa:
+      enabled: false
+      methods: ["totp", "sms"]
+      required: false
+      grace_period: "5m"
+    oauth:
+      enabled: false
+      providers:
+        google: "google-client-id"
+        github: "github-client-id"
+      redirect_url: "http://localhost:8080/auth/callback"
+      scopes: ["openid", "profile", "email"]
+    ldap:
+      enabled: false
+      server: "ldap.example.com"
+      port: 389
+      base_dn: "dc=example,dc=com"
+      bind_dn: "cn=admin,dc=example,dc=com"
+      bind_password: "admin-password"
+      user_filter: "(uid=%s)"
+      group_filter: "(memberUid=%s)"
+    password_policy:
+      min_length: 8
+      require_uppercase: true
+      require_lowercase: true
+      require_numbers: true
+      require_symbols: false
+      max_age: "90d"
+      history_size: 5
+  encryption:
+    enabled: true
+    algorithm: "AES-256-GCM"
+    key_size: 256
+    at_rest: true
+    in_transit: true
+    key_rotation: "30d"
+    hsm_enabled: false
+    hsm_config:
+      provider: "aws-kms"
+      endpoint: "https://kms.us-east-1.amazonaws.com"
+      key_id: "alias/aios-master-key"
+  privacy:
+    enabled: true
+    data_minimization: true
+    anonymization: true
+    pseudonymization: false
+    data_retention: "30d"
+    consent_management: true
+    right_to_erasure: true
+    data_portability: true
+    pii_detection: true
+  threat_detection:
+    enabled: true
+    real_time: true
+    machine_learning: false
+    behavioral_analysis: true
+    network_monitoring: true
+    file_integrity: true
+    alert_thresholds:
+      anomaly_score: 0.8
+      risk_level: 0.7
+      failed_logins: 5
+    response_actions: ["log", "alert", "block"]
+  audit:
+    enabled: true
+    log_level: "info"
+    retention_period: "90d"
+    encryption: true
+    integrity: true
+    remote_logging: false
+    siem_integration: false
+  access_control:
+    enabled: true
+    model: "RBAC"
+    default_policy: "deny"
+    roles:
+      admin: ["*"]
+      user: ["read", "write"]
+      guest: ["read"]
+    permissions:
+      system: ["read", "write", "admin"]
+      data: ["read", "write"]
+      config: ["read", "write", "admin"]
+    session_timeout: "8h"
+    max_sessions: 5
+  compliance:
+    enabled: true
+    standards: ["GDPR", "SOC2", "HIPAA"]
+    reporting: true
+    monitoring: true
+    automation: false
+  incident_response:
+    enabled: true
+    auto_response: false
+    notification_url: "https://alerts.example.com/webhook"
+    escalation_rules:
+      - severity: "critical"
+        time_limit: "15m"
+        contacts: ["admin@aios.local", "security@aios.local"]
+        actions: ["notify", "isolate", "escalate"]
+      - severity: "high"
+        time_limit: "1h"
+        contacts: ["admin@aios.local"]
+        actions: ["notify", "investigate"]
+    playbooks:
+      malware: "playbook-malware.yaml"
+      data_breach: "playbook-breach.yaml"
+      ddos: "playbook-ddos.yaml"
+  vulnerability_scanning:
+    enabled: true
+    scan_interval: "24h"
+    scan_types: ["static", "dynamic", "dependency"]
+    auto_remediation: false
+    reporting_url: "https://security.example.com/vulnerabilities"
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 100
+    burst: 200
+    ip_whitelist: ["127.0.0.1", "::1"]
+    endpoint_limits:
+      "/api/v1/auth/login": 10
+      "/api/v1/security/encrypt": 50
+  cors:
+    enabled: true
+    allowed_origins: ["http://localhost:3000", "https://aios.local"]
+    allowed_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allowed_headers: ["Content-Type", "Authorization", "X-Requested-With"]
+    max_age: 86400
+  tls:
+    enabled: true
+    cert_file: "./certs/server.crt"
+    key_file: "./certs/server.key"
+    min_version: "1.2"
+    cipher_suites: ["TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"]
+    hsts: true
+
+# Testing and validation configuration
+testing:
+  enabled: true
+  unit_testing:
+    enabled: true
+    parallel: 4
+    timeout: "30s"
+    verbose: false
+    fail_fast: false
+    race: true
+    short_mode: false
+    test_patterns: ["./internal/...", "./pkg/..."]
+    exclude_patterns: ["./vendor/...", "./mocks/..."]
+    tags: ["unit"]
+  integration_testing:
+    enabled: true
+    timeout: "5m"
+    setup_timeout: "30s"
+    teardown_timeout: "30s"
+    database_tests: true
+    api_tests: true
+    service_tests: true
+    external_deps: false
+    test_data: "./testdata"
+    environment: "test"
+  e2e_testing:
+    enabled: false
+    browser: "chrome"
+    headless: true
+    timeout: "10m"
+    screenshots: true
+    videos: false
+    base_url: "http://localhost:8080"
+    test_suites: ["smoke", "regression"]
+    retries: 2
+    parallel: 1
+  performance_testing:
+    enabled: true
+    load_testing: true
+    stress_testing: false
+    benchmarks: true
+    profiling: true
+    duration: "1m"
+    concurrency: 10
+    ramp_up: "10s"
+    thresholds:
+      response_time: 1000
+      error_rate: 0.01
+      throughput: 100
+  security_testing:
+    enabled: true
+    vulnerability_scans: true
+    penetration_testing: false
+    authentication_tests: true
+    authorization_tests: true
+    input_validation: true
+    sql_injection: true
+    xss: true
+    csrf: true
+    security_headers: true
+    tls_tests: true
+    tools: ["gosec", "nancy", "semgrep"]
+  validation:
+    enabled: true
+    schema_validation: true
+    data_validation: true
+    api_validation: true
+    config_validation: true
+    business_rules: true
+    constraints: ["required", "format", "range", "unique"]
+    custom_rules: ["business_logic", "data_integrity", "consistency"]
+  coverage:
+    enabled: true
+    min_coverage: 80.0
+    fail_on_low: false
+    exclude_paths: ["vendor", "mocks", "test", ".git"]
+    include_paths: ["internal", "pkg", "cmd"]
+    report_formats: ["html", "json", "lcov"]
+    output_dir: "./coverage"
+  reporting:
+    enabled: true
+    formats: ["junit", "html", "json", "allure"]
+    output_dir: "./test-reports"
+    junit: true
+    html: true
+    json: true
+    allure: false
+    slack: false
+    email: false
+    webhook: ""
+  ci:
+    enabled: true
+    provider: "github"
+    pipeline: "test"
+    stages: ["unit", "integration", "security", "performance"]
+    artifacts: true
+    notifications: true
+    failure_actions: ["notify", "comment", "label"]
+    success_actions: ["merge", "deploy"]
+  quality:
+    enabled: true
+    gates:
+      coverage: 80.0
+      duplication: 5.0
+      maintainability: 70.0
+      complexity: 10.0
+    metrics: ["coverage", "complexity", "duplication", "maintainability"]
+    linting: true
+    static_analysis: true
+    complexity: true
+    duplication: true
+    maintainability: true
+
+# Deployment configuration
+deployment:
+  enabled: true
+  environment: "development"
+  platform: "docker"
+  docker:
+    enabled: true
+    registry: "ghcr.io"
+    repository: "aios/aios"
+    tag: "latest"
+    build_args:
+      VERSION: "dev"
+      BUILD_TIME: "2024-01-15T10:00:00Z"
+    networks: ["aios-network"]
+    volumes:
+      - source: "./configs"
+        target: "/app/configs"
+        type: "bind"
+        read_only: true
+      - source: "aios_data"
+        target: "/app/data"
+        type: "volume"
+        read_only: false
+    environment_vars:
+      AIOS_ENV: "development"
+      AIOS_LOG_LEVEL: "debug"
+    resources:
+      cpu: "1000m"
+      memory: "2Gi"
+      storage: "10Gi"
+    health_check:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: "30s"
+      timeout: "10s"
+      retries: 3
+      start_period: "60s"
+  kubernetes:
+    enabled: false
+    namespace: "aios-dev"
+    context: "minikube"
+    manifest_path: "./deployments/k8s"
+    helm_chart: ""
+    values:
+      replicaCount: 1
+      image:
+        repository: "ghcr.io/aios/aios"
+        tag: "latest"
+        pullPolicy: "IfNotPresent"
+      service:
+        type: "ClusterIP"
+        port: 80
+      ingress:
+        enabled: false
+        className: ""
+        annotations: {}
+        hosts: []
+        tls: []
+      resources:
+        limits:
+          cpu: "1000m"
+          memory: "2Gi"
+        requests:
+          cpu: "500m"
+          memory: "1Gi"
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 3
+        targetCPUUtilizationPercentage: 80
+    replicas: 1
+    strategy: "RollingUpdate"
+    resources:
+      cpu: "1000m"
+      memory: "2Gi"
+      storage: "10Gi"
+    ingress:
+      enabled: false
+      host: "aios-dev.local"
+      path: "/"
+      tls: false
+      annotations: {}
+    service_mesh:
+      enabled: false
+      provider: "istio"
+      injection: true
+      mtls: false
+  cicd:
+    enabled: true
+    provider: "github"
+    pipeline: "ci-cd"
+    triggers: ["push", "pull_request"]
+    stages:
+      - name: "test"
+        type: "test"
+        commands: ["make test"]
+        environment: {}
+        dependencies: []
+        timeout: "10m"
+        retry: 2
+      - name: "build"
+        type: "build"
+        commands: ["make build-images"]
+        environment:
+          VERSION: "${GITHUB_SHA}"
+        dependencies: ["test"]
+        timeout: "15m"
+        retry: 1
+      - name: "deploy"
+        type: "deploy"
+        commands: ["./scripts/deploy.sh"]
+        environment:
+          ENVIRONMENT: "development"
+          PLATFORM: "docker"
+        dependencies: ["build"]
+        timeout: "20m"
+        retry: 1
+    artifacts:
+      enabled: true
+      paths: ["./dist", "./coverage"]
+      retention: 30
+      compression: true
+    notifications:
+      enabled: true
+      channels: ["slack", "email"]
+      events: ["success", "failure"]
+      webhook: ""
+    secrets:
+      DOCKER_REGISTRY_TOKEN: ""
+      KUBECONFIG: ""
+      SLACK_WEBHOOK: ""
+    variables:
+      REGISTRY: "ghcr.io"
+      IMAGE_NAME: "aios/aios"
+  health:
+    enabled: true
+    endpoint: "/health"
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+    start_period: "60s"
+    failure_threshold: 3
+    success_threshold: 1
+  rollback:
+    enabled: true
+    auto_rollback: false
+    failure_threshold: 3
+    rollback_timeout: "10m"
+    keep_versions: 5
+    strategy: "immediate"
+  monitoring:
+    enabled: true
+    metrics:
+      enabled: true
+      endpoint: "/metrics"
+      namespace: "aios"
+      interval: "15s"
+    logging:
+      enabled: true
+      level: "info"
+      format: "json"
+      destination: "stdout"
+    tracing:
+      enabled: true
+      endpoint: "http://jaeger:14268/api/traces"
+      sample_rate: 0.1
+    alerting:
+      enabled: true
+      rules:
+        - name: "high_cpu_usage"
+          expression: "cpu_usage > 80"
+          duration: "5m"
+          severity: "warning"
+          labels:
+            team: "platform"
+          annotations:
+            summary: "High CPU usage detected"
+        - name: "high_memory_usage"
+          expression: "memory_usage > 90"
+          duration: "2m"
+          severity: "critical"
+          labels:
+            team: "platform"
+          annotations:
+            summary: "High memory usage detected"
+      receivers:
+        - name: "slack"
+          type: "slack"
+          config:
+            webhook_url: "${SLACK_WEBHOOK}"
+            channel: "#alerts"
+        - name: "email"
+          type: "email"
+          config:
+            to: ["ops@aios.dev"]
+            from: "alerts@aios.dev"
+    dashboard:
+      enabled: true
+      provider: "grafana"
+      url: "http://grafana:3000"
+  security:
+    enabled: true
+    image_scanning: true
+    secret_management: true
+    network_policies: false
+    rbac: true
+    pod_security:
+      run_as_non_root: true
+      read_only_root_fs: false
+      allow_privilege_escalation: false
+      capabilities: ["NET_BIND_SERVICE"]
+    tls:
+      enabled: false
+      cert_path: "/etc/tls/tls.crt"
+      key_path: "/etc/tls/tls.key"
+      ca_path: "/etc/tls/ca.crt"
+  scaling:
+    enabled: false
+    min_replicas: 1
+    max_replicas: 5
+    target_cpu: 70
+    target_memory: 80
+    scale_up_policy:
+      type: "pods"
+      value: 2
+      period_seconds: "60s"
+    scale_down_policy:
+      type: "pods"
+      value: 1
+      period_seconds: "300s"
+    metrics:
+      - type: "Resource"
+        name: "cpu"
+        target: 70
+      - type: "Resource"
+        name: "memory"
+        target: 80

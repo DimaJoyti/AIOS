@@ -1,0 +1,268 @@
+# AIOS Development Environment Configuration
+# This configuration is optimized for local development with debugging enabled
+
+environment: development
+version: "1.0.0"
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8080
+  read_timeout: 30s
+  write_timeout: 30s
+  idle_timeout: 120s
+  shutdown_timeout: 30s
+  enable_pprof: true
+  pprof_port: 6060
+
+# Metrics and Monitoring
+metrics:
+  enabled: true
+  host: "0.0.0.0"
+  port: 9090
+  path: "/metrics"
+  collect_interval: 15s
+
+# Logging Configuration
+logging:
+  level: debug
+  format: json
+  output: stdout
+  enable_caller: true
+  enable_stacktrace: true
+  development: true
+  sampling:
+    initial: 100
+    thereafter: 100
+
+# Database Configuration
+database:
+  driver: postgres
+  host: postgres
+  port: 5432
+  name: aios
+  user: aios
+  password: aios
+  ssl_mode: disable
+  max_open_conns: 25
+  max_idle_conns: 5
+  conn_max_lifetime: 300s
+  conn_max_idle_time: 60s
+  log_queries: true
+  slow_query_threshold: 1s
+
+# Redis Configuration
+redis:
+  host: redis
+  port: 6379
+  password: ""
+  db: 0
+  pool_size: 10
+  min_idle_conns: 5
+  dial_timeout: 5s
+  read_timeout: 3s
+  write_timeout: 3s
+  pool_timeout: 4s
+  idle_timeout: 300s
+  max_retries: 3
+
+# AI Services Configuration
+ai:
+  enabled: true
+  debug: true
+  
+  # Language Model Configuration
+  llm:
+    provider: ollama
+    endpoint: http://localhost:11434
+    model: llama2
+    max_tokens: 2048
+    temperature: 0.7
+    timeout: 30s
+    retry_attempts: 3
+    
+  # Computer Vision Configuration
+  cv:
+    enabled: true
+    provider: local
+    models_path: /tmp/aios/cv_models
+    confidence_threshold: 0.8
+    
+  # Optimization Service Configuration
+  optimization:
+    enabled: true
+    collection_interval: 30s
+    analysis_interval: 300s
+    auto_apply: false
+
+# Security Configuration
+security:
+  # JWT Configuration
+  jwt:
+    secret: dev-jwt-secret-change-in-production
+    issuer: aios-dev
+    audience: aios-users
+    access_token_ttl: 1h
+    refresh_token_ttl: 24h
+    
+  # Encryption Configuration
+  encryption:
+    key: dev-encryption-key-32-chars-long!!
+    algorithm: AES-256-GCM
+    
+  # CORS Configuration
+  cors:
+    enabled: true
+    allowed_origins:
+      - "http://localhost:3000"
+      - "http://localhost:8080"
+      - "http://127.0.0.1:3000"
+      - "http://127.0.0.1:8080"
+    allowed_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    allowed_headers:
+      - "*"
+    allow_credentials: true
+    max_age: 86400
+    
+  # Rate Limiting
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 1000
+    burst: 100
+    
+  # Authentication
+  auth:
+    session_timeout: 24h
+    max_login_attempts: 5
+    lockout_duration: 15m
+
+# Tracing Configuration
+tracing:
+  enabled: true
+  service_name: aios-dev
+  service_version: "1.0.0"
+  environment: development
+  
+  # Jaeger Configuration
+  jaeger:
+    endpoint: http://localhost:14268/api/traces
+    sampler_type: const
+    sampler_param: 1.0
+    
+  # OTLP Configuration
+  otlp:
+    endpoint: http://localhost:4317
+    insecure: true
+
+# Feature Flags
+features:
+  voice_control: false
+  computer_vision: true
+  predictive_fs: true
+  developer_tools: true
+  ai_optimization: true
+  advanced_security: false
+  experimental_features: true
+
+# Development Specific Settings
+development:
+  hot_reload: true
+  auto_migrate: true
+  seed_data: true
+  mock_external_services: true
+  enable_debug_endpoints: true
+  
+  # File Watching
+  file_watcher:
+    enabled: true
+    paths:
+      - "./internal"
+      - "./pkg"
+      - "./cmd"
+    extensions:
+      - ".go"
+      - ".yaml"
+      - ".json"
+      
+  # Mock Services
+  mocks:
+    ai_services: false
+    external_apis: true
+    payment_gateway: true
+
+# External Services
+external_services:
+  # GitHub Integration (for development)
+  github:
+    enabled: false
+    token: ""
+    webhook_secret: dev-webhook-secret
+    
+  # Slack Integration (for notifications)
+  slack:
+    enabled: false
+    webhook_url: ""
+    
+  # Email Service
+  email:
+    enabled: false
+    provider: mock
+    smtp_host: localhost
+    smtp_port: 1025
+
+# Storage Configuration
+storage:
+  # Local File Storage
+  local:
+    base_path: /tmp/aios/storage
+    max_file_size: 100MB
+    allowed_extensions:
+      - .jpg
+      - .jpeg
+      - .png
+      - .gif
+      - .pdf
+      - .txt
+      - .md
+      
+  # Model Storage
+  models:
+    base_path: /tmp/aios/models
+    cache_size: 1GB
+    auto_download: true
+
+# Performance Settings
+performance:
+  # Garbage Collection
+  gc:
+    target_percentage: 100
+    max_heap_size: 1GB
+    
+  # Concurrency
+  concurrency:
+    max_goroutines: 1000
+    worker_pool_size: 10
+    
+  # Caching
+  cache:
+    default_ttl: 300s
+    max_size: 100MB
+    cleanup_interval: 60s
+
+# Health Checks
+health:
+  enabled: true
+  endpoint: /health
+  detailed_endpoint: /health/detailed
+  check_interval: 30s
+  
+  checks:
+    database: true
+    redis: true
+    ai_services: true
+    external_apis: false

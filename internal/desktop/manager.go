@@ -31,14 +31,14 @@ type Manager struct {
 
 // DesktopConfig represents desktop environment configuration
 type DesktopConfig struct {
-	Theme           string                 `yaml:"theme"`
-	AIAssistant     AIAssistantConfig      `yaml:"ai_assistant"`
-	WindowManager   WindowManagerConfig    `yaml:"window_manager"`
-	Workspaces      WorkspaceConfig        `yaml:"workspaces"`
-	Notifications   NotificationConfig     `yaml:"notifications"`
-	Accessibility   AccessibilityConfig    `yaml:"accessibility"`
-	Performance     PerformanceConfig      `yaml:"performance"`
-	CustomSettings  map[string]interface{} `yaml:"custom_settings"`
+	Theme          string                 `yaml:"theme"`
+	AIAssistant    AIAssistantConfig      `yaml:"ai_assistant"`
+	WindowManager  WindowManagerConfig    `yaml:"window_manager"`
+	Workspaces     WorkspaceConfig        `yaml:"workspaces"`
+	Notifications  NotificationConfig     `yaml:"notifications"`
+	Accessibility  AccessibilityConfig    `yaml:"accessibility"`
+	Performance    PerformanceConfig      `yaml:"performance"`
+	CustomSettings map[string]interface{} `yaml:"custom_settings"`
 }
 
 // AIAssistantConfig represents AI assistant configuration
@@ -52,60 +52,62 @@ type AIAssistantConfig struct {
 
 // WindowManagerConfig represents window manager configuration
 type WindowManagerConfig struct {
-	TilingEnabled   bool    `yaml:"tiling_enabled"`
-	SmartGaps       bool    `yaml:"smart_gaps"`
-	BorderWidth     int     `yaml:"border_width"`
-	AnimationSpeed  float64 `yaml:"animation_speed"`
-	FocusFollowsMouse bool  `yaml:"focus_follows_mouse"`
-	AutoTiling      bool    `yaml:"auto_tiling"`
+	TilingEnabled     bool    `yaml:"tiling_enabled"`
+	SmartGaps         bool    `yaml:"smart_gaps"`
+	BorderWidth       int     `yaml:"border_width"`
+	AnimationSpeed    float64 `yaml:"animation_speed"`
+	FocusFollowsMouse bool    `yaml:"focus_follows_mouse"`
+	AutoTiling        bool    `yaml:"auto_tiling"`
 }
 
 // WorkspaceConfig represents workspace configuration
 type WorkspaceConfig struct {
-	DefaultCount    int    `yaml:"default_count"`
-	AutoSwitch      bool   `yaml:"auto_switch"`
-	SmartNaming     bool   `yaml:"smart_naming"`
-	PersistLayout   bool   `yaml:"persist_layout"`
-	WrapAround      bool   `yaml:"wrap_around"`
+	DefaultCount  int  `yaml:"default_count"`
+	AutoSwitch    bool `yaml:"auto_switch"`
+	SmartNaming   bool `yaml:"smart_naming"`
+	PersistLayout bool `yaml:"persist_layout"`
+	WrapAround    bool `yaml:"wrap_around"`
 }
 
 // NotificationConfig represents notification configuration
 type NotificationConfig struct {
-	Enabled         bool          `yaml:"enabled"`
-	Position        string        `yaml:"position"`
-	Timeout         time.Duration `yaml:"timeout"`
-	MaxVisible      int           `yaml:"max_visible"`
-	SmartGrouping   bool          `yaml:"smart_grouping"`
-	AIFiltering     bool          `yaml:"ai_filtering"`
+	Enabled       bool          `yaml:"enabled"`
+	Position      string        `yaml:"position"`
+	Timeout       time.Duration `yaml:"timeout"`
+	MaxVisible    int           `yaml:"max_visible"`
+	SmartGrouping bool          `yaml:"smart_grouping"`
+	AIFiltering   bool          `yaml:"ai_filtering"`
 }
 
 // AccessibilityConfig represents accessibility configuration
 type AccessibilityConfig struct {
-	HighContrast    bool    `yaml:"high_contrast"`
-	LargeText       bool    `yaml:"large_text"`
-	ScreenReader    bool    `yaml:"screen_reader"`
-	VoiceControl    bool    `yaml:"voice_control"`
-	ReducedMotion   bool    `yaml:"reduced_motion"`
-	ColorBlindMode  string  `yaml:"color_blind_mode"`
-	FontScale       float64 `yaml:"font_scale"`
+	HighContrast   bool    `yaml:"high_contrast"`
+	LargeText      bool    `yaml:"large_text"`
+	ScreenReader   bool    `yaml:"screen_reader"`
+	VoiceControl   bool    `yaml:"voice_control"`
+	ReducedMotion  bool    `yaml:"reduced_motion"`
+	ColorBlindMode string  `yaml:"color_blind_mode"`
+	FontScale      float64 `yaml:"font_scale"`
 }
 
 // PerformanceConfig represents performance configuration
 type PerformanceConfig struct {
-	EnableCompositing bool    `yaml:"enable_compositing"`
-	VSync             bool    `yaml:"vsync"`
-	MaxFPS            int     `yaml:"max_fps"`
-	ReduceAnimations  bool    `yaml:"reduce_animations"`
-	PowerSaveMode     bool    `yaml:"power_save_mode"`
-	GPUAcceleration   bool    `yaml:"gpu_acceleration"`
+	EnableCompositing bool `yaml:"enable_compositing"`
+	VSync             bool `yaml:"vsync"`
+	MaxFPS            int  `yaml:"max_fps"`
+	ReduceAnimations  bool `yaml:"reduce_animations"`
+	PowerSaveMode     bool `yaml:"power_save_mode"`
+	GPUAcceleration   bool `yaml:"gpu_acceleration"`
 }
 
 // NewManager creates a new desktop environment manager
 func NewManager(logger *logrus.Logger, aiOrchestrator *ai.Orchestrator, config DesktopConfig) (*Manager, error) {
 	tracer := otel.Tracer("desktop-manager")
 
-	// Initialize window manager
-	windowManager, err := NewWindowManager(logger, config.WindowManager)
+	// Initialize window manager with AI services
+	nlpService := aiOrchestrator.GetNLPService()
+	cvService := aiOrchestrator.GetCVService()
+	windowManager, err := NewWindowManager(logger, config.WindowManager, nlpService, cvService)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create window manager: %w", err)
 	}
@@ -331,8 +333,8 @@ func (m *Manager) ProcessAICommand(ctx context.Context, command string) (*models
 
 	// Create AI request for command processing
 	aiRequest := &models.AIRequest{
-		ID:   fmt.Sprintf("desktop-cmd-%d", time.Now().Unix()),
-		Type: "chat",
+		ID:    fmt.Sprintf("desktop-cmd-%d", time.Now().Unix()),
+		Type:  "chat",
 		Input: fmt.Sprintf("Process this desktop command: %s", command),
 		Context: map[string]interface{}{
 			"domain": "desktop",
@@ -387,10 +389,10 @@ func (m *Manager) monitorDesktop() {
 
 			// Log performance metrics
 			m.logger.WithFields(logrus.Fields{
-				"fps":         status.Performance.FPS,
-				"memory_mb":   status.Performance.MemoryUsage / (1024 * 1024),
-				"cpu_usage":   status.Performance.CPUUsage,
-				"gpu_usage":   status.Performance.GPUUsage,
+				"fps":       status.Performance.FPS,
+				"memory_mb": status.Performance.MemoryUsage / (1024 * 1024),
+				"cpu_usage": status.Performance.CPUUsage,
+				"gpu_usage": status.Performance.GPUUsage,
 			}).Debug("Desktop performance metrics")
 
 			// Check for performance issues
@@ -412,13 +414,13 @@ func (m *Manager) handleAIRecommendations() {
 		select {
 		case <-ticker.C:
 			ctx := context.Background()
-			
+
 			// Get AI recommendations for desktop optimization
 			aiRequest := &models.AIRequest{
 				ID:   fmt.Sprintf("desktop-opt-%d", time.Now().Unix()),
 				Type: "optimization",
 				Parameters: map[string]interface{}{
-					"task": "desktop_optimization",
+					"task":    "desktop_optimization",
 					"context": "desktop_environment",
 				},
 				Timeout:   60 * time.Second,

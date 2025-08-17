@@ -1,0 +1,152 @@
+models:
+  - id: "llm-001"
+    name: "test-llama-7b"
+    version: "1.0.0"
+    type: "llm"
+    provider: "ollama"
+    is_active: true
+    is_default: true
+    size_bytes: 3800000000
+    capabilities:
+      - "text_generation"
+      - "conversation"
+      - "code_completion"
+    parameters:
+      max_tokens: 4096
+      temperature: 0.7
+      top_p: 0.9
+      top_k: 40
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+
+  - id: "llm-002"
+    name: "test-mistral-7b"
+    version: "1.0.0"
+    type: "llm"
+    provider: "ollama"
+    is_active: true
+    is_default: false
+    size_bytes: 4100000000
+    capabilities:
+      - "text_generation"
+      - "conversation"
+      - "instruction_following"
+    parameters:
+      max_tokens: 8192
+      temperature: 0.8
+      top_p: 0.95
+      top_k: 50
+    created_at: "2024-01-02T00:00:00Z"
+    updated_at: "2024-01-02T00:00:00Z"
+
+  - id: "cv-001"
+    name: "test-yolo-v8"
+    version: "8.0.0"
+    type: "computer_vision"
+    provider: "ultralytics"
+    is_active: true
+    is_default: true
+    size_bytes: 50000000
+    capabilities:
+      - "object_detection"
+      - "image_classification"
+      - "instance_segmentation"
+    parameters:
+      confidence_threshold: 0.5
+      iou_threshold: 0.45
+      max_detections: 100
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+
+  - id: "tts-001"
+    name: "test-espeak"
+    version: "1.48.04"
+    type: "text_to_speech"
+    provider: "espeak"
+    is_active: true
+    is_default: true
+    size_bytes: 2000000
+    capabilities:
+      - "text_to_speech"
+      - "voice_synthesis"
+    parameters:
+      voice: "en"
+      speed: 175
+      pitch: 50
+      volume: 100
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+
+  - id: "stt-001"
+    name: "test-whisper-base"
+    version: "1.0.0"
+    type: "speech_to_text"
+    provider: "openai"
+    is_active: true
+    is_default: true
+    size_bytes: 142000000
+    capabilities:
+      - "speech_to_text"
+      - "audio_transcription"
+      - "language_detection"
+    parameters:
+      language: "auto"
+      temperature: 0.0
+      beam_size: 5
+      best_of: 5
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+
+responses:
+  llm_responses:
+    - model: "test-llama-7b"
+      prompt: "Hello, how are you?"
+      response: "Hello! I'm doing well, thank you for asking. How can I help you today?"
+      tokens: 18
+      processing_time_ms: 250
+      timestamp: "2024-01-01T12:00:00Z"
+
+    - model: "test-mistral-7b"
+      prompt: "Explain quantum computing"
+      response: "Quantum computing is a revolutionary computing paradigm that leverages quantum mechanical phenomena..."
+      tokens: 156
+      processing_time_ms: 1200
+      timestamp: "2024-01-01T12:05:00Z"
+
+  cv_responses:
+    - model: "test-yolo-v8"
+      image_path: "/testdata/images/test_image_1.jpg"
+      detections:
+        - class: "person"
+          confidence: 0.95
+          bounding_box:
+            x: 100
+            y: 100
+            width: 200
+            height: 300
+        - class: "laptop"
+          confidence: 0.88
+          bounding_box:
+            x: 300
+            y: 150
+            width: 150
+            height: 100
+      processing_time_ms: 45
+      timestamp: "2024-01-01T12:10:00Z"
+
+  tts_responses:
+    - model: "test-espeak"
+      text: "Hello, this is a test of text to speech."
+      audio_format: "wav"
+      duration_ms: 2500
+      processing_time_ms: 150
+      timestamp: "2024-01-01T12:15:00Z"
+
+  stt_responses:
+    - model: "test-whisper-base"
+      audio_path: "/testdata/audio/test_audio_1.wav"
+      transcription: "Hello, this is a test of speech to text recognition."
+      confidence: 0.92
+      language: "en"
+      processing_time_ms: 800
+      timestamp: "2024-01-01T12:20:00Z"

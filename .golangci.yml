@@ -1,0 +1,272 @@
+# golangci-lint configuration for AIOS
+# See https://golangci-lint.run/usage/configuration/
+
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+  skip-dirs:
+    - vendor
+    - build
+    - dist
+    - .git
+  skip-files:
+    - ".*\\.pb\\.go$"
+    - ".*_generated\\.go$"
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  uniq-by-line: true
+  sort-results: true
+
+linters-settings:
+  # Cyclomatic complexity
+  cyclop:
+    max-complexity: 15
+    package-average: 10.0
+    skip-tests: true
+
+  # Duplicate code detection
+  dupl:
+    threshold: 100
+
+  # Error handling
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+    exclude-functions:
+      - io/ioutil.ReadFile
+      - io.Copy(*bytes.Buffer)
+      - io.Copy(os.Stdout)
+
+  # Function length
+  funlen:
+    lines: 100
+    statements: 50
+
+  # Cognitive complexity
+  gocognit:
+    min-complexity: 20
+
+  # Cyclomatic complexity
+  gocyclo:
+    min-complexity: 15
+
+  # Dot imports
+  goimports:
+    local-prefixes: github.com/aios/aios
+
+  # Line length
+  lll:
+    line-length: 120
+
+  # Naming conventions
+  revive:
+    rules:
+      - name: exported
+        arguments: [checkPrivateReceivers, sayRepetitiveInsteadOfStutters]
+      - name: package-comments
+      - name: var-naming
+      - name: function-result-limit
+        arguments: [3]
+      - name: argument-limit
+        arguments: [5]
+      - name: function-length
+        arguments: [50, 100]
+      - name: max-public-structs
+        arguments: [10]
+
+  # Unused code
+  unused:
+    check-exported: false
+
+  # Whitespace
+  wsl:
+    strict-append: true
+    allow-assign-and-call: true
+    allow-multiline-assign: true
+    allow-case-trailing-whitespace: true
+    allow-cuddle-declarations: false
+
+  # Security
+  gosec:
+    excludes:
+      - G104 # Audit errors not checked
+      - G204 # Subprocess launched with variable
+    config:
+      G301: "0644"
+      G302: "0644"
+      G306: "0644"
+
+  # Performance
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: false
+
+  # Maintainability
+  maintidx:
+    under: 20
+
+linters:
+  enable:
+    # Enabled by default
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+
+    # Additional linters
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - contextcheck
+    - cyclop
+    - decorder
+    - depguard
+    - dogsled
+    - dupl
+    - durationcheck
+    - errname
+    - errorlint
+    - execinquery
+    - exhaustive
+    - exportloopref
+    - forbidigo
+    - forcetypeassert
+    - funlen
+    - gci
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - godox
+    - goerr113
+    - gofmt
+    - gofumpt
+    - goheader
+    - goimports
+    - gomnd
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - grouper
+    - importas
+    - interfacebloat
+    - ireturn
+    - lll
+    - loggercheck
+    - maintidx
+    - makezero
+    - misspell
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnil
+    - nlreturn
+    - noctx
+    - nolintlint
+    - nonamedreturns
+    - nosprintfhostport
+    - prealloc
+    - predeclared
+    - promlinter
+    - reassign
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - stylecheck
+    - tagliatelle
+    - tenv
+    - testableexamples
+    - testpackage
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - usestdlibvars
+    - wastedassign
+    - whitespace
+    - wrapcheck
+    - wsl
+
+  disable:
+    - exhaustivestruct # Too strict for our use case
+    - exhaustruct # Too strict for our use case
+    - gochecksumtype # Not needed for our use case
+    - gosmopolitan # Not needed for our use case
+    - musttag # Too strict for our use case
+    - paralleltest # Not all tests need to be parallel
+    - varnamelen # Too strict for our use case
+
+issues:
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - funlen
+        - gocognit
+        - maintidx
+
+    # Exclude some linters from running on main files
+    - path: cmd/
+      linters:
+        - gochecknoinits
+
+    # Exclude some linters from running on generated files
+    - path: ".*\\.pb\\.go"
+      linters:
+        - lll
+        - gocyclo
+        - errcheck
+        - gosec
+
+    # Exclude specific rules
+    - text: "Use of weak random number generator"
+      linters:
+        - gosec
+    
+    - text: "Subprocess launched with variable"
+      linters:
+        - gosec
+
+    # Exclude magic number warnings for common values
+    - text: "Magic number: 0"
+      linters:
+        - gomnd
+    
+    - text: "Magic number: 1"
+      linters:
+        - gomnd
+
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  new: false
+
+severity:
+  default-severity: error
+  case-sensitive: false
+  rules:
+    - linters:
+        - dupl
+        - funlen
+        - gocognit
+        - gocyclo
+        - lll
+        - maintidx
+      severity: warning

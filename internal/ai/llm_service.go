@@ -1,13 +1,17 @@
 package ai
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
+	"sync"
 	"time"
 
+	"github.com/aios/aios/internal/ai/cache"
 	"github.com/aios/aios/pkg/models"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
@@ -22,6 +26,9 @@ type LLMService struct {
 	httpClient    *http.Client
 	ollamaBaseURL string
 	conversations map[string]*Conversation
+	cache         *cache.MemoryCacheManager
+	semanticCache *cache.SemanticCacheManager
+	mu            sync.RWMutex
 }
 
 // Conversation represents a conversation context
@@ -66,6 +73,27 @@ type OllamaResponse struct {
 func NewLLMService(config AIServiceConfig, logger *logrus.Logger) *LLMService {
 	tracer := otel.Tracer("llm-service")
 
+	// Initialize caching if enabled
+	var memCache *cache.MemoryCacheManager
+	var semCache *cache.SemanticCacheManager
+
+	if config.CacheEnabled {
+		memCache = cache.NewMemoryCacheManager(
+			config.CacheMaxSize,
+			config.CacheTTL,
+			logger,
+		)
+
+		if config.SemanticCache {
+			semCache = cache.NewSemanticCacheManager(
+				int(config.CacheMaxSize/2), // Use half for semantic cache
+				config.CacheTTL,
+				0.8, // 80% similarity threshold
+				logger,
+			)
+		}
+	}
+
 	return &LLMService{
 		config:        config,
 		logger:        logger,
@@ -73,6 +101,8 @@ func NewLLMService(config AIServiceConfig, logger *logrus.Logger) *LLMService {
 		httpClient:    &http.Client{Timeout: config.OllamaTimeout},
 		ollamaBaseURL: fmt.Sprintf("http://%s:%d", config.OllamaHost, config.OllamaPort),
 		conversations: make(map[string]*Conversation),
+		cache:         memCache,
+		semanticCache: semCache,
 	}
 }
 
@@ -409,4 +439,467 @@ func (s *LLMService) buildConversationContext(conversation *Conversation) string
 	contextBuilder.WriteString("\nPlease respond to the latest user message:")
 
 	return contextBuilder.String()
+}
+
+// ProcessQueryStream processes a query with streaming response
+func (s *LLMService) ProcessQueryStream(ctx context.Context, query string) (<-chan *models.LLMStreamChunk, error) {
+	ctx, span := s.tracer.Start(ctx, "llm.ProcessQueryStream")
+	defer span.End()
+
+	s.logger.WithField("query", query).Info("Processing streaming query")
+
+	// Create response channel
+	responseChan := make(chan *models.LLMStreamChunk, 10)
+
+	// Start streaming in a goroutine
+	go func() {
+		defer close(responseChan)
+
+		// Check cache first
+		if s.cache != nil {
+			cacheKey := cache.GenerateKey("llm_query", query, s.config.DefaultModel)
+			if cached, found, err := s.cache.Get(ctx, cacheKey); err == nil && found {
+				if cachedResponse, ok := cached.(*models.LLMResponse); ok {
+					// Send cached response as a single chunk
+					chunk := &models.LLMStreamChunk{
+						ID:        fmt.Sprintf("cached_%d", time.Now().UnixNano()),
+						Content:   cachedResponse.Text,
+						Delta:     cachedResponse.Text,
+						Finished:  true,
+						Metadata:  map[string]interface{}{"cached": true},
+						Timestamp: time.Now(),
+					}
+					responseChan <- chunk
+					return
+				}
+			}
+		}
+
+		// Create streaming request
+		ollamaReq := OllamaRequest{
+			Model:  s.config.DefaultModel,
+			Prompt: query,
+			Stream: true,
+			Options: map[string]interface{}{
+				"temperature": s.config.Temperature,
+				"num_predict": s.config.MaxTokens,
+			},
+		}
+
+		reqBody, err := json.Marshal(ollamaReq)
+		if err != nil {
+			s.logger.WithError(err).Error("Failed to marshal streaming request")
+			return
+		}
+
+		// Make streaming request
+		req, err := http.NewRequestWithContext(ctx, "POST", s.ollamaBaseURL+"/api/generate", bytes.NewBuffer(reqBody))
+		if err != nil {
+			s.logger.WithError(err).Error("Failed to create streaming request")
+			return
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		resp, err := s.httpClient.Do(req)
+		if err != nil {
+			s.logger.WithError(err).Error("Failed to make streaming request")
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			s.logger.WithField("status", resp.StatusCode).Error("Streaming request failed")
+			return
+		}
+
+		// Process streaming response
+		scanner := bufio.NewScanner(resp.Body)
+		var fullResponse strings.Builder
+		chunkID := fmt.Sprintf("stream_%d", time.Now().UnixNano())
+
+		for scanner.Scan() {
+			line := scanner.Text()
+			if line == "" {
+				continue
+			}
+
+			var ollamaChunk OllamaResponse
+			if err := json.Unmarshal([]byte(line), &ollamaChunk); err != nil {
+				s.logger.WithError(err).Error("Failed to parse streaming chunk")
+				continue
+			}
+
+			// Create stream chunk
+			chunk := &models.LLMStreamChunk{
+				ID:       chunkID,
+				Content:  fullResponse.String() + ollamaChunk.Response,
+				Delta:    ollamaChunk.Response,
+				Finished: ollamaChunk.Done,
+				Metadata: map[string]interface{}{
+					"model": s.config.DefaultModel,
+				},
+				Timestamp: time.Now(),
+			}
+
+			fullResponse.WriteString(ollamaChunk.Response)
+			responseChan <- chunk
+
+			if ollamaChunk.Done {
+				// Cache the complete response
+				if s.cache != nil {
+					cacheKey := cache.GenerateKey("llm_query", query, s.config.DefaultModel)
+					llmResponse := &models.LLMResponse{
+						Text:      fullResponse.String(),
+						Model:     s.config.DefaultModel,
+						Timestamp: time.Now(),
+					}
+					s.cache.Set(ctx, cacheKey, llmResponse, s.config.CacheTTL)
+				}
+				break
+			}
+		}
+
+		if err := scanner.Err(); err != nil {
+			s.logger.WithError(err).Error("Error reading streaming response")
+		}
+	}()
+
+	return responseChan, nil
+}
+
+// GenerateCodeStream generates code with streaming response
+func (s *LLMService) GenerateCodeStream(ctx context.Context, prompt string) (<-chan *models.CodeStreamChunk, error) {
+	ctx, span := s.tracer.Start(ctx, "llm.GenerateCodeStream")
+	defer span.End()
+
+	s.logger.WithField("prompt", prompt).Info("Generating code with streaming")
+
+	// Create response channel
+	responseChan := make(chan *models.CodeStreamChunk, 10)
+
+	// Start streaming in a goroutine
+	go func() {
+		defer close(responseChan)
+
+		// Enhance prompt for code generation
+		codePrompt := fmt.Sprintf("Generate code for the following request. Provide clean, well-commented code:\n\n%s", prompt)
+
+		// Use the streaming query method
+		llmStream, err := s.ProcessQueryStream(ctx, codePrompt)
+		if err != nil {
+			s.logger.WithError(err).Error("Failed to start code generation stream")
+			return
+		}
+
+		chunkID := fmt.Sprintf("code_%d", time.Now().UnixNano())
+
+		for chunk := range llmStream {
+			// Detect programming language (simple heuristic)
+			language := "text"
+			if strings.Contains(chunk.Content, "func ") || strings.Contains(chunk.Content, "package ") {
+				language = "go"
+			} else if strings.Contains(chunk.Content, "def ") || strings.Contains(chunk.Content, "import ") {
+				language = "python"
+			} else if strings.Contains(chunk.Content, "function ") || strings.Contains(chunk.Content, "const ") {
+				language = "javascript"
+			}
+
+			codeChunk := &models.CodeStreamChunk{
+				ID:          chunkID,
+				Code:        chunk.Content,
+				Delta:       chunk.Delta,
+				Language:    language,
+				Finished:    chunk.Finished,
+				Explanation: "Generated code based on the provided prompt",
+				Metadata:    chunk.Metadata,
+				Timestamp:   chunk.Timestamp,
+			}
+
+			responseChan <- codeChunk
+		}
+	}()
+
+	return responseChan, nil
+}
+
+// ChatStream maintains a conversation context with streaming
+func (s *LLMService) ChatStream(ctx context.Context, message string, conversationID string) (<-chan *models.ChatStreamChunk, error) {
+	ctx, span := s.tracer.Start(ctx, "llm.ChatStream")
+	defer span.End()
+
+	s.logger.WithFields(logrus.Fields{
+		"message":         message,
+		"conversation_id": conversationID,
+	}).Info("Processing streaming chat")
+
+	// Create response channel
+	responseChan := make(chan *models.ChatStreamChunk, 10)
+
+	// Start streaming in a goroutine
+	go func() {
+		defer close(responseChan)
+
+		s.mu.Lock()
+		conversation := s.getOrCreateConversation(conversationID)
+		s.mu.Unlock()
+
+		// Add user message to conversation
+		conversation.Messages = append(conversation.Messages, ConversationMessage{
+			Role:      "user",
+			Content:   message,
+			Timestamp: time.Now(),
+		})
+
+		// Build context with conversation history
+		contextPrompt := s.buildConversationContext(conversation)
+
+		// Use the streaming query method
+		llmStream, err := s.ProcessQueryStream(ctx, contextPrompt)
+		if err != nil {
+			s.logger.WithError(err).Error("Failed to start chat stream")
+			return
+		}
+
+		chunkID := fmt.Sprintf("chat_%d", time.Now().UnixNano())
+		var fullResponse strings.Builder
+
+		for chunk := range llmStream {
+			chatChunk := &models.ChatStreamChunk{
+				ID:             chunkID,
+				ConversationID: conversationID,
+				Content:        chunk.Content,
+				Delta:          chunk.Delta,
+				Role:           "assistant",
+				Finished:       chunk.Finished,
+				Metadata:       chunk.Metadata,
+				Timestamp:      chunk.Timestamp,
+			}
+
+			fullResponse.WriteString(chunk.Delta)
+			responseChan <- chatChunk
+
+			if chunk.Finished {
+				// Add assistant response to conversation
+				s.mu.Lock()
+				conversation.Messages = append(conversation.Messages, ConversationMessage{
+					Role:      "assistant",
+					Content:   fullResponse.String(),
+					Timestamp: time.Now(),
+				})
+				conversation.Updated = time.Now()
+				s.mu.Unlock()
+			}
+		}
+	}()
+
+	return responseChan, nil
+}
+
+// FunctionCall executes a function call based on the model's response
+func (s *LLMService) FunctionCall(ctx context.Context, functionName string, parameters map[string]any) (*models.FunctionCallResponse, error) {
+	ctx, span := s.tracer.Start(ctx, "llm.FunctionCall")
+	defer span.End()
+
+	start := time.Now()
+	s.logger.WithFields(logrus.Fields{
+		"function": functionName,
+		"params":   parameters,
+	}).Info("Executing function call")
+
+	// TODO: Implement actual function calling
+	// This would involve:
+	// 1. Function registry lookup
+	// 2. Parameter validation
+	// 3. Function execution
+	// 4. Result formatting
+
+	// Mock implementation
+	response := &models.FunctionCallResponse{
+		ID:       fmt.Sprintf("func_%d", time.Now().UnixNano()),
+		Name:     functionName,
+		Result:   fmt.Sprintf("Function %s executed with parameters: %v", functionName, parameters),
+		Success:  true,
+		Duration: time.Since(start),
+		Metadata: map[string]interface{}{
+			"model": s.config.DefaultModel,
+		},
+		Timestamp: time.Now(),
+	}
+
+	s.logger.WithFields(logrus.Fields{
+		"function":       functionName,
+		"success":        response.Success,
+		"execution_time": response.Duration,
+	}).Info("Function call completed")
+
+	return response, nil
+}
+
+// EmbedText generates embeddings for text
+func (s *LLMService) EmbedText(ctx context.Context, text string) (*models.EmbeddingResponse, error) {
+	ctx, span := s.tracer.Start(ctx, "llm.EmbedText")
+	defer span.End()
+
+	start := time.Now()
+	s.logger.WithField("text_length", len(text)).Info("Generating text embedding")
+
+	// TODO: Implement actual text embedding using embedding models
+	// This would involve:
+	// 1. Loading embedding model
+	// 2. Text preprocessing
+	// 3. Generating embeddings
+	// 4. Normalizing vectors
+
+	// Mock implementation - generate random embedding
+	dimension := 768 // Common embedding dimension
+	embedding := make([]float64, dimension)
+	for i := range embedding {
+		embedding[i] = float64(i%100) / 100.0 // Simple pattern for demo
+	}
+
+	response := &models.EmbeddingResponse{
+		Text:      text,
+		Embedding: embedding,
+		Model:     "text-embedding-model",
+		Dimension: dimension,
+		Timestamp: time.Now(),
+	}
+
+	s.logger.WithFields(logrus.Fields{
+		"text_length":     len(text),
+		"embedding_dim":   dimension,
+		"processing_time": time.Since(start),
+	}).Info("Text embedding completed")
+
+	return response, nil
+}
+
+// BatchEmbed generates embeddings for multiple texts
+func (s *LLMService) BatchEmbed(ctx context.Context, texts []string) (*models.BatchEmbeddingResponse, error) {
+	ctx, span := s.tracer.Start(ctx, "llm.BatchEmbed")
+	defer span.End()
+
+	start := time.Now()
+	s.logger.WithField("batch_size", len(texts)).Info("Generating batch embeddings")
+
+	// TODO: Implement actual batch embedding
+	// This would involve:
+	// 1. Batch processing optimization
+	// 2. Parallel embedding generation
+	// 3. Memory management for large batches
+
+	// Mock implementation
+	dimension := 768
+	embeddings := make([][]float64, len(texts))
+
+	for i := range texts {
+		embedding := make([]float64, dimension)
+		for j := range embedding {
+			embedding[j] = float64((i+j)%100) / 100.0 // Simple pattern for demo
+		}
+		embeddings[i] = embedding
+	}
+
+	response := &models.BatchEmbeddingResponse{
+		Texts:      texts,
+		Embeddings: embeddings,
+		Model:      "text-embedding-model",
+		Dimension:  dimension,
+		Timestamp:  time.Now(),
+	}
+
+	s.logger.WithFields(logrus.Fields{
+		"batch_size":      len(texts),
+		"embedding_dim":   dimension,
+		"processing_time": time.Since(start),
+	}).Info("Batch embedding completed")
+
+	return response, nil
+}
+
+// GetModelInfo gets detailed information about a model
+func (s *LLMService) GetModelInfo(ctx context.Context, modelName string) (*models.ModelInfo, error) {
+	ctx, span := s.tracer.Start(ctx, "llm.GetModelInfo")
+	defer span.End()
+
+	s.logger.WithField("model", modelName).Info("Getting model information")
+
+	// TODO: Implement actual model info retrieval from Ollama
+	// This would involve:
+	// 1. Querying Ollama API for model details
+	// 2. Parsing model metadata
+	// 3. Calculating model statistics
+
+	// Mock implementation
+	info := &models.ModelInfo{
+		ID:           modelName,
+		Name:         modelName,
+		Version:      "latest",
+		Type:         "llm",
+		Provider:     "ollama",
+		Size:         3800000000, // 3.8GB
+		Parameters:   7000000000, // 7B parameters
+		Description:  fmt.Sprintf("Language model: %s", modelName),
+		Capabilities: []string{"text-generation", "chat", "code", "summarization"},
+		Languages:    []string{"en", "es", "fr", "de", "it"},
+		MaxTokens:    s.config.MaxTokens,
+		ContextSize:  4096,
+		Precision:    "fp16",
+		Hardware:     []string{"cpu", "gpu"},
+		License:      "custom",
+		Status:       "available",
+		MemoryUsage:  3800000000,
+		CreatedAt:    time.Now().Add(-30 * 24 * time.Hour),
+		UpdatedAt:    time.Now(),
+	}
+
+	s.logger.WithFields(logrus.Fields{
+		"model":      modelName,
+		"size":       info.Size,
+		"parameters": info.Parameters,
+	}).Info("Model information retrieved")
+
+	return info, nil
+}
+
+// ChatWithHistory maintains a conversation with full message history
+func (s *LLMService) ChatWithHistory(ctx context.Context, messages []models.ChatMessage) (*models.ChatResponse, error) {
+	ctx, span := s.tracer.Start(ctx, "llm_service.ChatWithHistory")
+	defer span.End()
+
+	if len(messages) == 0 {
+		return nil, fmt.Errorf("no messages provided")
+	}
+
+	// Convert messages to a single prompt
+	var promptBuilder strings.Builder
+	for _, msg := range messages {
+		switch msg.Role {
+		case "system":
+			promptBuilder.WriteString(fmt.Sprintf("System: %s\n", msg.Content))
+		case "user":
+			promptBuilder.WriteString(fmt.Sprintf("User: %s\n", msg.Content))
+		case "assistant":
+			promptBuilder.WriteString(fmt.Sprintf("Assistant: %s\n", msg.Content))
+		}
+	}
+	promptBuilder.WriteString("Assistant: ")
+
+	prompt := promptBuilder.String()
+
+	// Use the existing ProcessQuery method
+	queryResponse, err := s.ProcessQuery(ctx, prompt)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to ChatResponse
+	response := &models.ChatResponse{
+		Message:        queryResponse.Text,
+		ConversationID: "history-based",
+		Confidence:     queryResponse.Confidence,
+		Timestamp:      time.Now(),
+	}
+
+	return response, nil
 }

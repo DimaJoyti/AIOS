@@ -56,8 +56,8 @@ func NewOrchestrator(config AIServiceConfig, logger *logrus.Logger) *Orchestrato
 func (o *Orchestrator) Initialize(ctx context.Context) error {
 	o.logger.Info("Initializing AI orchestrator")
 
-	// Initialize individual services
-	o.llmService = NewLLMService(o.config, o.logger)
+	// Initialize individual services (using enhanced LLM service with real Ollama integration)
+	o.llmService = NewEnhancedLLMService(o.config, o.logger, nil, nil)
 	o.cvService = NewCVService(o.config, o.logger)
 	o.optimizationService = NewOptimizationService(o.config, o.logger)
 	// TODO: Initialize voice and NLP services
@@ -73,7 +73,7 @@ func (o *Orchestrator) ProcessRequest(ctx context.Context, request *models.AIReq
 	defer span.End()
 
 	start := time.Now()
-	
+
 	o.logger.WithFields(logrus.Fields{
 		"request_id":   request.ID,
 		"request_type": request.Type,
@@ -202,6 +202,33 @@ func (o *Orchestrator) GetServiceStatus(ctx context.Context) (*models.AIServiceS
 	}
 
 	return status, nil
+}
+
+// Service getters for desktop integration
+
+// GetNLPService returns the NLP service
+func (o *Orchestrator) GetNLPService() NaturalLanguageService {
+	return o.nlpService
+}
+
+// GetCVService returns the computer vision service
+func (o *Orchestrator) GetCVService() ComputerVisionService {
+	return o.cvService
+}
+
+// GetLLMService returns the language model service
+func (o *Orchestrator) GetLLMService() LanguageModelService {
+	return o.llmService
+}
+
+// GetVoiceService returns the voice service
+func (o *Orchestrator) GetVoiceService() VoiceService {
+	return o.voiceService
+}
+
+// GetModelManager returns the model manager
+func (o *Orchestrator) GetModelManager() ModelManager {
+	return o.modelManager
 }
 
 // RouteRequest routes a request to the appropriate AI service
@@ -424,10 +451,10 @@ func (o *Orchestrator) processAnalysisRequest(ctx context.Context, request *mode
 
 func (o *Orchestrator) executeWorkflow(execution *WorkflowExecution) *models.WorkflowResult {
 	start := time.Now()
-	
+
 	// Build dependency graph
 	dependencyGraph := o.buildDependencyGraph(execution.Workflow.Steps)
-	
+
 	// Execute steps in dependency order
 	for _, step := range dependencyGraph {
 		if err := o.executeWorkflowStep(execution, step); err != nil {
@@ -497,7 +524,7 @@ func (o *Orchestrator) determineAggregationMethod(results []models.AIResult) str
 	if len(results) == 1 {
 		return "single"
 	}
-	
+
 	// Check if all results are from the same type of service
 	firstType := results[0].Type
 	allSameType := true
@@ -507,11 +534,11 @@ func (o *Orchestrator) determineAggregationMethod(results []models.AIResult) str
 			break
 		}
 	}
-	
+
 	if allSameType {
 		return "weighted_average"
 	}
-	
+
 	return "consensus"
 }
 

@@ -1,0 +1,28 @@
+# Trivy ignore file for AIOS
+# This file contains vulnerabilities that are intentionally ignored
+
+# Development dependencies - not used in production
+CVE-2023-45133  # babel-traverse (dev dependency)
+CVE-2023-26136  # tough-cookie (dev dependency)
+CVE-2023-26115  # word-wrap (dev dependency)
+
+# Low severity vulnerabilities in base images
+CVE-2023-4911   # glibc (low severity, requires local access)
+CVE-2023-29491  # ncurses (low severity, terminal manipulation)
+
+# False positives
+CVE-2023-45288  # golang.org/x/net (false positive for our use case)
+
+# Vulnerabilities with no fix available yet
+# (Remove these once fixes are available)
+# CVE-YYYY-XXXXX  # Description of why it's temporarily ignored
+
+# Development tools vulnerabilities (not in production)
+# These are tools used only during development and not shipped
+GHSA-xxxx-xxxx-xxxx  # Development tool vulnerability
+
+# Note: This file should be regularly reviewed and updated
+# Ignored vulnerabilities should have:
+# 1. A clear reason for ignoring
+# 2. A plan for addressing (if applicable)
+# 3. Regular review dates

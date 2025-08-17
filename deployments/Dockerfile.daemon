@@ -1,7 +1,8 @@
 # Multi-stage Dockerfile for AIOS Daemon
+# This Dockerfile builds the main system daemon with optimized layers
 
 # Development stage
-FROM golang:1.22-alpine AS development
+FROM golang:1.23-alpine AS development
 
 # Install development dependencies
 RUN apk add --no-cache \
@@ -38,7 +39,7 @@ EXPOSE 8080 9090 2345
 CMD ["air", "-c", ".air.toml"]
 
 # Build stage
-FROM golang:1.22-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache \
@@ -61,22 +62,29 @@ RUN go mod download
 # Copy source code
 COPY . .
 
+# Build arguments
+ARG VERSION=dev
+ARG COMMIT=unknown
+ARG BUILD_TIME=unknown
+
 # Build the application
-RUN CGO_ENABLED=1 GOOS=linux go build \
-    -ldflags="-w -s -extldflags '-static'" \
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build \
+    -ldflags="-s -w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.BuildTime=${BUILD_TIME} -extldflags '-static'" \
     -a -installsuffix cgo \
     -o aios-daemon \
     ./cmd/aios-daemon
 
 # Production stage
-FROM alpine:latest AS production
+FROM alpine:3.19 AS production
 
 # Install runtime dependencies
-RUN apk --no-cache add \
+RUN apk add --no-cache \
     ca-certificates \
     tzdata \
     sqlite \
-    && update-ca-certificates
+    curl \
+    jq \
+    && rm -rf /var/cache/apk/*
 
 # Create non-root user
 RUN addgroup -g 1001 -S aios && \
@@ -86,13 +94,14 @@ RUN addgroup -g 1001 -S aios && \
 WORKDIR /app
 
 # Copy binary from builder stage
-COPY --from=builder /app/aios-daemon .
+COPY --from=builder /app/aios-daemon /app/aios-daemon
 
 # Copy configuration files
-COPY --chown=aios:aios configs/ ./configs/
+COPY --chown=aios:aios configs/ /app/configs/
 
-# Create data directory
-RUN mkdir -p /app/data && chown -R aios:aios /app/data
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/models && \
+    chown -R aios:aios /app
 
 # Switch to non-root user
 USER aios
@@ -101,8 +110,23 @@ USER aios
 EXPOSE 8080 9090
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
 
-# Default command
-CMD ["./aios-daemon"]
+# Set environment variables
+ENV AIOS_ENV=production
+ENV AIOS_CONFIG_PATH=/app/configs
+ENV AIOS_LOG_LEVEL=info
+
+# Run the application
+ENTRYPOINT ["/app/aios-daemon"]
+CMD ["--config", "/app/configs/environments/production.yaml"]
+
+# Labels for metadata
+LABEL maintainer="AIOS Team <team@aios.dev>"
+LABEL org.opencontainers.image.title="AIOS Daemon"
+LABEL org.opencontainers.image.description="Main System Daemon for AIOS"
+LABEL org.opencontainers.image.vendor="AIOS"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.source="https://github.com/aios/aios"
+LABEL org.opencontainers.image.documentation="https://docs.aios.dev"

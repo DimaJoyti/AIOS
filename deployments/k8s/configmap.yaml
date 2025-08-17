@@ -1,0 +1,282 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aios-config
+  namespace: aios
+  labels:
+    app.kubernetes.io/name: aios
+    app.kubernetes.io/component: config
+data:
+  production.yaml: |
+    environment: production
+    version: "1.0.0"
+    
+    server:
+      host: "0.0.0.0"
+      port: 8080
+      read_timeout: 10s
+      write_timeout: 10s
+      idle_timeout: 30s
+      shutdown_timeout: 30s
+      enable_pprof: false
+    
+    metrics:
+      enabled: true
+      host: "0.0.0.0"
+      port: 9090
+      path: "/metrics"
+      collect_interval: 60s
+    
+    logging:
+      level: info
+      format: json
+      output: stdout
+      enable_caller: false
+      enable_stacktrace: false
+      development: false
+    
+    database:
+      driver: postgres
+      host: aios-postgres
+      port: 5432
+      name: aios
+      ssl_mode: require
+      max_open_conns: 100
+      max_idle_conns: 20
+      conn_max_lifetime: 1800s
+      conn_max_idle_time: 600s
+      log_queries: false
+      slow_query_threshold: 5s
+    
+    redis:
+      host: aios-redis
+      port: 6379
+      db: 0
+      pool_size: 50
+      min_idle_conns: 20
+      dial_timeout: 5s
+      read_timeout: 3s
+      write_timeout: 3s
+      pool_timeout: 4s
+      idle_timeout: 300s
+      max_retries: 3
+    
+    ai:
+      enabled: true
+      debug: false
+      llm:
+        provider: ollama
+        endpoint: http://aios-ollama:11434
+        model: llama2
+        max_tokens: 2048
+        temperature: 0.7
+        timeout: 120s
+        retry_attempts: 3
+      cv:
+        enabled: true
+        provider: local
+        confidence_threshold: 0.9
+      optimization:
+        enabled: true
+        collection_interval: 300s
+        analysis_interval: 1800s
+        auto_apply: true
+    
+    security:
+      jwt:
+        issuer: aios-production
+        audience: aios-users
+        access_token_ttl: 15m
+        refresh_token_ttl: 4h
+      encryption:
+        algorithm: AES-256-GCM
+      cors:
+        enabled: true
+        allowed_methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+        allowed_headers:
+          - "Content-Type"
+          - "Authorization"
+        allow_credentials: true
+        max_age: 86400
+      rate_limiting:
+        enabled: true
+        requests_per_minute: 100
+        burst: 20
+      auth:
+        session_timeout: 4h
+        max_login_attempts: 3
+        lockout_duration: 1h
+    
+    tracing:
+      enabled: true
+      service_name: aios-production
+      service_version: "1.0.0"
+      environment: production
+      jaeger:
+        sampler_type: probabilistic
+        sampler_param: 0.01
+      otlp:
+        insecure: false
+    
+    features:
+      voice_control: true
+      computer_vision: true
+      predictive_fs: true
+      developer_tools: true
+      ai_optimization: true
+      advanced_security: true
+      experimental_features: false
+    
+    storage:
+      cloud:
+        encryption: true
+        max_file_size: 10MB
+      models:
+        cache_size: 5GB
+        auto_download: true
+        encryption: true
+    
+    performance:
+      gc:
+        target_percentage: 100
+        max_heap_size: 4GB
+      concurrency:
+        max_goroutines: 5000
+        worker_pool_size: 50
+      cache:
+        default_ttl: 1800s
+        max_size: 2GB
+        cleanup_interval: 600s
+    
+    health:
+      enabled: true
+      endpoint: /health
+      detailed_endpoint: /health/detailed
+      check_interval: 15s
+      checks:
+        database: true
+        redis: true
+        ai_services: true
+        external_apis: true
+    
+    backup:
+      enabled: true
+      schedule: "0 1 * * *"
+      retention_days: 90
+      storage:
+        encryption: true
+        cross_region_replication: true
+    
+    monitoring:
+      prometheus:
+        enabled: true
+        scrape_interval: 60s
+        retention: 30d
+      grafana:
+        enabled: true
+      alerting:
+        enabled: true
+        rules:
+          high_cpu: 70
+          high_memory: 80
+          high_disk: 85
+          error_rate: 1
+          response_time: 1000
+    
+    security_hardening:
+      tls:
+        min_version: "1.2"
+        cipher_suites:
+          - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+          - "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
+          - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+      headers:
+        hsts: true
+        content_type_nosniff: true
+        frame_deny: true
+        xss_protection: true
+      audit:
+        enabled: true
+        log_all_requests: false
+        log_sensitive_operations: true
+        retention_days: 365
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aios-prometheus-config
+  namespace: aios
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: config
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 60s
+      evaluation_interval: 60s
+      external_labels:
+        cluster: 'aios-production'
+        environment: 'production'
+    
+    rule_files:
+      - "/etc/prometheus/rules/*.yml"
+    
+    scrape_configs:
+      - job_name: 'aios-daemon'
+        static_configs:
+          - targets: ['aios-daemon:9090']
+        metrics_path: /metrics
+        scrape_interval: 30s
+        scrape_timeout: 10s
+    
+      - job_name: 'aios-assistant'
+        static_configs:
+          - targets: ['aios-assistant:9091']
+        metrics_path: /metrics
+        scrape_interval: 30s
+        scrape_timeout: 10s
+    
+      - job_name: 'aios-desktop'
+        static_configs:
+          - targets: ['aios-desktop:9092']
+        metrics_path: /metrics
+        scrape_interval: 30s
+        scrape_timeout: 10s
+    
+      - job_name: 'kubernetes-pods'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - aios
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: kubernetes_namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: kubernetes_pod_name
+    
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+              - alertmanager:9093

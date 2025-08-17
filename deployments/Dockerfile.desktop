@@ -1,0 +1,134 @@
+# Multi-stage Dockerfile for AIOS Desktop Service
+# This Dockerfile builds the desktop environment service with optimized layers
+
+# Build stage
+FROM golang:1.23-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    git \
+    ca-certificates \
+    tzdata \
+    gcc \
+    musl-dev \
+    pkgconfig \
+    gtk+3.0-dev \
+    webkit2gtk-dev
+
+# Set working directory
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download && go mod verify
+
+# Copy source code
+COPY . .
+
+# Build arguments
+ARG VERSION=dev
+ARG COMMIT=unknown
+ARG BUILD_TIME=unknown
+
+# Build the application
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build \
+    -ldflags="-s -w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.BuildTime=${BUILD_TIME}" \
+    -o aios-desktop \
+    ./cmd/aios-desktop
+
+# Final stage
+FROM alpine:3.19
+
+# Install runtime dependencies for desktop environment
+RUN apk add --no-cache \
+    ca-certificates \
+    tzdata \
+    curl \
+    jq \
+    gtk+3.0 \
+    webkit2gtk \
+    mesa-dri-gallium \
+    xvfb \
+    x11vnc \
+    fluxbox \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user
+RUN addgroup -g 1001 -S aios && \
+    adduser -u 1001 -S aios -G aios
+
+# Set working directory
+WORKDIR /app
+
+# Copy binary from builder stage
+COPY --from=builder /app/aios-desktop /app/aios-desktop
+
+# Copy configuration files
+COPY --chown=aios:aios configs/ /app/configs/
+
+# Copy desktop environment files
+COPY --chown=aios:aios web/desktop/dist/ /app/web/
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/screenshots /tmp/.X11-unix && \
+    chown -R aios:aios /app /tmp/.X11-unix
+
+# Switch to non-root user
+USER aios
+
+# Expose ports
+EXPOSE 8082 9092 5900
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8082/health || exit 1
+
+# Set environment variables
+ENV AIOS_ENV=production
+ENV AIOS_CONFIG_PATH=/app/configs
+ENV AIOS_LOG_LEVEL=info
+ENV DISPLAY=:99
+ENV XDG_RUNTIME_DIR=/tmp
+
+# Create startup script
+USER root
+RUN cat > /app/start-desktop.sh << 'EOF'
+#!/bin/sh
+
+# Start Xvfb (virtual framebuffer)
+Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset &
+XVFB_PID=$!
+
+# Wait for X server to start
+sleep 2
+
+# Start window manager
+fluxbox &
+WM_PID=$!
+
+# Start VNC server for remote access
+x11vnc -display :99 -nopw -listen localhost -xkb -ncache 10 -ncache_cr -forever &
+VNC_PID=$!
+
+# Start AIOS desktop service
+exec /app/aios-desktop --config /app/configs/environments/production.yaml
+EOF
+
+RUN chmod +x /app/start-desktop.sh && chown aios:aios /app/start-desktop.sh
+
+# Switch back to non-root user
+USER aios
+
+# Run the startup script
+ENTRYPOINT ["/app/start-desktop.sh"]
+
+# Labels for metadata
+LABEL maintainer="AIOS Team <team@aios.dev>"
+LABEL org.opencontainers.image.title="AIOS Desktop"
+LABEL org.opencontainers.image.description="Desktop Environment Service for AIOS"
+LABEL org.opencontainers.image.vendor="AIOS"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.source="https://github.com/aios/aios"
+LABEL org.opencontainers.image.documentation="https://docs.aios.dev"

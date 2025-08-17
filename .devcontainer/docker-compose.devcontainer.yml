@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  devcontainer:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspace:cached
+      - go-mod-cache:/go/pkg/mod
+      - node-modules-cache:/workspace/web/node_modules
+      - vscode-extensions:/home/vscode/.vscode-server/extensions
+      - vscode-extensions-insiders:/home/vscode/.vscode-server-insiders/extensions
+    environment:
+      - AIOS_ENV=development
+      - AIOS_LOG_LEVEL=debug
+      - AIOS_BIND_ADDR=:8080
+      - AIOS_METRICS_ADDR=:9090
+      - POSTGRES_URL=postgres://aios:aios@postgres:5432/aios?sslmode=disable
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - aios-dev
+    command: sleep infinity
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: aios
+      POSTGRES_USER: aios
+      POSTGRES_PASSWORD: aios
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ../scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - aios-dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aios"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - aios-dev
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ../configs/prometheus.dev.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - aios-dev
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ../configs/grafana:/etc/grafana/provisioning:ro
+    ports:
+      - "3001:3000"
+    networks:
+      - aios-dev
+    depends_on:
+      - prometheus
+
+volumes:
+  go-mod-cache:
+  node-modules-cache:
+  vscode-extensions:
+  vscode-extensions-insiders:
+  postgres-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  aios-dev:
+    driver: bridge

@@ -8,6 +8,8 @@ import (
 
 	"github.com/aios/aios/internal/ai"
 	"github.com/aios/aios/internal/desktop"
+	"github.com/aios/aios/internal/devtools"
+	"github.com/aios/aios/internal/security"
 	"github.com/aios/aios/pkg/models"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
@@ -20,9 +22,10 @@ type Manager struct {
 	tracer          trace.Tracer
 	resourceManager *ResourceManager
 	fileSystemAI    *FileSystemAI
-	securityManager *SecurityManager
+	securityManager *security.Manager
 	optimizationAI  *OptimizationAI
 	desktopManager  *desktop.Manager
+	devToolsManager *devtools.Manager
 	aiOrchestrator  *ai.Orchestrator
 	mu              sync.RWMutex
 	running         bool
@@ -43,7 +46,117 @@ func NewManager(logger *logrus.Logger) (*Manager, error) {
 		return nil, fmt.Errorf("failed to create filesystem AI: %w", err)
 	}
 
-	securityManager, err := NewSecurityManager(logger)
+	// Initialize security manager with default config
+	securityConfig := security.SecurityConfig{
+		Enabled: true,
+		Authentication: security.AuthConfig{
+			Enabled:        true,
+			JWTSecret:      "dev-secret-key-change-in-production",
+			SessionTimeout: 24 * time.Hour,
+			MFA: security.MFAConfig{
+				Enabled: false,
+			},
+			OAuth: security.OAuthConfig{
+				Enabled: false,
+			},
+			LDAP: security.LDAPConfig{
+				Enabled: false,
+			},
+			PasswordPolicy: security.PasswordPolicyConfig{
+				MinLength:        8,
+				RequireUppercase: true,
+				RequireLowercase: true,
+				RequireNumbers:   true,
+				RequireSymbols:   false,
+				MaxAge:           90 * 24 * time.Hour,
+				HistorySize:      5,
+			},
+		},
+		Encryption: security.EncryptionConfig{
+			Enabled:     true,
+			Algorithm:   "AES-256-GCM",
+			KeySize:     256,
+			AtRest:      true,
+			InTransit:   true,
+			KeyRotation: 30 * 24 * time.Hour,
+			HSMEnabled:  false,
+		},
+		Privacy: security.PrivacyConfig{
+			Enabled:           true,
+			DataMinimization:  true,
+			Anonymization:     true,
+			Pseudonymization:  false,
+			DataRetention:     30 * 24 * time.Hour,
+			ConsentManagement: true,
+			RightToErasure:    true,
+			DataPortability:   true,
+			PIIDetection:      true,
+		},
+		ThreatDetection: security.ThreatDetectionConfig{
+			Enabled:            true,
+			RealTime:           true,
+			MachineLearning:    false,
+			BehavioralAnalysis: true,
+			NetworkMonitoring:  true,
+			FileIntegrity:      true,
+			AlertThresholds: map[string]float64{
+				"anomaly_score": 0.8,
+				"risk_level":    0.7,
+			},
+			ResponseActions: []string{"log", "alert", "block"},
+		},
+		Audit: security.AuditConfig{
+			Enabled:         true,
+			LogLevel:        "info",
+			RetentionPeriod: 90 * 24 * time.Hour,
+			Encryption:      true,
+			Integrity:       true,
+			RemoteLogging:   false,
+			SIEMIntegration: false,
+		},
+		AccessControl: security.AccessControlConfig{
+			Enabled:       true,
+			Model:         "RBAC",
+			DefaultPolicy: "deny",
+			Roles: map[string][]string{
+				"admin": {"*"},
+				"user":  {"read", "write"},
+			},
+			Permissions: map[string][]string{
+				"system": {"read", "write", "admin"},
+				"data":   {"read", "write"},
+			},
+			SessionTimeout: 8 * time.Hour,
+			MaxSessions:    5,
+		},
+		Compliance: security.ComplianceConfig{
+			Enabled:    true,
+			Standards:  []string{"GDPR", "SOC2"},
+			Reporting:  true,
+			Monitoring: true,
+			Automation: false,
+		},
+		IncidentResponse: security.IncidentResponseConfig{
+			Enabled:      true,
+			AutoResponse: false,
+			EscalationRules: []security.EscalationRule{
+				{
+					Severity:  "high",
+					TimeLimit: 1 * time.Hour,
+					Contacts:  []string{"admin@aios.local"},
+					Actions:   []string{"notify", "isolate"},
+				},
+			},
+		},
+		VulnerabilityScanning: security.VulnerabilityConfig{
+			Enabled:         true,
+			ScanInterval:    24 * time.Hour,
+			ScanTypes:       []string{"static", "dynamic"},
+			AutoRemediation: false,
+		},
+	}
+
+	securityManager, err := security.NewManager(logger, securityConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create security manager: %w", err)
 	}
@@ -129,6 +242,91 @@ func NewManager(logger *logrus.Logger) (*Manager, error) {
 		return nil, fmt.Errorf("failed to create desktop manager: %w", err)
 	}
 
+	// Initialize developer tools manager with default config
+	devToolsConfig := devtools.DevToolsConfig{
+		Enabled: true,
+		Debug: devtools.DebugConfig{
+			Enabled:         true,
+			Port:            2345,
+			RemoteDebugging: true,
+			Breakpoints:     []string{},
+			WatchVariables:  []string{},
+			StackTraceDepth: 10,
+		},
+		Profiling: devtools.ProfilingConfig{
+			Enabled:            true,
+			CPUProfiling:       true,
+			MemoryProfiling:    true,
+			GoroutineProfiling: true,
+			BlockProfiling:     true,
+			MutexProfiling:     true,
+			ProfileDuration:    30 * time.Second,
+			OutputDir:          "/tmp/aios-profiles",
+		},
+		CodeAnalysis: devtools.CodeAnalysisConfig{
+			Enabled:         true,
+			StaticAnalysis:  true,
+			SecurityScan:    true,
+			QualityMetrics:  true,
+			DependencyCheck: true,
+			LintRules:       []string{"gofmt", "govet", "golint"},
+			ExcludePaths:    []string{"vendor", ".git", "node_modules"},
+		},
+		Testing: devtools.TestingConfig{
+			Enabled:     true,
+			AutoRun:     false,
+			Coverage:    true,
+			Benchmarks:  true,
+			Integration: true,
+			E2E:         false,
+			Timeout:     5 * time.Minute,
+			Parallel:    4,
+			Verbose:     false,
+		},
+		Build: devtools.BuildConfig{
+			Enabled:         true,
+			AutoBuild:       false,
+			OptimizedBuild:  false,
+			CrossCompile:    false,
+			TargetPlatforms: []string{"linux/amd64"},
+			BuildTags:       []string{},
+			LDFlags:         "",
+			OutputDir:       "./bin",
+		},
+		LiveReload: devtools.LiveReloadConfig{
+			Enabled:        false,
+			Port:           3001,
+			WatchPaths:     []string{"./internal", "./pkg", "./cmd"},
+			IgnorePatterns: []string{"*.log", "*.tmp", ".git"},
+			Extensions:     []string{".go", ".html", ".css", ".js"},
+			Delay:          500 * time.Millisecond,
+		},
+		LogAnalysis: devtools.LogAnalysisConfig{
+			Enabled:             true,
+			RealTime:            true,
+			ErrorDetection:      true,
+			PerformanceAnalysis: true,
+			LogSources:          []string{"/var/log/aios.log"},
+			AlertThresholds: map[string]float64{
+				"error_rate":    0.05,
+				"response_time": 1000,
+			},
+		},
+		Metrics: devtools.MetricsConfig{
+			Enabled:            true,
+			CollectionInterval: 30 * time.Second,
+			CustomMetrics:      true,
+			PerformanceMetrics: true,
+			BusinessMetrics:    false,
+			ExportFormat:       "prometheus",
+		},
+	}
+
+	devToolsManager, err := devtools.NewManager(logger, devToolsConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create developer tools manager: %w", err)
+	}
+
 	return &Manager{
 		logger:          logger,
 		tracer:          tracer,
@@ -137,6 +335,7 @@ func NewManager(logger *logrus.Logger) (*Manager, error) {
 		securityManager: securityManager,
 		optimizationAI:  optimizationAI,
 		desktopManager:  desktopManager,
+		devToolsManager: devToolsManager,
 		aiOrchestrator:  aiOrchestrator,
 		stopCh:          make(chan struct{}),
 	}, nil
@@ -186,6 +385,11 @@ func (m *Manager) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to start desktop manager: %w", err)
 	}
 
+	// Start developer tools manager
+	if err := m.devToolsManager.Start(ctx); err != nil {
+		return fmt.Errorf("failed to start developer tools manager: %w", err)
+	}
+
 	// Start monitoring goroutines
 	go m.monitorSystem()
 	go m.performOptimizations()
@@ -214,6 +418,10 @@ func (m *Manager) Stop(ctx context.Context) error {
 	close(m.stopCh)
 
 	// Stop components in reverse order
+	if err := m.devToolsManager.Stop(ctx); err != nil {
+		m.logger.WithError(err).Error("Failed to stop developer tools manager")
+	}
+
 	if err := m.desktopManager.Stop(ctx); err != nil {
 		m.logger.WithError(err).Error("Failed to stop desktop manager")
 	}
@@ -290,7 +498,7 @@ func (m *Manager) GetFileSystemAI() *FileSystemAI {
 }
 
 // GetSecurityManager returns the security manager instance
-func (m *Manager) GetSecurityManager() *SecurityManager {
+func (m *Manager) GetSecurityManager() *security.Manager {
 	return m.securityManager
 }
 
@@ -307,6 +515,11 @@ func (m *Manager) GetAIOrchestrator() *ai.Orchestrator {
 // GetDesktopManager returns the desktop manager instance
 func (m *Manager) GetDesktopManager() *desktop.Manager {
 	return m.desktopManager
+}
+
+// GetDevToolsManager returns the developer tools manager instance
+func (m *Manager) GetDevToolsManager() *devtools.Manager {
+	return m.devToolsManager
 }
 
 // monitorSystem continuously monitors system health and performance

@@ -1,0 +1,283 @@
+# AIOS Staging Environment Configuration
+# This configuration is optimized for staging/testing with production-like settings
+
+environment: staging
+version: "1.0.0"
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8080
+  read_timeout: 15s
+  write_timeout: 15s
+  idle_timeout: 60s
+  shutdown_timeout: 30s
+  enable_pprof: false
+
+# Metrics and Monitoring
+metrics:
+  enabled: true
+  host: "0.0.0.0"
+  port: 9090
+  path: "/metrics"
+  collect_interval: 30s
+
+# Logging Configuration
+logging:
+  level: info
+  format: json
+  output: stdout
+  enable_caller: false
+  enable_stacktrace: false
+  development: false
+  sampling:
+    initial: 100
+    thereafter: 100
+
+# Database Configuration
+database:
+  driver: postgres
+  host: ${POSTGRES_HOST}
+  port: ${POSTGRES_PORT:5432}
+  name: ${POSTGRES_DB}
+  user: ${POSTGRES_USER}
+  password: ${POSTGRES_PASSWORD}
+  ssl_mode: require
+  max_open_conns: 50
+  max_idle_conns: 10
+  conn_max_lifetime: 600s
+  conn_max_idle_time: 300s
+  log_queries: false
+  slow_query_threshold: 2s
+
+# Redis Configuration
+redis:
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT:6379}
+  password: ${REDIS_PASSWORD}
+  db: 0
+  pool_size: 20
+  min_idle_conns: 10
+  dial_timeout: 5s
+  read_timeout: 3s
+  write_timeout: 3s
+  pool_timeout: 4s
+  idle_timeout: 300s
+  max_retries: 3
+
+# AI Services Configuration
+ai:
+  enabled: true
+  debug: false
+  
+  # Language Model Configuration
+  llm:
+    provider: ${AI_LLM_PROVIDER:ollama}
+    endpoint: ${AI_LLM_ENDPOINT}
+    model: ${AI_LLM_MODEL:llama2}
+    max_tokens: 2048
+    temperature: 0.7
+    timeout: 60s
+    retry_attempts: 3
+    
+  # Computer Vision Configuration
+  cv:
+    enabled: true
+    provider: ${AI_CV_PROVIDER:local}
+    models_path: ${AI_CV_MODELS_PATH}
+    confidence_threshold: 0.85
+    
+  # Optimization Service Configuration
+  optimization:
+    enabled: true
+    collection_interval: 60s
+    analysis_interval: 600s
+    auto_apply: false
+
+# Security Configuration
+security:
+  # JWT Configuration
+  jwt:
+    secret: ${JWT_SECRET}
+    issuer: aios-staging
+    audience: aios-users
+    access_token_ttl: 30m
+    refresh_token_ttl: 8h
+    
+  # Encryption Configuration
+  encryption:
+    key: ${ENCRYPTION_KEY}
+    algorithm: AES-256-GCM
+    
+  # CORS Configuration
+  cors:
+    enabled: true
+    allowed_origins:
+      - ${FRONTEND_URL}
+      - ${API_URL}
+    allowed_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    allowed_headers:
+      - "Content-Type"
+      - "Authorization"
+      - "X-Requested-With"
+    allow_credentials: true
+    max_age: 86400
+    
+  # Rate Limiting
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 500
+    burst: 50
+    
+  # Authentication
+  auth:
+    session_timeout: 8h
+    max_login_attempts: 3
+    lockout_duration: 30m
+
+# Tracing Configuration
+tracing:
+  enabled: true
+  service_name: aios-staging
+  service_version: "1.0.0"
+  environment: staging
+  
+  # Jaeger Configuration
+  jaeger:
+    endpoint: ${JAEGER_ENDPOINT}
+    sampler_type: probabilistic
+    sampler_param: 0.1
+    
+  # OTLP Configuration
+  otlp:
+    endpoint: ${OTLP_ENDPOINT}
+    insecure: false
+
+# Feature Flags
+features:
+  voice_control: false
+  computer_vision: true
+  predictive_fs: true
+  developer_tools: true
+  ai_optimization: true
+  advanced_security: true
+  experimental_features: false
+
+# Staging Specific Settings
+staging:
+  auto_migrate: true
+  seed_data: false
+  mock_external_services: false
+  enable_debug_endpoints: false
+  
+  # Testing Configuration
+  testing:
+    enabled: true
+    test_data_retention: 7d
+    performance_testing: true
+    load_testing: true
+
+# External Services
+external_services:
+  # GitHub Integration
+  github:
+    enabled: ${GITHUB_ENABLED:false}
+    token: ${GITHUB_TOKEN}
+    webhook_secret: ${GITHUB_WEBHOOK_SECRET}
+    
+  # Slack Integration
+  slack:
+    enabled: ${SLACK_ENABLED:false}
+    webhook_url: ${SLACK_WEBHOOK_URL}
+    
+  # Email Service
+  email:
+    enabled: ${EMAIL_ENABLED:false}
+    provider: ${EMAIL_PROVIDER:sendgrid}
+    api_key: ${EMAIL_API_KEY}
+    from_address: ${EMAIL_FROM_ADDRESS}
+
+# Storage Configuration
+storage:
+  # Cloud Storage
+  cloud:
+    provider: ${STORAGE_PROVIDER:s3}
+    bucket: ${STORAGE_BUCKET}
+    region: ${STORAGE_REGION}
+    access_key: ${STORAGE_ACCESS_KEY}
+    secret_key: ${STORAGE_SECRET_KEY}
+    max_file_size: 50MB
+    
+  # Model Storage
+  models:
+    provider: ${MODEL_STORAGE_PROVIDER:s3}
+    bucket: ${MODEL_STORAGE_BUCKET}
+    cache_size: 2GB
+    auto_download: true
+
+# Performance Settings
+performance:
+  # Garbage Collection
+  gc:
+    target_percentage: 100
+    max_heap_size: 2GB
+    
+  # Concurrency
+  concurrency:
+    max_goroutines: 2000
+    worker_pool_size: 20
+    
+  # Caching
+  cache:
+    default_ttl: 600s
+    max_size: 500MB
+    cleanup_interval: 300s
+
+# Health Checks
+health:
+  enabled: true
+  endpoint: /health
+  detailed_endpoint: /health/detailed
+  check_interval: 30s
+  
+  checks:
+    database: true
+    redis: true
+    ai_services: true
+    external_apis: true
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention_days: 30
+  storage:
+    provider: ${BACKUP_STORAGE_PROVIDER:s3}
+    bucket: ${BACKUP_STORAGE_BUCKET}
+    encryption: true
+
+# Monitoring and Alerting
+monitoring:
+  prometheus:
+    enabled: true
+    scrape_interval: 30s
+    
+  grafana:
+    enabled: true
+    admin_password: ${GRAFANA_ADMIN_PASSWORD}
+    
+  alerting:
+    enabled: true
+    webhook_url: ${ALERT_WEBHOOK_URL}
+    
+    rules:
+      high_cpu: 80
+      high_memory: 85
+      high_disk: 90
+      error_rate: 5
+      response_time: 2000

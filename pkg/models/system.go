@@ -4,6 +4,34 @@ import (
 	"time"
 )
 
+// User represents a system user
+type User struct {
+	ID        string    `json:"id"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	IsActive  bool      `json:"is_active"`
+	IsAdmin   bool      `json:"is_admin"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// UserPreferences represents user preferences
+type UserPreferences struct {
+	UserID                string            `json:"user_id"`
+	Theme                 string            `json:"theme"`
+	Language              string            `json:"language"`
+	Notifications         bool              `json:"notifications"`
+	AutoSave              bool              `json:"auto_save"`
+	PreferredAIModel      string            `json:"preferred_ai_model"`
+	VoiceSettings         map[string]interface{} `json:"voice_settings"`
+	DesktopLayout         map[string]interface{} `json:"desktop_layout"`
+	AccessibilitySettings map[string]interface{} `json:"accessibility_settings"`
+	CreatedAt             time.Time         `json:"created_at"`
+	UpdatedAt             time.Time         `json:"updated_at"`
+}
+
 // SystemStatus represents the overall system status
 type SystemStatus struct {
 	Running      bool                     `json:"running"`
@@ -98,16 +126,6 @@ type NetworkConnections struct {
 	Listening uint64 `json:"listening"`
 }
 
-// SecurityStatus represents security system status
-type SecurityStatus struct {
-	ThreatLevel    string           `json:"threat_level"` // low, medium, high, critical
-	ActiveThreats  int              `json:"active_threats"`
-	BlockedAttacks int              `json:"blocked_attacks"`
-	LastScan       time.Time        `json:"last_scan"`
-	Firewall       *FirewallStatus  `json:"firewall"`
-	Antivirus      *AntivirusStatus `json:"antivirus"`
-}
-
 // FirewallStatus represents firewall status
 type FirewallStatus struct {
 	Enabled      bool  `json:"enabled"`
@@ -197,15 +215,6 @@ type DuplicateGroup struct {
 	Hash  string     `json:"hash"`
 	Size  uint64     `json:"size"`
 	Files []FileInfo `json:"files"`
-}
-
-// ThreatAnalysis represents security threat analysis
-type ThreatAnalysis struct {
-	Threats         []ThreatInfo `json:"threats"`
-	RiskScore       float64      `json:"risk_score"` // 0-100
-	Severity        string       `json:"severity"`   // low, medium, high, critical
-	AnalyzedAt      time.Time    `json:"analyzed_at"`
-	Recommendations []string     `json:"recommendations"`
 }
 
 // ThreatInfo represents individual threat information
@@ -364,6 +373,823 @@ type WindowManagerConfig struct {
 	BorderWidth   int  `json:"border_width"`
 }
 
+// Developer Tools Models
+
+// DevToolsStatus represents the overall developer tools status
+type DevToolsStatus struct {
+	Enabled          bool                    `json:"enabled"`
+	Running          bool                    `json:"running"`
+	Debugger         *DebuggerStatus         `json:"debugger"`
+	Profiler         *ProfilerStatus         `json:"profiler"`
+	CodeAnalyzer     *CodeAnalyzerStatus     `json:"code_analyzer"`
+	TestRunner       *TestRunnerStatus       `json:"test_runner"`
+	BuildManager     *BuildManagerStatus     `json:"build_manager"`
+	LiveReloader     *LiveReloaderStatus     `json:"live_reloader"`
+	LogAnalyzer      *LogAnalyzerStatus      `json:"log_analyzer"`
+	MetricsCollector *MetricsCollectorStatus `json:"metrics_collector"`
+	Timestamp        time.Time               `json:"timestamp"`
+}
+
+// DebuggerStatus represents debugger status
+type DebuggerStatus struct {
+	Enabled         bool            `json:"enabled"`
+	Running         bool            `json:"running"`
+	Port            int             `json:"port"`
+	RemoteDebugging bool            `json:"remote_debugging"`
+	Breakpoints     []*Breakpoint   `json:"breakpoints"`
+	Sessions        []*DebugSession `json:"sessions"`
+	Timestamp       time.Time       `json:"timestamp"`
+}
+
+// Breakpoint represents a debug breakpoint
+type Breakpoint struct {
+	ID        string    `json:"id"`
+	File      string    `json:"file"`
+	Line      int       `json:"line"`
+	Condition string    `json:"condition"`
+	Enabled   bool      `json:"enabled"`
+	HitCount  int       `json:"hit_count"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// DebugSession represents a debug session
+type DebugSession struct {
+	ID        string                 `json:"id"`
+	Target    string                 `json:"target"`
+	Active    bool                   `json:"active"`
+	StartTime time.Time              `json:"start_time"`
+	EndTime   time.Time              `json:"end_time,omitempty"`
+	Variables map[string]interface{} `json:"variables"`
+	CallStack []StackFrame           `json:"call_stack"`
+}
+
+// StackFrame represents a stack frame
+type StackFrame struct {
+	Function string  `json:"function"`
+	File     string  `json:"file"`
+	Line     int     `json:"line"`
+	PC       uintptr `json:"pc"`
+}
+
+// ProfilerStatus represents profiler status
+type ProfilerStatus struct {
+	Enabled            bool       `json:"enabled"`
+	Running            bool       `json:"running"`
+	CPUProfiling       bool       `json:"cpu_profiling"`
+	MemoryProfiling    bool       `json:"memory_profiling"`
+	GoroutineProfiling bool       `json:"goroutine_profiling"`
+	BlockProfiling     bool       `json:"block_profiling"`
+	MutexProfiling     bool       `json:"mutex_profiling"`
+	Profiles           []*Profile `json:"profiles"`
+	Timestamp          time.Time  `json:"timestamp"`
+}
+
+// Profile represents a performance profile
+type Profile struct {
+	ID        string        `json:"id"`
+	Type      string        `json:"type"`
+	Filename  string        `json:"filename"`
+	StartTime time.Time     `json:"start_time"`
+	EndTime   time.Time     `json:"end_time,omitempty"`
+	Duration  time.Duration `json:"duration"`
+	Active    bool          `json:"active"`
+}
+
+// RuntimeStats represents runtime statistics
+type RuntimeStats struct {
+	Goroutines    int       `json:"goroutines"`
+	CGoCalls      int64     `json:"cgo_calls"`
+	HeapAlloc     uint64    `json:"heap_alloc"`
+	HeapSys       uint64    `json:"heap_sys"`
+	HeapIdle      uint64    `json:"heap_idle"`
+	HeapInuse     uint64    `json:"heap_inuse"`
+	HeapReleased  uint64    `json:"heap_released"`
+	HeapObjects   uint64    `json:"heap_objects"`
+	StackInuse    uint64    `json:"stack_inuse"`
+	StackSys      uint64    `json:"stack_sys"`
+	MSpanInuse    uint64    `json:"mspan_inuse"`
+	MSpanSys      uint64    `json:"mspan_sys"`
+	MCacheInuse   uint64    `json:"mcache_inuse"`
+	MCacheSys     uint64    `json:"mcache_sys"`
+	GCSys         uint64    `json:"gc_sys"`
+	OtherSys      uint64    `json:"other_sys"`
+	NextGC        uint64    `json:"next_gc"`
+	LastGC        time.Time `json:"last_gc"`
+	PauseTotalNs  uint64    `json:"pause_total_ns"`
+	NumGC         uint32    `json:"num_gc"`
+	NumForcedGC   uint32    `json:"num_forced_gc"`
+	GCCPUFraction float64   `json:"gc_cpu_fraction"`
+	Timestamp     time.Time `json:"timestamp"`
+}
+
+// CodeAnalyzerStatus represents code analyzer status
+type CodeAnalyzerStatus struct {
+	Enabled         bool            `json:"enabled"`
+	Running         bool            `json:"running"`
+	StaticAnalysis  bool            `json:"static_analysis"`
+	SecurityScan    bool            `json:"security_scan"`
+	QualityMetrics  bool            `json:"quality_metrics"`
+	DependencyCheck bool            `json:"dependency_check"`
+	Analyses        []*CodeAnalysis `json:"analyses"`
+	Timestamp       time.Time       `json:"timestamp"`
+}
+
+// CodeAnalysis represents a code analysis result
+type CodeAnalysis struct {
+	ID        string        `json:"id"`
+	Type      string        `json:"type"`
+	Path      string        `json:"path"`
+	StartTime time.Time     `json:"start_time"`
+	EndTime   time.Time     `json:"end_time,omitempty"`
+	Duration  time.Duration `json:"duration"`
+	Status    string        `json:"status"`
+	Issues    []CodeIssue   `json:"issues"`
+	Metrics   CodeMetrics   `json:"metrics"`
+}
+
+// CodeIssue represents a code issue
+type CodeIssue struct {
+	Type       string `json:"type"`
+	Severity   string `json:"severity"`
+	Message    string `json:"message"`
+	File       string `json:"file"`
+	Line       int    `json:"line"`
+	Column     int    `json:"column"`
+	Rule       string `json:"rule"`
+	Suggestion string `json:"suggestion"`
+}
+
+// CodeMetrics represents code quality metrics
+type CodeMetrics struct {
+	LinesOfCode     int     `json:"lines_of_code"`
+	Functions       int     `json:"functions"`
+	Complexity      float64 `json:"complexity"`
+	TestCoverage    float64 `json:"test_coverage"`
+	Maintainability float64 `json:"maintainability"`
+	Duplication     float64 `json:"duplication"`
+}
+
+// TestRunnerStatus represents test runner status
+type TestRunnerStatus struct {
+	Enabled     bool       `json:"enabled"`
+	Running     bool       `json:"running"`
+	AutoRun     bool       `json:"auto_run"`
+	Coverage    bool       `json:"coverage"`
+	Benchmarks  bool       `json:"benchmarks"`
+	Integration bool       `json:"integration"`
+	E2E         bool       `json:"e2e"`
+	TestRuns    []*TestRun `json:"test_runs"`
+	Timestamp   time.Time  `json:"timestamp"`
+}
+
+// TestRun represents a test execution
+type TestRun struct {
+	ID        string        `json:"id"`
+	Type      string        `json:"type"`
+	StartTime time.Time     `json:"start_time"`
+	EndTime   time.Time     `json:"end_time,omitempty"`
+	Duration  time.Duration `json:"duration"`
+	Status    string        `json:"status"`
+	Results   TestResults   `json:"results"`
+}
+
+// TestResults represents test execution results
+type TestResults struct {
+	Total    int     `json:"total"`
+	Passed   int     `json:"passed"`
+	Failed   int     `json:"failed"`
+	Skipped  int     `json:"skipped"`
+	Coverage float64 `json:"coverage"`
+	Output   string  `json:"output"`
+}
+
+// BuildManagerStatus represents build manager status
+type BuildManagerStatus struct {
+	Enabled   bool      `json:"enabled"`
+	Running   bool      `json:"running"`
+	AutoBuild bool      `json:"auto_build"`
+	Builds    []*Build  `json:"builds"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Build represents a build execution
+type Build struct {
+	ID        string        `json:"id"`
+	Target    string        `json:"target"`
+	StartTime time.Time     `json:"start_time"`
+	EndTime   time.Time     `json:"end_time,omitempty"`
+	Duration  time.Duration `json:"duration"`
+	Status    string        `json:"status"`
+	Output    string        `json:"output"`
+	Artifacts []string      `json:"artifacts"`
+}
+
+// LiveReloaderStatus represents live reloader status
+type LiveReloaderStatus struct {
+	Enabled    bool      `json:"enabled"`
+	Running    bool      `json:"running"`
+	Port       int       `json:"port"`
+	WatchPaths []string  `json:"watch_paths"`
+	Reloads    int       `json:"reloads"`
+	LastReload time.Time `json:"last_reload,omitempty"`
+	Timestamp  time.Time `json:"timestamp"`
+}
+
+// LogAnalyzerStatus represents log analyzer status
+type LogAnalyzerStatus struct {
+	Enabled          bool      `json:"enabled"`
+	Running          bool      `json:"running"`
+	RealTime         bool      `json:"real_time"`
+	ErrorDetection   bool      `json:"error_detection"`
+	LogSources       []string  `json:"log_sources"`
+	ErrorsDetected   int       `json:"errors_detected"`
+	WarningsDetected int       `json:"warnings_detected"`
+	Timestamp        time.Time `json:"timestamp"`
+}
+
+// MetricsCollectorStatus represents metrics collector status
+type MetricsCollectorStatus struct {
+	Enabled            bool      `json:"enabled"`
+	Running            bool      `json:"running"`
+	CustomMetrics      bool      `json:"custom_metrics"`
+	PerformanceMetrics bool      `json:"performance_metrics"`
+	BusinessMetrics    bool      `json:"business_metrics"`
+	MetricsCollected   int       `json:"metrics_collected"`
+	LastCollection     time.Time `json:"last_collection,omitempty"`
+	Timestamp          time.Time `json:"timestamp"`
+}
+
+// Security and Privacy Models
+
+// SecurityStatus represents the overall security status
+type SecurityStatus struct {
+	Enabled               bool                    `json:"enabled"`
+	Running               bool                    `json:"running"`
+	Authentication        *AuthenticationStatus   `json:"authentication"`
+	Encryption            *EncryptionStatus       `json:"encryption"`
+	Privacy               *PrivacyStatus          `json:"privacy"`
+	ThreatDetection       *ThreatDetectionStatus  `json:"threat_detection"`
+	Audit                 *AuditStatus            `json:"audit"`
+	AccessControl         *AccessControlStatus    `json:"access_control"`
+	Compliance            *ComplianceStatus       `json:"compliance"`
+	IncidentResponse      *IncidentResponseStatus `json:"incident_response"`
+	VulnerabilityScanning *VulnerabilityStatus    `json:"vulnerability_scanning"`
+	Timestamp             time.Time               `json:"timestamp"`
+}
+
+// AuthenticationStatus represents authentication status
+type AuthenticationStatus struct {
+	Enabled        bool      `json:"enabled"`
+	ActiveSessions int       `json:"active_sessions"`
+	MFAEnabled     bool      `json:"mfa_enabled"`
+	OAuthEnabled   bool      `json:"oauth_enabled"`
+	LDAPEnabled    bool      `json:"ldap_enabled"`
+	LastLogin      time.Time `json:"last_login,omitempty"`
+	FailedAttempts int       `json:"failed_attempts"`
+	Timestamp      time.Time `json:"timestamp"`
+}
+
+// EncryptionStatus represents encryption status
+type EncryptionStatus struct {
+	Enabled      bool      `json:"enabled"`
+	Algorithm    string    `json:"algorithm"`
+	KeySize      int       `json:"key_size"`
+	AtRest       bool      `json:"at_rest"`
+	InTransit    bool      `json:"in_transit"`
+	HSMEnabled   bool      `json:"hsm_enabled"`
+	LastRotation time.Time `json:"last_rotation,omitempty"`
+	Timestamp    time.Time `json:"timestamp"`
+}
+
+// PrivacyStatus represents privacy status
+type PrivacyStatus struct {
+	Enabled           bool      `json:"enabled"`
+	DataMinimization  bool      `json:"data_minimization"`
+	Anonymization     bool      `json:"anonymization"`
+	ConsentManagement bool      `json:"consent_management"`
+	PIIDetected       int       `json:"pii_detected"`
+	DataRetention     string    `json:"data_retention"`
+	Timestamp         time.Time `json:"timestamp"`
+}
+
+// ThreatDetectionStatus represents threat detection status
+type ThreatDetectionStatus struct {
+	Enabled         bool      `json:"enabled"`
+	RealTime        bool      `json:"real_time"`
+	ThreatsDetected int       `json:"threats_detected"`
+	HighSeverity    int       `json:"high_severity"`
+	LastThreat      time.Time `json:"last_threat,omitempty"`
+	Timestamp       time.Time `json:"timestamp"`
+}
+
+// AuditStatus represents audit status
+type AuditStatus struct {
+	Enabled       bool      `json:"enabled"`
+	LogsGenerated int       `json:"logs_generated"`
+	Encrypted     bool      `json:"encrypted"`
+	RemoteLogging bool      `json:"remote_logging"`
+	LastAudit     time.Time `json:"last_audit,omitempty"`
+	Timestamp     time.Time `json:"timestamp"`
+}
+
+// AccessControlStatus represents access control status
+type AccessControlStatus struct {
+	Enabled     bool      `json:"enabled"`
+	Model       string    `json:"model"`
+	ActiveUsers int       `json:"active_users"`
+	Roles       int       `json:"roles"`
+	Permissions int       `json:"permissions"`
+	LastAccess  time.Time `json:"last_access,omitempty"`
+	Timestamp   time.Time `json:"timestamp"`
+}
+
+// ComplianceStatus represents compliance status
+type ComplianceStatus struct {
+	Enabled    bool      `json:"enabled"`
+	Standards  []string  `json:"standards"`
+	Compliant  bool      `json:"compliant"`
+	LastCheck  time.Time `json:"last_check,omitempty"`
+	Violations int       `json:"violations"`
+	Timestamp  time.Time `json:"timestamp"`
+}
+
+// IncidentResponseStatus represents incident response status
+type IncidentResponseStatus struct {
+	Enabled         bool      `json:"enabled"`
+	AutoResponse    bool      `json:"auto_response"`
+	ActiveIncidents int       `json:"active_incidents"`
+	ResolvedToday   int       `json:"resolved_today"`
+	LastIncident    time.Time `json:"last_incident,omitempty"`
+	Timestamp       time.Time `json:"timestamp"`
+}
+
+// VulnerabilityStatus represents vulnerability scanning status
+type VulnerabilityStatus struct {
+	Enabled              bool      `json:"enabled"`
+	LastScan             time.Time `json:"last_scan,omitempty"`
+	VulnerabilitiesFound int       `json:"vulnerabilities_found"`
+	HighSeverity         int       `json:"high_severity"`
+	AutoRemediation      bool      `json:"auto_remediation"`
+	Timestamp            time.Time `json:"timestamp"`
+}
+
+// ThreatAnalysis represents a threat analysis result
+type ThreatAnalysis struct {
+	ID          string                 `json:"id"`
+	Type        string                 `json:"type"`
+	Severity    string                 `json:"severity"`
+	Source      string                 `json:"source"`
+	Target      string                 `json:"target"`
+	Description string                 `json:"description"`
+	Indicators  []string               `json:"indicators"`
+	Mitigation  string                 `json:"mitigation"`
+	Confidence  float64                `json:"confidence"`
+	Metadata    map[string]interface{} `json:"metadata"`
+	DetectedAt  time.Time              `json:"detected_at"`
+	UpdatedAt   time.Time              `json:"updated_at"`
+}
+
+// AuditLog represents an audit log entry
+type AuditLog struct {
+	ID        string                 `json:"id"`
+	UserID    string                 `json:"user_id"`
+	Action    string                 `json:"action"`
+	Resource  string                 `json:"resource"`
+	Result    string                 `json:"result"`
+	IPAddress string                 `json:"ip_address"`
+	UserAgent string                 `json:"user_agent"`
+	Details   map[string]interface{} `json:"details"`
+	Timestamp time.Time              `json:"timestamp"`
+}
+
+// AuditFilter represents audit log filter criteria
+type AuditFilter struct {
+	UserID    string    `json:"user_id,omitempty"`
+	Action    string    `json:"action,omitempty"`
+	Resource  string    `json:"resource,omitempty"`
+	StartTime time.Time `json:"start_time,omitempty"`
+	EndTime   time.Time `json:"end_time,omitempty"`
+	Limit     int       `json:"limit,omitempty"`
+}
+
+// ComplianceReport represents a compliance validation report
+type ComplianceReport struct {
+	ID              string                 `json:"id"`
+	Standard        string                 `json:"standard"`
+	Status          string                 `json:"status"`
+	Score           float64                `json:"score"`
+	Violations      []ComplianceViolation  `json:"violations"`
+	Recommendations []string               `json:"recommendations"`
+	Metadata        map[string]interface{} `json:"metadata"`
+	GeneratedAt     time.Time              `json:"generated_at"`
+}
+
+// ComplianceViolation represents a compliance violation
+type ComplianceViolation struct {
+	Rule        string `json:"rule"`
+	Severity    string `json:"severity"`
+	Description string `json:"description"`
+	Resource    string `json:"resource"`
+	Remediation string `json:"remediation"`
+}
+
+// Testing and Validation Models
+
+// TestingStatus represents the overall testing status
+type TestingStatus struct {
+	Enabled     bool                      `json:"enabled"`
+	Running     bool                      `json:"running"`
+	Unit        *UnitTestingStatus        `json:"unit"`
+	Integration *IntegrationTestingStatus `json:"integration"`
+	E2E         *E2ETestingStatus         `json:"e2e"`
+	Performance *PerformanceTestingStatus `json:"performance"`
+	Security    *SecurityTestingStatus    `json:"security"`
+	Validation  *ValidationStatus         `json:"validation"`
+	Coverage    *CoverageStatus           `json:"coverage"`
+	Timestamp   time.Time                 `json:"timestamp"`
+}
+
+// UnitTestingStatus represents unit testing status
+type UnitTestingStatus struct {
+	Enabled      bool          `json:"enabled"`
+	TestsRun     int           `json:"tests_run"`
+	TestsPassed  int           `json:"tests_passed"`
+	TestsFailed  int           `json:"tests_failed"`
+	TestsSkipped int           `json:"tests_skipped"`
+	Coverage     float64       `json:"coverage"`
+	Duration     time.Duration `json:"duration"`
+	LastRun      time.Time     `json:"last_run,omitempty"`
+	Timestamp    time.Time     `json:"timestamp"`
+}
+
+// IntegrationTestingStatus represents integration testing status
+type IntegrationTestingStatus struct {
+	Enabled     bool          `json:"enabled"`
+	TestsRun    int           `json:"tests_run"`
+	TestsPassed int           `json:"tests_passed"`
+	TestsFailed int           `json:"tests_failed"`
+	Duration    time.Duration `json:"duration"`
+	LastRun     time.Time     `json:"last_run,omitempty"`
+	Timestamp   time.Time     `json:"timestamp"`
+}
+
+// E2ETestingStatus represents end-to-end testing status
+type E2ETestingStatus struct {
+	Enabled     bool          `json:"enabled"`
+	TestsRun    int           `json:"tests_run"`
+	TestsPassed int           `json:"tests_passed"`
+	TestsFailed int           `json:"tests_failed"`
+	Duration    time.Duration `json:"duration"`
+	LastRun     time.Time     `json:"last_run,omitempty"`
+	Timestamp   time.Time     `json:"timestamp"`
+}
+
+// PerformanceTestingStatus represents performance testing status
+type PerformanceTestingStatus struct {
+	Enabled       bool          `json:"enabled"`
+	TestsRun      int           `json:"tests_run"`
+	BenchmarksRun int           `json:"benchmarks_run"`
+	LoadTests     int           `json:"load_tests"`
+	StressTests   int           `json:"stress_tests"`
+	Duration      time.Duration `json:"duration"`
+	LastRun       time.Time     `json:"last_run,omitempty"`
+	Timestamp     time.Time     `json:"timestamp"`
+}
+
+// SecurityTestingStatus represents security testing status
+type SecurityTestingStatus struct {
+	Enabled              bool          `json:"enabled"`
+	VulnerabilitiesFound int           `json:"vulnerabilities_found"`
+	SecurityTestsRun     int           `json:"security_tests_run"`
+	PenetrationTests     int           `json:"penetration_tests"`
+	Duration             time.Duration `json:"duration"`
+	LastRun              time.Time     `json:"last_run,omitempty"`
+	Timestamp            time.Time     `json:"timestamp"`
+}
+
+// ValidationStatus represents validation status
+type ValidationStatus struct {
+	Enabled          bool      `json:"enabled"`
+	SchemasValidated int       `json:"schemas_validated"`
+	DataValidated    int       `json:"data_validated"`
+	APIValidated     int       `json:"api_validated"`
+	ValidationErrors int       `json:"validation_errors"`
+	LastValidation   time.Time `json:"last_validation,omitempty"`
+	Timestamp        time.Time `json:"timestamp"`
+}
+
+// CoverageStatus represents test coverage status
+type CoverageStatus struct {
+	Enabled          bool      `json:"enabled"`
+	OverallCoverage  float64   `json:"overall_coverage"`
+	LineCoverage     float64   `json:"line_coverage"`
+	BranchCoverage   float64   `json:"branch_coverage"`
+	FunctionCoverage float64   `json:"function_coverage"`
+	LastAnalysis     time.Time `json:"last_analysis,omitempty"`
+	Timestamp        time.Time `json:"timestamp"`
+}
+
+// TestSuiteResult represents a complete test suite execution result
+type TestSuiteResult struct {
+	ID        string                 `json:"id"`
+	StartTime time.Time              `json:"start_time"`
+	EndTime   time.Time              `json:"end_time"`
+	Duration  time.Duration          `json:"duration"`
+	Status    string                 `json:"status"`
+	Results   map[string]*TestResult `json:"results"`
+	Coverage  *CoverageReport        `json:"coverage,omitempty"`
+	Metadata  map[string]interface{} `json:"metadata"`
+}
+
+// TestResult represents individual test execution result
+type TestResult struct {
+	ID           string                 `json:"id"`
+	Type         string                 `json:"type"`
+	Name         string                 `json:"name"`
+	StartTime    time.Time              `json:"start_time"`
+	EndTime      time.Time              `json:"end_time"`
+	Duration     time.Duration          `json:"duration"`
+	Status       string                 `json:"status"`
+	TestsRun     int                    `json:"tests_run"`
+	TestsPassed  int                    `json:"tests_passed"`
+	TestsFailed  int                    `json:"tests_failed"`
+	TestsSkipped int                    `json:"tests_skipped"`
+	Failures     []TestFailure          `json:"failures"`
+	Output       string                 `json:"output"`
+	Coverage     float64                `json:"coverage"`
+	Metadata     map[string]interface{} `json:"metadata"`
+}
+
+// TestFailure represents a test failure
+type TestFailure struct {
+	TestName   string `json:"test_name"`
+	Message    string `json:"message"`
+	StackTrace string `json:"stack_trace"`
+	File       string `json:"file"`
+	Line       int    `json:"line"`
+	Expected   string `json:"expected,omitempty"`
+	Actual     string `json:"actual,omitempty"`
+}
+
+// ValidationResult represents validation result
+type ValidationResult struct {
+	ID        string                 `json:"id"`
+	Type      string                 `json:"type"`
+	Target    string                 `json:"target"`
+	Valid     bool                   `json:"valid"`
+	Errors    []ValidationError      `json:"errors"`
+	Warnings  []ValidationWarning    `json:"warnings"`
+	Schema    string                 `json:"schema,omitempty"`
+	Timestamp time.Time              `json:"timestamp"`
+	Metadata  map[string]interface{} `json:"metadata"`
+}
+
+// ValidationError represents a validation error
+type ValidationError struct {
+	Field   string      `json:"field"`
+	Message string      `json:"message"`
+	Code    string      `json:"code"`
+	Value   interface{} `json:"value,omitempty"`
+}
+
+// ValidationWarning represents a validation warning
+type ValidationWarning struct {
+	Field   string      `json:"field"`
+	Message string      `json:"message"`
+	Code    string      `json:"code"`
+	Value   interface{} `json:"value,omitempty"`
+}
+
+// CoverageReport represents test coverage report
+type CoverageReport struct {
+	ID               string                 `json:"id"`
+	GeneratedAt      time.Time              `json:"generated_at"`
+	OverallCoverage  float64                `json:"overall_coverage"`
+	LineCoverage     float64                `json:"line_coverage"`
+	BranchCoverage   float64                `json:"branch_coverage"`
+	FunctionCoverage float64                `json:"function_coverage"`
+	Files            []FileCoverage         `json:"files"`
+	Packages         []PackageCoverage      `json:"packages"`
+	Thresholds       map[string]float64     `json:"thresholds"`
+	Metadata         map[string]interface{} `json:"metadata"`
+}
+
+// FileCoverage represents coverage for a single file
+type FileCoverage struct {
+	Path             string  `json:"path"`
+	LineCoverage     float64 `json:"line_coverage"`
+	BranchCoverage   float64 `json:"branch_coverage"`
+	FunctionCoverage float64 `json:"function_coverage"`
+	LinesTotal       int     `json:"lines_total"`
+	LinesCovered     int     `json:"lines_covered"`
+	BranchesTotal    int     `json:"branches_total"`
+	BranchesCovered  int     `json:"branches_covered"`
+	FunctionsTotal   int     `json:"functions_total"`
+	FunctionsCovered int     `json:"functions_covered"`
+}
+
+// PackageCoverage represents coverage for a package
+type PackageCoverage struct {
+	Name             string         `json:"name"`
+	LineCoverage     float64        `json:"line_coverage"`
+	BranchCoverage   float64        `json:"branch_coverage"`
+	FunctionCoverage float64        `json:"function_coverage"`
+	Files            []FileCoverage `json:"files"`
+}
+
+// TestFilter represents test filtering criteria
+type TestFilter struct {
+	Type      string    `json:"type,omitempty"`
+	Status    string    `json:"status,omitempty"`
+	StartTime time.Time `json:"start_time,omitempty"`
+	EndTime   time.Time `json:"end_time,omitempty"`
+	Limit     int       `json:"limit,omitempty"`
+	Offset    int       `json:"offset,omitempty"`
+}
+
+// Deployment and Documentation Models
+
+// DeploymentStatus represents the overall deployment status
+type DeploymentStatus struct {
+	Enabled     bool               `json:"enabled"`
+	Running     bool               `json:"running"`
+	Environment string             `json:"environment"`
+	Platform    string             `json:"platform"`
+	Container   *ContainerStatus   `json:"container"`
+	Kubernetes  *KubernetesStatus  `json:"kubernetes"`
+	CICD        *CICDStatus        `json:"cicd"`
+	Health      *HealthCheckStatus `json:"health"`
+	Timestamp   time.Time          `json:"timestamp"`
+}
+
+// ContainerStatus represents container deployment status
+type ContainerStatus struct {
+	Enabled    bool      `json:"enabled"`
+	Running    bool      `json:"running"`
+	Containers int       `json:"containers"`
+	Images     int       `json:"images"`
+	Networks   int       `json:"networks"`
+	Volumes    int       `json:"volumes"`
+	LastDeploy time.Time `json:"last_deploy,omitempty"`
+	Timestamp  time.Time `json:"timestamp"`
+}
+
+// KubernetesStatus represents Kubernetes deployment status
+type KubernetesStatus struct {
+	Enabled     bool      `json:"enabled"`
+	Connected   bool      `json:"connected"`
+	Namespace   string    `json:"namespace"`
+	Pods        int       `json:"pods"`
+	Services    int       `json:"services"`
+	Deployments int       `json:"deployments"`
+	LastDeploy  time.Time `json:"last_deploy,omitempty"`
+	Timestamp   time.Time `json:"timestamp"`
+}
+
+// CICDStatus represents CI/CD pipeline status
+type CICDStatus struct {
+	Enabled      bool      `json:"enabled"`
+	Provider     string    `json:"provider"`
+	PipelinesRun int       `json:"pipelines_run"`
+	LastPipeline time.Time `json:"last_pipeline,omitempty"`
+	LastStatus   string    `json:"last_status"`
+	Timestamp    time.Time `json:"timestamp"`
+}
+
+// HealthCheckStatus represents health check status
+type HealthCheckStatus struct {
+	Enabled      bool      `json:"enabled"`
+	Healthy      bool      `json:"healthy"`
+	ChecksRun    int       `json:"checks_run"`
+	ChecksPassed int       `json:"checks_passed"`
+	ChecksFailed int       `json:"checks_failed"`
+	LastCheck    time.Time `json:"last_check,omitempty"`
+	Timestamp    time.Time `json:"timestamp"`
+}
+
+// DeploymentRequest represents a deployment request
+type DeploymentRequest struct {
+	Version     string                 `json:"version"`
+	Environment string                 `json:"environment"`
+	Platform    string                 `json:"platform"`
+	Config      map[string]interface{} `json:"config"`
+	Variables   map[string]string      `json:"variables"`
+	Secrets     map[string]string      `json:"secrets"`
+	Rollback    bool                   `json:"rollback"`
+	DryRun      bool                   `json:"dry_run"`
+	Force       bool                   `json:"force"`
+	Metadata    map[string]interface{} `json:"metadata"`
+}
+
+// DeploymentResult represents a deployment result
+type DeploymentResult struct {
+	ID          string                 `json:"id"`
+	Version     string                 `json:"version"`
+	Environment string                 `json:"environment"`
+	Platform    string                 `json:"platform"`
+	StartTime   time.Time              `json:"start_time"`
+	EndTime     time.Time              `json:"end_time"`
+	Duration    time.Duration          `json:"duration"`
+	Status      string                 `json:"status"`
+	Error       string                 `json:"error,omitempty"`
+	Steps       []DeploymentStep       `json:"steps"`
+	Artifacts   []DeploymentArtifact   `json:"artifacts"`
+	Logs        []string               `json:"logs"`
+	Metadata    map[string]interface{} `json:"metadata"`
+}
+
+// DeploymentStep represents a deployment step
+type DeploymentStep struct {
+	Name      string                 `json:"name"`
+	Status    string                 `json:"status"`
+	StartTime time.Time              `json:"start_time"`
+	EndTime   time.Time              `json:"end_time"`
+	Duration  time.Duration          `json:"duration"`
+	Error     string                 `json:"error,omitempty"`
+	Output    string                 `json:"output,omitempty"`
+	Metadata  map[string]interface{} `json:"metadata"`
+}
+
+// DeploymentArtifact represents a deployment artifact
+type DeploymentArtifact struct {
+	Name     string    `json:"name"`
+	Type     string    `json:"type"`
+	Path     string    `json:"path"`
+	Size     int64     `json:"size"`
+	Checksum string    `json:"checksum"`
+	Created  time.Time `json:"created"`
+}
+
+// RollbackRequest represents a rollback request
+type RollbackRequest struct {
+	TargetVersion string                 `json:"target_version"`
+	Environment   string                 `json:"environment"`
+	Platform      string                 `json:"platform"`
+	Reason        string                 `json:"reason"`
+	Force         bool                   `json:"force"`
+	DryRun        bool                   `json:"dry_run"`
+	Metadata      map[string]interface{} `json:"metadata"`
+}
+
+// DeploymentFilter represents deployment filtering criteria
+type DeploymentFilter struct {
+	Environment string    `json:"environment,omitempty"`
+	Platform    string    `json:"platform,omitempty"`
+	Status      string    `json:"status,omitempty"`
+	Version     string    `json:"version,omitempty"`
+	StartTime   time.Time `json:"start_time,omitempty"`
+	EndTime     time.Time `json:"end_time,omitempty"`
+	Limit       int       `json:"limit,omitempty"`
+	Offset      int       `json:"offset,omitempty"`
+}
+
+// DocumentationStatus represents documentation status
+type DocumentationStatus struct {
+	Enabled       bool      `json:"enabled"`
+	Generated     bool      `json:"generated"`
+	LastGenerated time.Time `json:"last_generated,omitempty"`
+	Pages         int       `json:"pages"`
+	APIs          int       `json:"apis"`
+	Examples      int       `json:"examples"`
+	Timestamp     time.Time `json:"timestamp"`
+}
+
+// DocumentationRequest represents a documentation generation request
+type DocumentationRequest struct {
+	Type      string                 `json:"type"`
+	Format    string                 `json:"format"`
+	Output    string                 `json:"output"`
+	Include   []string               `json:"include"`
+	Exclude   []string               `json:"exclude"`
+	Template  string                 `json:"template"`
+	Variables map[string]string      `json:"variables"`
+	Metadata  map[string]interface{} `json:"metadata"`
+}
+
+// DocumentationResult represents documentation generation result
+type DocumentationResult struct {
+	ID        string                 `json:"id"`
+	Type      string                 `json:"type"`
+	Format    string                 `json:"format"`
+	Output    string                 `json:"output"`
+	StartTime time.Time              `json:"start_time"`
+	EndTime   time.Time              `json:"end_time"`
+	Duration  time.Duration          `json:"duration"`
+	Status    string                 `json:"status"`
+	Error     string                 `json:"error,omitempty"`
+	Files     []DocumentationFile    `json:"files"`
+	Metadata  map[string]interface{} `json:"metadata"`
+}
+
+// DocumentationFile represents a generated documentation file
+type DocumentationFile struct {
+	Path     string    `json:"path"`
+	Type     string    `json:"type"`
+	Size     int64     `json:"size"`
+	Checksum string    `json:"checksum"`
+	Created  time.Time `json:"created"`
+}
+
 // AI Service Models
 
 // LLMResponse represents a response from a language model
@@ -398,6 +1224,14 @@ type TextAnalysis struct {
 	Topics     []string               `json:"topics"`
 	Metadata   map[string]interface{} `json:"metadata,omitempty"`
 	Timestamp  time.Time              `json:"timestamp"`
+}
+
+// ChatMessage represents a single message in a conversation
+type ChatMessage struct {
+	Role      string                 `json:"role"` // "system", "user", "assistant"
+	Content   string                 `json:"content"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp time.Time              `json:"timestamp"`
 }
 
 // ChatResponse represents a chat conversation response
@@ -439,6 +1273,10 @@ type AIModel struct {
 	Description  string                 `json:"description"`
 	Capabilities []string               `json:"capabilities"`
 	Status       string                 `json:"status"` // available, loaded, loading, error
+	Provider     string                 `json:"provider"` // ollama, openai, etc.
+	IsActive     bool                   `json:"is_active"`
+	IsDefault    bool                   `json:"is_default"`
+	SizeBytes    int64                  `json:"size_bytes"`
 	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 	CreatedAt    time.Time              `json:"created_at"`
 	UpdatedAt    time.Time              `json:"updated_at"`

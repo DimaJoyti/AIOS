@@ -1,0 +1,92 @@
+# Multi-stage Dockerfile for AIOS Assistant Service
+# This Dockerfile builds the AI assistant service with optimized layers
+
+# Build stage
+FROM golang:1.23-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    git \
+    ca-certificates \
+    tzdata \
+    gcc \
+    musl-dev
+
+# Set working directory
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download && go mod verify
+
+# Copy source code
+COPY . .
+
+# Build arguments
+ARG VERSION=dev
+ARG COMMIT=unknown
+ARG BUILD_TIME=unknown
+
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -ldflags="-s -w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.BuildTime=${BUILD_TIME}" \
+    -o aios-assistant \
+    ./cmd/aios-assistant
+
+# Final stage
+FROM alpine:3.19
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    ca-certificates \
+    tzdata \
+    curl \
+    jq \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user
+RUN addgroup -g 1001 -S aios && \
+    adduser -u 1001 -S aios -G aios
+
+# Set working directory
+WORKDIR /app
+
+# Copy binary from builder stage
+COPY --from=builder /app/aios-assistant /app/aios-assistant
+
+# Copy configuration files
+COPY --chown=aios:aios configs/ /app/configs/
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/models && \
+    chown -R aios:aios /app
+
+# Switch to non-root user
+USER aios
+
+# Expose ports
+EXPOSE 8081 9091
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8081/health || exit 1
+
+# Set environment variables
+ENV AIOS_ENV=production
+ENV AIOS_CONFIG_PATH=/app/configs
+ENV AIOS_LOG_LEVEL=info
+
+# Run the application
+ENTRYPOINT ["/app/aios-assistant"]
+CMD ["--config", "/app/configs/environments/production.yaml"]
+
+# Labels for metadata
+LABEL maintainer="AIOS Team <team@aios.dev>"
+LABEL org.opencontainers.image.title="AIOS Assistant"
+LABEL org.opencontainers.image.description="AI Assistant Service for AIOS"
+LABEL org.opencontainers.image.vendor="AIOS"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.source="https://github.com/aios/aios"
+LABEL org.opencontainers.image.documentation="https://docs.aios.dev"

@@ -1,0 +1,4 @@
+web/node_modules
+build/bin
+web/package-lock.json
+CLAUDE.md

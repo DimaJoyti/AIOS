@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -141,7 +142,7 @@ func (s *DesktopServer) registerRoutes(router *mux.Router) {
 }
 
 func (s *DesktopServer) handleHealth(w http.ResponseWriter, r *http.Request) {
-	ctx, span := s.tracer.Start(r.Context(), "desktop.handleHealth")
+	_, span := s.tracer.Start(r.Context(), "desktop.handleHealth")
 	defer span.End()
 
 	response := map[string]interface{}{
@@ -158,7 +159,7 @@ func (s *DesktopServer) handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *DesktopServer) handleReady(w http.ResponseWriter, r *http.Request) {
-	ctx, span := s.tracer.Start(r.Context(), "desktop.handleReady")
+	_, span := s.tracer.Start(r.Context(), "desktop.handleReady")
 	defer span.End()
 
 	response := map[string]interface{}{
@@ -174,7 +175,7 @@ func (s *DesktopServer) handleReady(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *DesktopServer) handleWindows(w http.ResponseWriter, r *http.Request) {
-	ctx, span := s.tracer.Start(r.Context(), "desktop.handleWindows")
+	_, span := s.tracer.Start(r.Context(), "desktop.handleWindows")
 	defer span.End()
 
 	// TODO: Implement actual window management
@@ -206,7 +207,7 @@ func (s *DesktopServer) handleWindows(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *DesktopServer) handleWorkspaces(w http.ResponseWriter, r *http.Request) {
-	ctx, span := s.tracer.Start(r.Context(), "desktop.handleWorkspaces")
+	_, span := s.tracer.Start(r.Context(), "desktop.handleWorkspaces")
 	defer span.End()
 
 	// TODO: Implement actual workspace management
@@ -232,7 +233,7 @@ func (s *DesktopServer) handleWorkspaces(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *DesktopServer) handleApplications(w http.ResponseWriter, r *http.Request) {
-	ctx, span := s.tracer.Start(r.Context(), "desktop.handleApplications")
+	_, span := s.tracer.Start(r.Context(), "desktop.handleApplications")
 	defer span.End()
 
 	// TODO: Implement actual application discovery
@@ -260,17 +261,17 @@ func (s *DesktopServer) handleApplications(w http.ResponseWriter, r *http.Reques
 }
 
 func (s *DesktopServer) handleSettings(w http.ResponseWriter, r *http.Request) {
-	ctx, span := s.tracer.Start(r.Context(), "desktop.handleSettings")
+	_, span := s.tracer.Start(r.Context(), "desktop.handleSettings")
 	defer span.End()
 
 	if r.Method == "GET" {
 		// TODO: Implement settings retrieval
 		settings := map[string]interface{}{
-			"theme":           "dark",
-			"wallpaper":       "/wallpapers/default.jpg",
-			"ai_assistant":    true,
-			"voice_commands":  false,
-			"auto_organize":   true,
+			"theme":          "dark",
+			"wallpaper":      "/wallpapers/default.jpg",
+			"ai_assistant":   true,
+			"voice_commands": false,
+			"auto_organize":  true,
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -453,6 +454,5 @@ func initLogger() *logrus.Logger {
 
 // Helper function
 func writeJSON(w http.ResponseWriter, v interface{}) error {
-	// TODO: Implement JSON writing with proper error handling
-	return nil
+	return json.NewEncoder(w).Encode(v)
 }
