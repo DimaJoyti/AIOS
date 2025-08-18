@@ -3,9 +3,11 @@ package desktop
 import (
 	"context"
 	"fmt"
+	"sort"
 	"sync"
 	"time"
 
+	"github.com/aios/aios/internal/ai"
 	"github.com/aios/aios/pkg/models"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
@@ -23,19 +25,35 @@ type WindowManager struct {
 	mu      sync.RWMutex
 	running bool
 	stopCh  chan struct{}
+
+	// AI services
+	nlpService ai.NaturalLanguageService
+	cvService  ai.ComputerVisionService
+
+	// Enhanced AI features
+	focusPredictor  *FocusPredictor
+	layoutOptimizer *LayoutOptimizer
+	tilingEngine    *TilingEngine
+	multiMonitorMgr *MultiMonitorManager
+	// windowAnimator  *WindowAnimator // TODO: implement
+	// rulesEngine     *WindowRulesEngine // TODO: implement  
+	// snapManager     *SnapManager // TODO: implement
+
+	// State management
+	activeWindow  *models.Window
+	// focusHistory  []FocusEvent // TODO: implement event types
+	// windowHistory []WindowEvent // TODO: implement event types
+	// layoutHistory []LayoutEvent // TODO: implement event types
+	monitors      map[string]*Monitor
+	currentLayout string
+
+	// Performance tracking
+	// performanceMetrics *WindowPerformanceMetrics // TODO: implement
+	lastOptimization   time.Time
 }
 
 // WindowRule represents a window management rule
-type WindowRule struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Condition   WindowCondition        `json:"condition"`
-	Action      WindowAction           `json:"action"`
-	Priority    int                    `json:"priority"`
-	Enabled     bool                   `json:"enabled"`
-	AIGenerated bool                   `json:"ai_generated"`
-	Metadata    map[string]interface{} `json:"metadata"`
-}
+// WindowRule - use the one defined in window_rules_engine.go
 
 // WindowCondition represents conditions for window rules
 type WindowCondition struct {
@@ -58,19 +76,63 @@ type WindowAction struct {
 	Properties map[string]interface{} `json:"properties,omitempty"`
 }
 
+// AI Components for enhanced window management
+
+// FocusPredictor predicts which window the user wants to focus next
+// FocusPredictor - use the one defined in focus_predictor.go
+
+// FocusEvent - use the one defined in focus_predictor.go
+
+// LayoutOptimizer optimizes window layouts using AI
+type LayoutOptimizer struct {
+	screenWidth  int
+	screenHeight int
+	preferences  map[string]interface{}
+	mu           sync.RWMutex
+}
+
+// FocusPrediction represents a focus prediction result
+type FocusPrediction struct {
+	WindowID   string  `json:"window_id"`
+	Confidence float64 `json:"confidence"`
+	Reasoning  string  `json:"reasoning"`
+}
+
 // NewWindowManager creates a new window manager
-func NewWindowManager(logger *logrus.Logger, config WindowManagerConfig) (*WindowManager, error) {
+func NewWindowManager(
+	logger *logrus.Logger,
+	config WindowManagerConfig,
+	nlpService ai.NaturalLanguageService,
+	cvService ai.ComputerVisionService,
+) (*WindowManager, error) {
 	tracer := otel.Tracer("window-manager")
 
-	return &WindowManager{
-		logger:  logger,
-		tracer:  tracer,
-		config:  config,
-		windows: make(map[string]*models.Window),
-		layouts: make(map[string]*models.WindowLayout),
-		rules:   []WindowRule{},
-		stopCh:  make(chan struct{}),
-	}, nil
+	wm := &WindowManager{
+		logger:       logger,
+		tracer:       tracer,
+		config:       config,
+		windows:      make(map[string]*models.Window),
+		layouts:      make(map[string]*models.WindowLayout),
+		rules:        []WindowRule{},
+		stopCh:       make(chan struct{}),
+		nlpService:   nlpService,
+		cvService:    cvService,
+		// focusHistory: make([]FocusEvent, 0), // TODO: implement
+	}
+
+	// Initialize AI components
+	wm.focusPredictor = &FocusPredictor{
+		// focusHistory: make([]FocusEvent, 0), // TODO: implement
+		// patterns:     make(map[string]float64), // TODO: implement
+	}
+
+	wm.layoutOptimizer = &LayoutOptimizer{
+		screenWidth:  1920, // TODO: Get actual screen dimensions
+		screenHeight: 1080,
+		preferences:  make(map[string]interface{}),
+	}
+
+	return wm, nil
 }
 
 // Start initializes the window manager
@@ -439,24 +501,36 @@ func (wm *WindowManager) loadDefaultRules() {
 	// Load default window management rules
 	wm.rules = []WindowRule{
 		{
-			ID:        "focus-follows-mouse",
-			Name:      "Focus Follows Mouse",
-			Condition: WindowCondition{},
-			Action: WindowAction{
-				Type: "focus",
+			ID:          "focus-follows-mouse",
+			Name:        "Focus Follows Mouse",
+			Description: "Enable focus follows mouse behavior",
+			Conditions:  []RuleCondition{},
+			Actions: []RuleAction{
+				{
+					Type: "focus",
+				},
 			},
-			Priority: 1,
-			Enabled:  wm.config.FocusFollowsMouse,
+			Priority:  1,
+			Enabled:   wm.config.FocusFollowsMouse,
+			Metadata:  make(map[string]interface{}),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		},
 		{
-			ID:        "auto-tile",
-			Name:      "Auto Tile Windows",
-			Condition: WindowCondition{},
-			Action: WindowAction{
-				Type: "tile",
+			ID:          "auto-tile",
+			Name:        "Auto Tile Windows",
+			Description: "Automatically tile windows",
+			Conditions:  []RuleCondition{},
+			Actions: []RuleAction{
+				{
+					Type: "tile",
+				},
 			},
-			Priority: 2,
-			Enabled:  wm.config.AutoTiling,
+			Priority:  2,
+			Enabled:   wm.config.AutoTiling,
+			Metadata:  make(map[string]interface{}),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		},
 	}
 }
@@ -534,13 +608,212 @@ func (wm *WindowManager) updateMockWindows() {
 func (wm *WindowManager) convertRulesToModels() []models.WindowRule {
 	rules := make([]models.WindowRule, len(wm.rules))
 	for i, rule := range wm.rules {
+		aiGenerated := false
+		if val, ok := rule.Metadata["ai_generated"]; ok {
+			if aiGen, ok := val.(bool); ok {
+				aiGenerated = aiGen
+			}
+		}
+		
 		rules[i] = models.WindowRule{
 			ID:          rule.ID,
 			Name:        rule.Name,
 			Priority:    rule.Priority,
 			Enabled:     rule.Enabled,
-			AIGenerated: rule.AIGenerated,
+			AIGenerated: aiGenerated,
 		}
 	}
 	return rules
+}
+
+// AI-Enhanced Methods
+
+// PredictNextFocus predicts which window the user will focus next
+func (wm *WindowManager) PredictNextFocus(ctx context.Context) (*models.Window, float64, error) {
+	ctx, span := wm.tracer.Start(ctx, "window_manager.PredictNextFocus")
+	defer span.End()
+
+	wm.mu.RLock()
+	defer wm.mu.RUnlock()
+
+	if len(wm.windows) <= 1 {
+		return nil, 0, fmt.Errorf("insufficient windows for prediction")
+	}
+
+	// Analyze focus patterns
+	predictions := wm.focusPredictor.predictNextFocus(wm.windows, wm.activeWindow)
+
+	if len(predictions) == 0 {
+		return nil, 0, fmt.Errorf("no predictions available")
+	}
+
+	// Return highest confidence prediction
+	bestPrediction := predictions[0]
+	window := wm.windows[bestPrediction.WindowID]
+
+	wm.logger.WithFields(logrus.Fields{
+		"predicted_window": bestPrediction.WindowID,
+		"confidence":       bestPrediction.Confidence,
+		"app_name":         window.Application,
+	}).Info("Focus prediction generated")
+
+	return window, bestPrediction.Confidence, nil
+}
+
+// OptimizeLayout optimizes window layout using AI
+func (wm *WindowManager) OptimizeLayout(ctx context.Context, workspace int) error {
+	ctx, span := wm.tracer.Start(ctx, "window_manager.OptimizeLayout")
+	defer span.End()
+
+	wm.mu.Lock()
+	defer wm.mu.Unlock()
+
+	// Get windows in workspace
+	var windows []*models.Window
+	for _, window := range wm.windows {
+		if window.Workspace == workspace && window.Visible {
+			windows = append(windows, window)
+		}
+	}
+
+	if len(windows) == 0 {
+		return nil
+	}
+
+	// Generate optimal layout using AI
+	layout := wm.layoutOptimizer.generateOptimalLayout(windows)
+
+	// Apply layout
+	for i, window := range windows {
+		if i < len(layout.Zones) {
+			zone := layout.Zones[i]
+			window.Position.X = int(zone.X * float64(wm.layoutOptimizer.screenWidth))
+			window.Position.Y = int(zone.Y * float64(wm.layoutOptimizer.screenHeight))
+			window.Size.Width = int(zone.Width * float64(wm.layoutOptimizer.screenWidth))
+			window.Size.Height = int(zone.Height * float64(wm.layoutOptimizer.screenHeight))
+		}
+	}
+
+	wm.logger.WithFields(logrus.Fields{
+		"workspace":    workspace,
+		"window_count": len(windows),
+	}).Info("Layout optimized using AI")
+
+	return nil
+}
+
+// FocusPredictor methods
+
+func (fp *FocusPredictor) predictNextFocus(windows map[string]*models.Window, currentWindow *models.Window) []FocusPrediction {
+	fp.mu.RLock()
+	defer fp.mu.RUnlock()
+
+	var predictions []FocusPrediction
+
+	// Analyze recent focus patterns
+	for windowID, window := range windows {
+		if currentWindow != nil && windowID == currentWindow.ID || !window.Visible {
+			continue
+		}
+
+		confidence := fp.calculateFocusProbability(window, currentWindow)
+		if confidence > 0.1 { // Minimum threshold
+			predictions = append(predictions, FocusPrediction{
+				WindowID:   windowID,
+				Confidence: confidence,
+				Reasoning:  fp.generateReasoning(window, confidence),
+			})
+		}
+	}
+
+	// Sort by confidence
+	sort.Slice(predictions, func(i, j int) bool {
+		return predictions[i].Confidence > predictions[j].Confidence
+	})
+
+	return predictions
+}
+
+func (fp *FocusPredictor) calculateFocusProbability(window, currentWindow *models.Window) float64 {
+	score := 0.0
+
+	// Recent usage
+	if !window.LastFocused.IsZero() {
+		timeSince := time.Since(window.LastFocused)
+		if timeSince < time.Hour {
+			score += 0.3
+		}
+	}
+
+	// Focus frequency (mock - would track actual focus count)
+	score += 0.1
+
+	// App type correlation
+	if currentWindow != nil && window.Application == currentWindow.Application {
+		score += 0.2
+	}
+
+	// Workspace correlation
+	if currentWindow != nil && window.Workspace == currentWindow.Workspace {
+		score += 0.15
+	}
+
+	return score
+}
+
+func (fp *FocusPredictor) generateReasoning(window *models.Window, confidence float64) string {
+	if confidence > 0.7 {
+		return fmt.Sprintf("High usage frequency for %s", window.Application)
+	} else if confidence > 0.4 {
+		return fmt.Sprintf("Recent activity in %s", window.Application)
+	} else {
+		return fmt.Sprintf("Moderate probability for %s", window.Application)
+	}
+}
+
+// LayoutOptimizer methods
+
+type LayoutZone struct {
+	X      float64 `json:"x"`
+	Y      float64 `json:"y"`
+	Width  float64 `json:"width"`
+	Height float64 `json:"height"`
+}
+
+type OptimalLayout struct {
+	Zones []LayoutZone `json:"zones"`
+}
+
+func (lo *LayoutOptimizer) generateOptimalLayout(windows []*models.Window) *OptimalLayout {
+	lo.mu.RLock()
+	defer lo.mu.RUnlock()
+
+	layout := &OptimalLayout{
+		Zones: make([]LayoutZone, len(windows)),
+	}
+
+	// Simple tiled layout algorithm
+	windowCount := len(windows)
+	cols := int(float64(windowCount) + 0.5) // Rough square root
+	if cols == 0 {
+		cols = 1
+	}
+	rows := (windowCount + cols - 1) / cols
+
+	zoneWidth := 1.0 / float64(cols)
+	zoneHeight := 1.0 / float64(rows)
+
+	for i := 0; i < windowCount; i++ {
+		col := i % cols
+		row := i / cols
+
+		layout.Zones[i] = LayoutZone{
+			X:      float64(col) * zoneWidth,
+			Y:      float64(row) * zoneHeight,
+			Width:  zoneWidth,
+			Height: zoneHeight,
+		}
+	}
+
+	return layout
 }

@@ -1,8 +1,8 @@
-# AIOS - AI-Powered Operating System
+# AIOS - AI Operating System
 
 ## Project Overview
 
-AIOS is a modern AI-powered operating system built on top of Arch Linux, designed to integrate artificial intelligence capabilities directly into the OS layer. The system provides natural language interfaces, intelligent resource management, predictive file handling, and AI-assisted system optimization.
+AIOS is a comprehensive AI Operating System built in Go that integrates multiple AI frameworks and protocols to provide a unified platform for AI agent development and deployment. The system combines LangChain, LangGraph, Model Context Protocol (MCP), and custom agent frameworks into a cohesive AI operating environment.
 
 ## Architecture Overview
 

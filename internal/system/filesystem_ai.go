@@ -19,6 +19,27 @@ type FileSystemAI struct {
 	tracer  trace.Tracer
 	running bool
 	stopCh  chan struct{}
+
+	// Enhanced AI components
+	predictionEngine     *FilePredictionEngine
+	organizationEngine   *FileOrganizationEngine
+	recommendationEngine *FileRecommendationEngine
+	semanticSearchEngine *SemanticSearchEngine
+	// relationshipAnalyzer *FileRelationshipAnalyzer  // TODO: implement
+	// automationEngine     *FileAutomationEngine      // TODO: implement
+
+	// State management
+	accessLog       []AccessEvent
+	predictions     map[string][]string
+	fileMetadata    map[string]*FileMetadata
+	userProfiles    map[string]*UserProfile
+	lastAnalysis    time.Time
+	learningEnabled bool
+
+	// Performance tracking
+	predictionAccuracy float64
+	totalPredictions   int
+	correctPredictions int
 }
 
 // NewFileSystemAI creates a new file system AI instance
