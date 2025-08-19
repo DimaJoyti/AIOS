@@ -91,7 +91,7 @@ export default function RootLayout({
                     console.log('Page load time:', loadTime + 'ms');
 
                     // Send to analytics in production
-                    if (process.env.NODE_ENV === 'production') {
+                    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
                       // Analytics tracking code would go here
                     }
                   }, 0);

@@ -28,15 +28,18 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.setState({ error, errorInfo })
-    
+
     // Log error to console in development
-    if (process.env.NODE_ENV === 'development') {
+    const isDevelopment = typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+
+    if (isDevelopment) {
       console.error('ErrorBoundary caught an error:', error, errorInfo)
     }
-    
+
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo)
-    
+
     // In production, you might want to send this to an error reporting service
     // Example: Sentry.captureException(error, { contexts: { react: errorInfo } })
   }
@@ -81,7 +84,9 @@ export class ErrorBoundary extends Component<Props, State> {
               We encountered an unexpected error. Don't worry, our team has been notified and we're working on a fix.
             </p>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {typeof window !== 'undefined' &&
+             (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+             this.state.error && (
               <details className="mb-6 text-left">
                 <summary className="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Error Details (Development)
@@ -145,9 +150,13 @@ export class ErrorBoundary extends Component<Props, State> {
 export function useErrorHandler() {
   return (error: Error, errorInfo?: ErrorInfo) => {
     console.error('Error caught by useErrorHandler:', error, errorInfo)
-    
+
     // In production, send to error reporting service
-    if (process.env.NODE_ENV === 'production') {
+    const isProduction = typeof window !== 'undefined' &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1'
+
+    if (isProduction) {
       // Example: Sentry.captureException(error, { contexts: { react: errorInfo } })
     }
   }

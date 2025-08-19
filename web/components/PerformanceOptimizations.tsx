@@ -15,12 +15,16 @@ import { motion } from 'framer-motion'
 import { LoadingSpinner } from './LoadingStates'
 
 // Intersection Observer hook for lazy loading
-export function useIntersectionObserver(
+export function useIntersectionObserver<T extends HTMLElement = HTMLElement>(
   options: IntersectionObserverInit = {}
-) {
+): {
+  elementRef: React.RefObject<T>
+  isIntersecting: boolean
+  hasIntersected: boolean
+} {
   const [isIntersecting, setIsIntersecting] = useState(false)
   const [hasIntersected, setHasIntersected] = useState(false)
-  const elementRef = useRef<HTMLElement>(null)
+  const elementRef = useRef<T>(null)
 
   useEffect(() => {
     const element = elementRef.current
@@ -45,7 +49,7 @@ export function useIntersectionObserver(
     return () => {
       observer.unobserve(element)
     }
-  }, [hasIntersected, options])
+  }, [hasIntersected, options.threshold, options.rootMargin, options.root])
 
   return { elementRef, isIntersecting, hasIntersected }
 }
@@ -62,7 +66,7 @@ export function LazyLoad({
   className?: string
   once?: boolean
 }) {
-  const { elementRef, hasIntersected, isIntersecting } = useIntersectionObserver()
+  const { elementRef, hasIntersected, isIntersecting } = useIntersectionObserver<HTMLDivElement>()
   
   const shouldRender = once ? hasIntersected : isIntersecting
 
@@ -95,7 +99,7 @@ export const OptimizedImage = memo(forwardRef<HTMLImageElement, {
 }, ref) => {
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasError, setHasError] = useState(false)
-  const { elementRef, hasIntersected } = useIntersectionObserver()
+  const { elementRef, hasIntersected } = useIntersectionObserver<HTMLDivElement>()
 
   const handleLoad = useCallback(() => {
     setIsLoaded(true)
@@ -239,7 +243,7 @@ export function useSearch<T>(
     caseSensitive?: boolean
     debounceMs?: number
   } = {}
-) {
+): T[] {
   const { caseSensitive = false, debounceMs = 300 } = options
   const debouncedSearchTerm = useDebounce(searchTerm, debounceMs)
 
@@ -261,7 +265,10 @@ export function useSearch<T>(
 }
 
 // Performance monitoring hook
-export function usePerformanceMonitor(name: string) {
+export function usePerformanceMonitor(name: string): {
+  duration?: number
+  memory?: number
+} {
   const startTime = useRef<number>()
   const [metrics, setMetrics] = useState<{
     duration?: number
@@ -321,7 +328,11 @@ export function createLazyComponent<T extends React.ComponentType<any>>(
 }
 
 // Resource preloader
-export function usePreloader(resources: string[]) {
+export function usePreloader(resources: string[]): {
+  preload: () => Promise<void>
+  loadedResources: Set<string>
+  isLoading: boolean
+} {
   const [loadedResources, setLoadedResources] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(false)
 
@@ -332,17 +343,20 @@ export function usePreloader(resources: string[]) {
       if (loadedResources.has(resource)) return resource
 
       try {
-        if (resource.endsWith('.js')) {
+        if (resource.endsWith('.js') || resource.endsWith('.mjs')) {
           await import(resource)
-        } else if (resource.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-          return new Promise((resolve, reject) => {
+        } else if (resource.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+          return new Promise<string>((resolve, reject) => {
             const img = new Image()
             img.onload = () => resolve(resource)
-            img.onerror = reject
+            img.onerror = () => reject(new Error(`Failed to load image: ${resource}`))
             img.src = resource
           })
         } else {
-          await fetch(resource)
+          const response = await fetch(resource)
+          if (!response.ok) {
+            throw new Error(`Failed to fetch resource: ${resource} (${response.status})`)  
+          }
         }
         
         setLoadedResources(prev => new Set(prev).add(resource))

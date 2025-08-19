@@ -17,6 +17,46 @@ const { execSync } = require('child_process')
 
 console.log('🚀 Starting AIOS Optimization Process...\n')
 
+// Check if we're in the correct directory
+if (!fs.existsSync('package.json')) {
+  log('❌ Error: package.json not found. Please run this script from the project root.', 'red')
+  process.exit(1)
+}
+
+// Check if the application is running
+async function checkAppRunning() {
+  try {
+    const http = require('http')
+    const options = {
+      hostname: 'localhost',
+      port: 3003,
+      path: '/',
+      method: 'GET',
+      timeout: 2000
+    }
+
+    return new Promise((resolve) => {
+      const req = http.request(options, () => {
+        resolve(true)
+      })
+
+      req.on('error', () => {
+        resolve(false)
+      })
+
+      req.on('timeout', () => {
+        resolve(false)
+      })
+
+      req.end()
+    })
+  } catch (error) {
+    return Promise.resolve(false)
+  }
+}
+
+console.log('🚀 Starting AIOS Optimization Process...\n')
+
 // Colors for console output
 const colors = {
   reset: '\x1b[0m',
@@ -36,6 +76,13 @@ function log(message, color = 'reset') {
 function section(title) {
   log(`\n${colors.bright}=== ${title} ===${colors.reset}`)
 }
+
+async function runOptimization() {
+  // Check if app is running for performance tests
+  const isAppRunning = await checkAppRunning()
+  if (!isAppRunning) {
+    log('⚠️  Application not running on localhost:3003. Some tests may be skipped.', 'yellow')
+  }
 
 // 1. Bundle Analysis
 section('Bundle Analysis')
@@ -280,3 +327,11 @@ log('5. Consider implementing missing SEO features', 'blue')
 log('\n🚀 Your AIOS application is ready for production!', 'bright')
 
 console.log('\n')
+}
+
+// Run the optimization process
+runOptimization().catch(error => {
+  log('❌ Optimization process failed:', 'red')
+  console.error(error)
+  process.exit(1)
+})

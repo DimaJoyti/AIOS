@@ -139,7 +139,10 @@ class PerformanceMonitor {
   }
 
   private reportMetrics() {
-    if (process.env.NODE_ENV === 'development') {
+    const isDevelopment = typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+
+    if (isDevelopment) {
       console.group('🚀 Performance Metrics')
       console.log('Load Time:', this.metrics.loadTime + 'ms')
       console.log('DOM Content Loaded:', this.metrics.domContentLoaded + 'ms')
@@ -154,7 +157,11 @@ class PerformanceMonitor {
     }
 
     // Send to analytics service in production
-    if (process.env.NODE_ENV === 'production') {
+    const isProduction = typeof window !== 'undefined' &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1'
+
+    if (isProduction) {
       this.sendToAnalytics(this.metrics)
     }
   }
@@ -255,7 +262,10 @@ export class ResourceOptimizer {
 // Bundle size analyzer
 export class BundleAnalyzer {
   static analyzeChunks() {
-    if (process.env.NODE_ENV === 'development') {
+    const isDevelopment = typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+
+    if (isDevelopment) {
       // Analyze webpack chunks
       const chunks = (window as any).__webpack_require__?.cache
       if (chunks) {
@@ -263,25 +273,28 @@ export class BundleAnalyzer {
           id: key,
           size: JSON.stringify(chunks[key]).length
         }))
-        
+
         console.table(chunkSizes.sort((a, b) => b.size - a.size))
       }
     }
   }
 
   static trackComponentRenders() {
-    if (process.env.NODE_ENV === 'development') {
+    const isDevelopment = typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+
+    if (isDevelopment) {
       // Track React component renders
       const originalConsoleLog = console.log
       let renderCount = 0
-      
+
       console.log = (...args) => {
         if (args[0]?.includes?.('render')) {
           renderCount++
         }
         originalConsoleLog.apply(console, args)
       }
-      
+
       setInterval(() => {
         if (renderCount > 0) {
           console.warn(`🔄 ${renderCount} renders in the last second`)
@@ -313,7 +326,10 @@ if (typeof window !== 'undefined') {
   }
   
   // Analyze bundle in development
-  if (process.env.NODE_ENV === 'development') {
+  const isDevelopment = typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+
+  if (isDevelopment) {
     BundleAnalyzer.analyzeChunks()
     BundleAnalyzer.trackComponentRenders()
   }
