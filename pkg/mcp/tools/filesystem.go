@@ -19,23 +19,23 @@ import (
 
 // FileSystemToolImpl implements FileSystemTool
 type FileSystemToolImpl struct {
-	name        string
-	description string
-	basePath    string
+	name         string
+	description  string
+	basePath     string
 	allowedPaths []string
-	logger      *logrus.Logger
-	tracer      trace.Tracer
+	logger       *logrus.Logger
+	tracer       trace.Tracer
 }
 
 // NewFileSystemTool creates a new file system tool
 func NewFileSystemTool(basePath string, allowedPaths []string, logger *logrus.Logger) FileSystemTool {
 	return &FileSystemToolImpl{
-		name:        "filesystem",
-		description: "Provides file system operations for reading, writing, and managing files and directories",
-		basePath:    basePath,
+		name:         "filesystem",
+		description:  "Provides file system operations for reading, writing, and managing files and directories",
+		basePath:     basePath,
 		allowedPaths: allowedPaths,
-		logger:      logger,
-		tracer:      otel.Tracer("mcp.tools.filesystem"),
+		logger:       logger,
+		tracer:       otel.Tracer("mcp.tools.filesystem"),
 	}
 }
 
@@ -55,20 +55,20 @@ func (t *FileSystemToolImpl) GetInputSchema() map[string]interface{} {
 		"type": "object",
 		"properties": map[string]interface{}{
 			"operation": map[string]interface{}{
-				"type": "string",
-				"enum": []string{"read_file", "write_file", "list_directory", "create_directory", "delete_file", "move_file", "get_file_info"},
+				"type":        "string",
+				"enum":        []string{"read_file", "write_file", "list_directory", "create_directory", "delete_file", "move_file", "get_file_info"},
 				"description": "The file system operation to perform",
 			},
 			"path": map[string]interface{}{
-				"type": "string",
+				"type":        "string",
 				"description": "The file or directory path",
 			},
 			"content": map[string]interface{}{
-				"type": "string",
+				"type":        "string",
 				"description": "Content to write (for write_file operation)",
 			},
 			"destination": map[string]interface{}{
-				"type": "string",
+				"type":        "string",
 				"description": "Destination path (for move_file operation)",
 			},
 		},
@@ -82,15 +82,15 @@ func (t *FileSystemToolImpl) GetOutputSchema() map[string]interface{} {
 		"type": "object",
 		"properties": map[string]interface{}{
 			"success": map[string]interface{}{
-				"type": "boolean",
+				"type":        "boolean",
 				"description": "Whether the operation was successful",
 			},
 			"result": map[string]interface{}{
-				"type": "object",
+				"type":        "object",
 				"description": "The operation result",
 			},
 			"error": map[string]interface{}{
-				"type": "string",
+				"type":        "string",
 				"description": "Error message if operation failed",
 			},
 		},
@@ -207,7 +207,7 @@ func (t *FileSystemToolImpl) WriteFile(ctx context.Context, path string, content
 	}
 
 	fullPath := t.getFullPath(path)
-	
+
 	// Create directory if it doesn't exist
 	dir := filepath.Dir(fullPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {

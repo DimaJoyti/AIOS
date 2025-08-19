@@ -117,7 +117,7 @@ func TestManagerConcurrency(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		go func() {
 			defer func() { done <- true }()
-			
+
 			status, err := manager.GetSystemStatus(ctx)
 			assert.NoError(t, err)
 			assert.NotNil(t, status)

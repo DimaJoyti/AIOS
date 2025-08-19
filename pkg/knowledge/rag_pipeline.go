@@ -27,15 +27,15 @@ type DefaultRAGPipeline struct {
 
 // RAGPipelineConfig represents configuration for the RAG pipeline
 type RAGPipelineConfig struct {
-	DefaultTopK           int     `json:"default_top_k"`
-	DefaultThreshold      float32 `json:"default_threshold"`
-	MaxContextLength      int     `json:"max_context_length"`
-	RerankingEnabled      bool    `json:"reranking_enabled"`
-	CitationEnabled       bool    `json:"citation_enabled"`
-	StreamingEnabled      bool    `json:"streaming_enabled"`
-	DefaultModel          string  `json:"default_model"`
-	DefaultTemperature    float32 `json:"default_temperature"`
-	DefaultMaxTokens      int     `json:"default_max_tokens"`
+	DefaultTopK        int     `json:"default_top_k"`
+	DefaultThreshold   float32 `json:"default_threshold"`
+	MaxContextLength   int     `json:"max_context_length"`
+	RerankingEnabled   bool    `json:"reranking_enabled"`
+	CitationEnabled    bool    `json:"citation_enabled"`
+	StreamingEnabled   bool    `json:"streaming_enabled"`
+	DefaultModel       string  `json:"default_model"`
+	DefaultTemperature float32 `json:"default_temperature"`
+	DefaultMaxTokens   int     `json:"default_max_tokens"`
 }
 
 // DocumentRetriever handles document retrieval
@@ -307,7 +307,7 @@ func (rp *DefaultRAGPipeline) buildContext(documents []*Document, maxLength int)
 
 	for i, doc := range documents {
 		docText := fmt.Sprintf("[Document %d: %s]\n%s\n", i+1, doc.Title, doc.Content)
-		
+
 		if currentLength+len(docText) > maxLength {
 			// Try to fit partial content
 			remaining := maxLength - currentLength
@@ -353,7 +353,7 @@ func (rp *DefaultRAGPipeline) calculateConfidence(documents []*Document, result 
 
 	// Simple confidence calculation based on number and quality of sources
 	baseConfidence := float32(0.5)
-	
+
 	// Boost confidence based on number of relevant documents
 	documentBoost := float32(len(documents)) * 0.1
 	if documentBoost > 0.4 {

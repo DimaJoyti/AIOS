@@ -66,7 +66,7 @@ func NewPythonServiceAdapter(config *PythonServiceConfig, logger *logrus.Logger)
 // Start initializes the Python service adapter
 func (a *PythonServiceAdapter) Start(ctx context.Context) error {
 	a.logger.WithField("service", a.config.ServiceName).Info("Starting Python service adapter")
-	
+
 	// Wait for service to be ready
 	return a.waitForService(ctx)
 }
@@ -103,7 +103,7 @@ func (a *PythonServiceAdapter) makeRequest(ctx context.Context, method, endpoint
 	defer span.End()
 
 	url := fmt.Sprintf("%s%s", a.config.BaseURL, endpoint)
-	
+
 	var body io.Reader
 	if data != nil {
 		jsonData, err := json.Marshal(data)

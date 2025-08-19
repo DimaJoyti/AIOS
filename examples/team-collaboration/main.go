@@ -60,8 +60,8 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 			NotificationSettings: &collaboration.TeamNotificationSettings{
 				EnableEmailNotifications: true,
 				EnableSlackIntegration:   true,
-				EnableWebhooks:          false,
-				NotificationChannels:    []string{"general", "development"},
+				EnableWebhooks:           false,
+				NotificationChannels:     []string{"general", "development"},
 			},
 			WorkflowSettings: &collaboration.TeamWorkflowSettings{
 				RequireCodeReview:   true,
@@ -88,7 +88,7 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 
 	// Step 3: Add Team Members
 	fmt.Println("\n3. Adding Team Members...")
-	
+
 	members := []*collaboration.TeamMember{
 		{
 			UserID:      "alice@company.com",
@@ -133,13 +133,13 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 		if err != nil {
 			return fmt.Errorf("failed to add team member %s: %w", member.DisplayName, err)
 		}
-		fmt.Printf("   ✓ Added member: %s (%s) - Role: %s\n", 
+		fmt.Printf("   ✓ Added member: %s (%s) - Role: %s\n",
 			member.DisplayName, member.Username, member.Role)
 	}
 
 	// Step 4: Create Communication Channels
 	fmt.Println("\n4. Creating Communication Channels...")
-	
+
 	channels := []*collaboration.Channel{
 		{
 			Name:        "development",
@@ -190,13 +190,13 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 		if err != nil {
 			return fmt.Errorf("failed to create channel %s: %w", channel.Name, err)
 		}
-		fmt.Printf("   ✓ Created channel: #%s (%s) - %d members\n", 
+		fmt.Printf("   ✓ Created channel: #%s (%s) - %d members\n",
 			createdChannel.Name, createdChannel.Type, len(createdChannel.Members))
 	}
 
 	// Step 5: Send Messages
 	fmt.Println("\n5. Team Communication...")
-	
+
 	// Get development channel
 	teamChannels, err := collaborationEngine.ListChannels(createdTeam.ID, &collaboration.ChannelFilter{
 		Type: collaboration.ChannelTypePublic,
@@ -256,7 +256,7 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 
 	// Step 6: Create Collaborative Workflow
 	fmt.Println("\n6. Creating Code Review Workflow...")
-	
+
 	codeReviewWorkflow := &collaboration.CollaborativeWorkflow{
 		Name:        "Feature Code Review Process",
 		Description: "Standard code review workflow for new features",
@@ -272,20 +272,20 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 				DueDate:     &[]time.Time{time.Now().Add(24 * time.Hour)}[0],
 			},
 			{
-				Name:        "Security Review",
-				Description: "Security-focused code review",
-				Type:        collaboration.StepTypeReview,
-				Assignees:   []string{"diana@company.com"},
+				Name:         "Security Review",
+				Description:  "Security-focused code review",
+				Type:         collaboration.StepTypeReview,
+				Assignees:    []string{"diana@company.com"},
 				Dependencies: []string{"Initial Review"},
-				DueDate:     &[]time.Time{time.Now().Add(48 * time.Hour)}[0],
+				DueDate:      &[]time.Time{time.Now().Add(48 * time.Hour)}[0],
 			},
 			{
-				Name:        "Final Approval",
-				Description: "Final approval and merge authorization",
-				Type:        collaboration.StepTypeApproval,
-				Assignees:   []string{"alice@company.com"},
+				Name:         "Final Approval",
+				Description:  "Final approval and merge authorization",
+				Type:         collaboration.StepTypeApproval,
+				Assignees:    []string{"alice@company.com"},
 				Dependencies: []string{"Security Review"},
-				DueDate:     &[]time.Time{time.Now().Add(72 * time.Hour)}[0],
+				DueDate:      &[]time.Time{time.Now().Add(72 * time.Hour)}[0],
 			},
 		},
 		Participants: []*collaboration.WorkflowParticipant{
@@ -339,16 +339,16 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 	fmt.Printf("     - Participants: %d\n", len(createdWorkflow.Participants))
 
 	for i, step := range createdWorkflow.Steps {
-		fmt.Printf("       Step %d: %s (%s) - Assignees: %d\n", 
+		fmt.Printf("       Step %d: %s (%s) - Assignees: %d\n",
 			i+1, step.Name, step.Type, len(step.Assignees))
 	}
 
 	// Step 7: Create Collaborative Document
 	fmt.Println("\n7. Creating Team Documentation...")
-	
+
 	teamDoc := &collaboration.Document{
-		Title:     "Team Development Guidelines",
-		Content:   `# Team Development Guidelines
+		Title: "Team Development Guidelines",
+		Content: `# Team Development Guidelines
 
 ## Code Review Process
 1. All code must be reviewed by at least 2 team members
@@ -370,10 +370,10 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 - Sprint planning every two weeks
 - Retrospectives at end of each sprint
 `,
-		Type:      collaboration.DocumentTypeMarkdown,
-		Format:    "markdown",
-		TeamID:    createdTeam.ID,
-		Status:    collaboration.DocumentStatusPublished,
+		Type:   collaboration.DocumentTypeMarkdown,
+		Format: "markdown",
+		TeamID: createdTeam.ID,
+		Status: collaboration.DocumentStatusPublished,
 		Sharing: &collaboration.DocumentSharing{
 			IsPublic: false,
 			SharedWith: []*collaboration.DocumentPermission{
@@ -402,7 +402,7 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 
 	// Step 8: Send Notifications
 	fmt.Println("\n8. Sending Team Notifications...")
-	
+
 	notifications := []*collaboration.Notification{
 		{
 			UserID:   "bob@company.com",
@@ -412,10 +412,10 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 			Priority: collaboration.NotificationPriorityHigh,
 			Category: "code_review",
 			Source: &collaboration.NotificationSource{
-				Type:    "channel",
-				ID:      devChannelID,
-				Name:    "development",
-				URL:     fmt.Sprintf("/channels/%s", devChannelID),
+				Type: "channel",
+				ID:   devChannelID,
+				Name: "development",
+				URL:  fmt.Sprintf("/channels/%s", devChannelID),
 			},
 			Actions: []*collaboration.NotificationAction{
 				{
@@ -434,10 +434,10 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 			Priority: collaboration.NotificationPriorityNormal,
 			Category: "workflow",
 			Source: &collaboration.NotificationSource{
-				Type:    "workflow",
-				ID:      createdWorkflow.ID,
-				Name:    createdWorkflow.Name,
-				URL:     fmt.Sprintf("/workflows/%s", createdWorkflow.ID),
+				Type: "workflow",
+				ID:   createdWorkflow.ID,
+				Name: createdWorkflow.Name,
+				URL:  fmt.Sprintf("/workflows/%s", createdWorkflow.ID),
 			},
 			Actions: []*collaboration.NotificationAction{
 				{
@@ -456,10 +456,10 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 			Priority: collaboration.NotificationPriorityLow,
 			Category: "documentation",
 			Source: &collaboration.NotificationSource{
-				Type:    "document",
-				ID:      createdDoc.ID,
-				Name:    createdDoc.Title,
-				URL:     fmt.Sprintf("/documents/%s", createdDoc.ID),
+				Type: "document",
+				ID:   createdDoc.ID,
+				Name: createdDoc.Title,
+				URL:  fmt.Sprintf("/documents/%s", createdDoc.ID),
 			},
 		},
 	}
@@ -469,13 +469,13 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 		if err != nil {
 			return fmt.Errorf("failed to send notification: %w", err)
 		}
-		fmt.Printf("   ✓ Sent to %s: %s (%s)\n", 
+		fmt.Printf("   ✓ Sent to %s: %s (%s)\n",
 			notification.UserID, notification.Title, notification.Priority)
 	}
 
 	// Step 9: Activity Tracking
 	fmt.Println("\n9. Reviewing Team Activity...")
-	
+
 	// Get recent team activities
 	teamActivities, err := collaborationEngine.GetTeamActivity(createdTeam.ID, &collaboration.ActivityFilter{
 		Limit: 10,
@@ -489,13 +489,13 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 		if i >= 5 { // Show only first 5
 			break
 		}
-		fmt.Printf("     %d. %s: %s (%s)\n", 
+		fmt.Printf("     %d. %s: %s (%s)\n",
 			i+1, activity.Username, activity.Description, activity.Timestamp.Format("15:04:05"))
 	}
 
 	// Step 10: Team Analytics
 	fmt.Println("\n10. Team Collaboration Analytics...")
-	
+
 	// Get team information
 	team, err := collaborationEngine.GetTeam(createdTeam.ID)
 	if err != nil {
@@ -515,7 +515,7 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 		messages, _ := collaborationEngine.GetMessages(channel.ID, &collaboration.MessageFilter{
 			Limit: 100,
 		})
-		fmt.Printf("     - #%s: %d messages, %d members\n", 
+		fmt.Printf("     - #%s: %d messages, %d members\n",
 			channel.Name, len(messages), len(channel.Members))
 	}
 
@@ -529,7 +529,7 @@ func runTeamCollaborationDemo(logger *logrus.Logger) error {
 
 	fmt.Printf("   ✓ Active Workflows: %d\n", len(workflows))
 	for _, workflow := range workflows {
-		fmt.Printf("     - %s (%s): %d steps, %d participants\n", 
+		fmt.Printf("     - %s (%s): %d steps, %d participants\n",
 			workflow.Name, workflow.Status, len(workflow.Steps), len(workflow.Participants))
 	}
 

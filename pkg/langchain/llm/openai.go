@@ -143,7 +143,7 @@ func (o *OpenAILLM) Complete(ctx context.Context, req *CompletionRequest) (*Comp
 
 	// Convert to standard format
 	response := o.convertFromOpenAIResponse(&openaiResp)
-	
+
 	span.SetAttributes(
 		attribute.Int("llm.usage.prompt_tokens", response.Usage.PromptTokens),
 		attribute.Int("llm.usage.completion_tokens", response.Usage.CompletionTokens),

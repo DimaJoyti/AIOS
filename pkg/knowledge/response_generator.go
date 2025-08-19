@@ -62,7 +62,7 @@ Be accurate, concise, and helpful in your responses.`,
 func (rg *DefaultResponseGenerator) initializeLLMManager() error {
 	// Create LLM factory
 	factory := llm.NewLLMFactory(rg.logger)
-	
+
 	// Create LLM manager
 	manager := llm.NewLLMManager(factory, rg.logger)
 
@@ -263,18 +263,18 @@ func (rg *DefaultResponseGenerator) addCitations(response string, documents []*D
 
 // DefaultSemanticCache implements the SemanticCache interface
 type DefaultSemanticCache struct {
-	cache   map[string]*CachedQuery
-	logger  *logrus.Logger
-	tracer  trace.Tracer
-	config  *SemanticCacheConfig
+	cache  map[string]*CachedQuery
+	logger *logrus.Logger
+	tracer trace.Tracer
+	config *SemanticCacheConfig
 }
 
 // SemanticCacheConfig represents configuration for the semantic cache
 type SemanticCacheConfig struct {
-	MaxSize           int           `json:"max_size"`
-	DefaultTTL        time.Duration `json:"default_ttl"`
-	SimilarityThreshold float32     `json:"similarity_threshold"`
-	EnableCompression bool          `json:"enable_compression"`
+	MaxSize             int           `json:"max_size"`
+	DefaultTTL          time.Duration `json:"default_ttl"`
+	SimilarityThreshold float32       `json:"similarity_threshold"`
+	EnableCompression   bool          `json:"enable_compression"`
 }
 
 // NewDefaultSemanticCache creates a new default semantic cache

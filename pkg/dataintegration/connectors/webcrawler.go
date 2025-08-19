@@ -309,9 +309,9 @@ func (wc *WebCrawlerConnector) ExtractData(ctx context.Context, params *datainte
 		ExtractedAt: time.Now(),
 		Duration:    time.Since(start),
 		Metadata: map[string]interface{}{
-			"base_url":    baseURL,
+			"base_url":      baseURL,
 			"pages_crawled": len(records),
-			"max_depth":   wc.config.MaxDepth,
+			"max_depth":     wc.config.MaxDepth,
 		},
 	}, nil
 }

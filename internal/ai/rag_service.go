@@ -17,13 +17,13 @@ import (
 
 // RAGServiceImpl implements the RAGService interface
 type RAGServiceImpl struct {
-	config       AIServiceConfig
-	logger       *logrus.Logger
-	tracer       trace.Tracer
-	documents    map[string]*models.Document
-	embeddings   map[string][]float64
-	textIndex    map[string][]string // Simple text-based index
-	mu           sync.RWMutex
+	config     AIServiceConfig
+	logger     *logrus.Logger
+	tracer     trace.Tracer
+	documents  map[string]*models.Document
+	embeddings map[string][]float64
+	textIndex  map[string][]string // Simple text-based index
+	mu         sync.RWMutex
 }
 
 // NewRAGService creates a new RAG service instance

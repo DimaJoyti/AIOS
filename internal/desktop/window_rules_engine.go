@@ -16,25 +16,25 @@ import (
 
 // WindowRulesEngine manages automated window behavior rules
 type WindowRulesEngine struct {
-	logger  *logrus.Logger
-	tracer  trace.Tracer
-	config  RulesEngineConfig
-	mu      sync.RWMutex
-	
+	logger *logrus.Logger
+	tracer trace.Tracer
+	config RulesEngineConfig
+	mu     sync.RWMutex
+
 	// Rules management
-	rules           []WindowRule
-	ruleGroups      map[string][]WindowRule
-	activeRules     map[string]*ActiveRule
-	ruleHistory     []RuleExecution
-	
+	rules       []WindowRule
+	ruleGroups  map[string][]WindowRule
+	activeRules map[string]*ActiveRule
+	ruleHistory []RuleExecution
+
 	// Rule evaluation
 	evaluationQueue chan *RuleEvaluationRequest
 	running         bool
 	stopCh          chan struct{}
-	
+
 	// Callbacks
-	onRuleMatched   func(*WindowRule, *models.Window)
-	onRuleExecuted  func(*RuleExecution)
+	onRuleMatched  func(*WindowRule, *models.Window)
+	onRuleExecuted func(*RuleExecution)
 }
 
 // RulesEngineConfig defines rules engine configuration
@@ -91,12 +91,12 @@ type RuleTrigger struct {
 
 // RuleSchedule defines time-based rule execution
 type RuleSchedule struct {
-	StartTime    string   `json:"start_time"`    // "09:00"
-	EndTime      string   `json:"end_time"`      // "17:00"
-	DaysOfWeek   []string `json:"days_of_week"`  // ["monday", "tuesday", ...]
-	Timezone     string   `json:"timezone"`
-	Recurring    bool     `json:"recurring"`
-	CronExpression string `json:"cron_expression,omitempty"`
+	StartTime      string   `json:"start_time"`   // "09:00"
+	EndTime        string   `json:"end_time"`     // "17:00"
+	DaysOfWeek     []string `json:"days_of_week"` // ["monday", "tuesday", ...]
+	Timezone       string   `json:"timezone"`
+	Recurring      bool     `json:"recurring"`
+	CronExpression string   `json:"cron_expression,omitempty"`
 }
 
 // ActiveRule represents a rule that is currently being processed
@@ -110,14 +110,14 @@ type ActiveRule struct {
 
 // RuleExecution represents the execution of a rule
 type RuleExecution struct {
-	RuleID      string                 `json:"rule_id"`
-	WindowID    string                 `json:"window_id"`
-	Timestamp   time.Time              `json:"timestamp"`
-	Duration    time.Duration          `json:"duration"`
-	Success     bool                   `json:"success"`
-	Error       string                 `json:"error,omitempty"`
-	ActionsRun  []string               `json:"actions_run"`
-	Context     map[string]interface{} `json:"context"`
+	RuleID     string                 `json:"rule_id"`
+	WindowID   string                 `json:"window_id"`
+	Timestamp  time.Time              `json:"timestamp"`
+	Duration   time.Duration          `json:"duration"`
+	Success    bool                   `json:"success"`
+	Error      string                 `json:"error,omitempty"`
+	ActionsRun []string               `json:"actions_run"`
+	Context    map[string]interface{} `json:"context"`
 }
 
 // RuleEvaluationRequest represents a request to evaluate rules
@@ -131,15 +131,15 @@ type RuleEvaluationRequest struct {
 
 // RuleEvaluationResult represents the result of rule evaluation
 type RuleEvaluationResult struct {
-	MatchedRules []WindowRule `json:"matched_rules"`
+	MatchedRules []WindowRule    `json:"matched_rules"`
 	Executions   []RuleExecution `json:"executions"`
-	Error        error        `json:"error,omitempty"`
+	Error        error           `json:"error,omitempty"`
 }
 
 // NewWindowRulesEngine creates a new window rules engine
 func NewWindowRulesEngine(logger *logrus.Logger, config RulesEngineConfig) *WindowRulesEngine {
 	tracer := otel.Tracer("window-rules-engine")
-	
+
 	engine := &WindowRulesEngine{
 		logger:          logger,
 		tracer:          tracer,
@@ -151,10 +151,10 @@ func NewWindowRulesEngine(logger *logrus.Logger, config RulesEngineConfig) *Wind
 		evaluationQueue: make(chan *RuleEvaluationRequest, 100),
 		stopCh:          make(chan struct{}),
 	}
-	
+
 	// Load default rules
 	engine.loadDefaultRules()
-	
+
 	return engine
 }
 
@@ -162,21 +162,21 @@ func NewWindowRulesEngine(logger *logrus.Logger, config RulesEngineConfig) *Wind
 func (wre *WindowRulesEngine) Start(ctx context.Context) error {
 	ctx, span := wre.tracer.Start(ctx, "windowRulesEngine.Start")
 	defer span.End()
-	
+
 	wre.mu.Lock()
 	defer wre.mu.Unlock()
-	
+
 	if wre.running {
 		return fmt.Errorf("rules engine already running")
 	}
-	
+
 	wre.running = true
-	
+
 	// Start evaluation workers
 	for i := 0; i < wre.config.MaxConcurrentEvaluations; i++ {
 		go wre.evaluationWorker()
 	}
-	
+
 	wre.logger.Info("Window rules engine started")
 	return nil
 }
@@ -185,17 +185,17 @@ func (wre *WindowRulesEngine) Start(ctx context.Context) error {
 func (wre *WindowRulesEngine) Stop(ctx context.Context) error {
 	ctx, span := wre.tracer.Start(ctx, "windowRulesEngine.Stop")
 	defer span.End()
-	
+
 	wre.mu.Lock()
 	defer wre.mu.Unlock()
-	
+
 	if !wre.running {
 		return nil
 	}
-	
+
 	wre.running = false
 	close(wre.stopCh)
-	
+
 	wre.logger.Info("Window rules engine stopped")
 	return nil
 }
@@ -204,7 +204,7 @@ func (wre *WindowRulesEngine) Stop(ctx context.Context) error {
 func (wre *WindowRulesEngine) EvaluateRules(ctx context.Context, window *models.Window, event string, context map[string]interface{}) (*RuleEvaluationResult, error) {
 	ctx, span := wre.tracer.Start(ctx, "windowRulesEngine.EvaluateRules")
 	defer span.End()
-	
+
 	request := &RuleEvaluationRequest{
 		Window:    window,
 		Event:     event,
@@ -212,7 +212,7 @@ func (wre *WindowRulesEngine) EvaluateRules(ctx context.Context, window *models.
 		Timestamp: time.Now(),
 		Response:  make(chan *RuleEvaluationResult, 1),
 	}
-	
+
 	// Send to evaluation queue
 	select {
 	case wre.evaluationQueue <- request:
@@ -221,7 +221,7 @@ func (wre *WindowRulesEngine) EvaluateRules(ctx context.Context, window *models.
 	case <-time.After(wre.config.EvaluationTimeout):
 		return nil, fmt.Errorf("evaluation timeout")
 	}
-	
+
 	// Wait for result
 	select {
 	case result := <-request.Response:
@@ -256,46 +256,46 @@ func (wre *WindowRulesEngine) processEvaluationRequest(request *RuleEvaluationRe
 	rules := make([]WindowRule, len(wre.rules))
 	copy(rules, wre.rules)
 	wre.mu.RUnlock()
-	
+
 	result := &RuleEvaluationResult{
 		MatchedRules: make([]WindowRule, 0),
 		Executions:   make([]RuleExecution, 0),
 	}
-	
+
 	// Evaluate each rule
 	for _, rule := range rules {
 		if !rule.Enabled {
 			continue
 		}
-		
+
 		// Check if rule should be triggered for this event
 		if !wre.shouldTriggerRule(&rule, request.Event) {
 			continue
 		}
-		
+
 		// Check if rule schedule allows execution
 		if !wre.isRuleScheduleActive(&rule) {
 			continue
 		}
-		
+
 		// Evaluate rule conditions
 		if wre.evaluateRuleConditions(&rule, request.Window, request.Context) {
 			result.MatchedRules = append(result.MatchedRules, rule)
-			
+
 			// Execute rule actions
 			execution := wre.executeRuleActions(&rule, request.Window, request.Context)
 			result.Executions = append(result.Executions, execution)
-			
+
 			// Update rule statistics
 			wre.updateRuleStats(&rule)
-			
+
 			// Notify callback
 			if wre.onRuleMatched != nil {
 				wre.onRuleMatched(&rule, request.Window)
 			}
 		}
 	}
-	
+
 	return result
 }
 
@@ -304,13 +304,13 @@ func (wre *WindowRulesEngine) shouldTriggerRule(rule *WindowRule, event string) 
 	if len(rule.Triggers) == 0 {
 		return true // No specific triggers means trigger on all events
 	}
-	
+
 	for _, trigger := range rule.Triggers {
 		if trigger.Event == event || trigger.Event == "*" {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
@@ -319,9 +319,9 @@ func (wre *WindowRulesEngine) isRuleScheduleActive(rule *WindowRule) bool {
 	if rule.Schedule == nil {
 		return true
 	}
-	
+
 	now := time.Now()
-	
+
 	// Check day of week
 	if len(rule.Schedule.DaysOfWeek) > 0 {
 		currentDay := strings.ToLower(now.Weekday().String())
@@ -336,7 +336,7 @@ func (wre *WindowRulesEngine) isRuleScheduleActive(rule *WindowRule) bool {
 			return false
 		}
 	}
-	
+
 	// Check time range (simplified)
 	if rule.Schedule.StartTime != "" && rule.Schedule.EndTime != "" {
 		currentTime := now.Format("15:04")
@@ -344,7 +344,7 @@ func (wre *WindowRulesEngine) isRuleScheduleActive(rule *WindowRule) bool {
 			return false
 		}
 	}
-	
+
 	return true
 }
 
@@ -353,22 +353,22 @@ func (wre *WindowRulesEngine) evaluateRuleConditions(rule *WindowRule, window *m
 	if len(rule.Conditions) == 0 {
 		return true
 	}
-	
+
 	totalWeight := 0.0
 	matchedWeight := 0.0
-	
+
 	for _, condition := range rule.Conditions {
 		weight := condition.Weight
 		if weight == 0 {
 			weight = 1.0
 		}
 		totalWeight += weight
-		
+
 		if wre.evaluateCondition(&condition, window, context) {
 			matchedWeight += weight
 		}
 	}
-	
+
 	// Rule matches if more than 50% of weighted conditions match
 	return matchedWeight/totalWeight > 0.5
 }
@@ -376,7 +376,7 @@ func (wre *WindowRulesEngine) evaluateRuleConditions(rule *WindowRule, window *m
 // evaluateCondition evaluates a single condition
 func (wre *WindowRulesEngine) evaluateCondition(condition *RuleCondition, window *models.Window, context map[string]interface{}) bool {
 	var result bool
-	
+
 	switch condition.Type {
 	case "window_title":
 		result = wre.evaluateStringCondition(window.Title, condition)
@@ -395,12 +395,12 @@ func (wre *WindowRulesEngine) evaluateCondition(condition *RuleCondition, window
 	default:
 		result = false
 	}
-	
+
 	// Apply negation if specified
 	if condition.Negate {
 		result = !result
 	}
-	
+
 	return result
 }
 
@@ -410,7 +410,7 @@ func (wre *WindowRulesEngine) evaluateStringCondition(value string, condition *R
 	if !ok {
 		return false
 	}
-	
+
 	switch condition.Operator {
 	case "equals":
 		return value == conditionValue
@@ -446,9 +446,9 @@ func (wre *WindowRulesEngine) evaluateIntCondition(value int, condition *RuleCon
 	if !ok {
 		return false
 	}
-	
+
 	intConditionValue := int(conditionValue)
-	
+
 	switch condition.Operator {
 	case "equals":
 		return value == intConditionValue
@@ -487,30 +487,30 @@ func (wre *WindowRulesEngine) executeRuleActions(rule *WindowRule, window *model
 		ActionsRun: make([]string, 0),
 		Context:    context,
 	}
-	
+
 	start := time.Now()
-	
+
 	for _, action := range rule.Actions {
 		// Apply delay if specified
 		if action.Delay > 0 {
 			time.Sleep(action.Delay)
 		}
-		
+
 		// Execute action
 		if err := wre.executeAction(&action, window); err != nil {
 			execution.Success = false
 			execution.Error = err.Error()
 			break
 		}
-		
+
 		execution.ActionsRun = append(execution.ActionsRun, action.Type)
 	}
-	
+
 	execution.Duration = time.Since(start)
-	
+
 	// Record execution
 	wre.recordExecution(execution)
-	
+
 	return execution
 }
 
@@ -606,7 +606,7 @@ func (wre *WindowRulesEngine) executeClose(action *RuleAction, window *models.Wi
 func (wre *WindowRulesEngine) updateRuleStats(rule *WindowRule) {
 	wre.mu.Lock()
 	defer wre.mu.Unlock()
-	
+
 	// Find and update the rule
 	for i := range wre.rules {
 		if wre.rules[i].ID == rule.ID {
@@ -620,14 +620,14 @@ func (wre *WindowRulesEngine) updateRuleStats(rule *WindowRule) {
 func (wre *WindowRulesEngine) recordExecution(execution RuleExecution) {
 	wre.mu.Lock()
 	defer wre.mu.Unlock()
-	
+
 	wre.ruleHistory = append(wre.ruleHistory, execution)
-	
+
 	// Maintain history size
 	if len(wre.ruleHistory) > wre.config.RuleHistorySize {
 		wre.ruleHistory = wre.ruleHistory[len(wre.ruleHistory)-wre.config.RuleHistorySize:]
 	}
-	
+
 	// Notify callback
 	if wre.onRuleExecuted != nil {
 		wre.onRuleExecuted(&execution)
@@ -665,6 +665,6 @@ func (wre *WindowRulesEngine) loadDefaultRules() {
 			UpdatedAt: time.Now(),
 		},
 	}
-	
+
 	wre.rules = append(wre.rules, defaultRules...)
 }

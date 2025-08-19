@@ -14,19 +14,19 @@ type WorkflowEngine interface {
 	UpdateWorkflow(ctx context.Context, workflow *Workflow) (*Workflow, error)
 	DeleteWorkflow(ctx context.Context, workflowID string) error
 	ListWorkflows(ctx context.Context, filter *WorkflowFilter) ([]*Workflow, error)
-	
+
 	// Workflow execution
 	ExecuteWorkflow(ctx context.Context, workflowID string, input map[string]interface{}) (*WorkflowExecution, error)
 	GetExecution(ctx context.Context, executionID string) (*WorkflowExecution, error)
 	ListExecutions(ctx context.Context, filter *ExecutionFilter) ([]*WorkflowExecution, error)
 	CancelExecution(ctx context.Context, executionID string) error
 	RetryExecution(ctx context.Context, executionID string) (*WorkflowExecution, error)
-	
+
 	// Event handling
 	TriggerWorkflow(ctx context.Context, event *Event) ([]*WorkflowExecution, error)
 	RegisterTrigger(ctx context.Context, workflowID string, trigger *Trigger) error
 	UnregisterTrigger(ctx context.Context, workflowID string, triggerID string) error
-	
+
 	// Template management
 	CreateTemplate(ctx context.Context, template *WorkflowTemplate) (*WorkflowTemplate, error)
 	GetTemplate(ctx context.Context, templateID string) (*WorkflowTemplate, error)
@@ -42,20 +42,20 @@ type PipelineEngine interface {
 	UpdatePipeline(ctx context.Context, pipeline *Pipeline) (*Pipeline, error)
 	DeletePipeline(ctx context.Context, pipelineID string) error
 	ListPipelines(ctx context.Context, filter *PipelineFilter) ([]*Pipeline, error)
-	
+
 	// Pipeline execution
 	ExecutePipeline(ctx context.Context, pipelineID string, params *ExecutionParams) (*PipelineExecution, error)
 	GetPipelineExecution(ctx context.Context, executionID string) (*PipelineExecution, error)
 	ListPipelineExecutions(ctx context.Context, filter *PipelineExecutionFilter) ([]*PipelineExecution, error)
 	CancelPipelineExecution(ctx context.Context, executionID string) error
 	RetryPipelineExecution(ctx context.Context, executionID string) (*PipelineExecution, error)
-	
+
 	// Artifact management
 	UploadArtifact(ctx context.Context, executionID string, artifact *Artifact, reader io.Reader) error
 	DownloadArtifact(ctx context.Context, artifactID string, writer io.Writer) error
 	ListArtifacts(ctx context.Context, executionID string) ([]*Artifact, error)
 	DeleteArtifact(ctx context.Context, artifactID string) error
-	
+
 	// Pipeline triggers
 	RegisterPipelineTrigger(ctx context.Context, pipelineID string, trigger *PipelineTrigger) error
 	UnregisterPipelineTrigger(ctx context.Context, pipelineID string, triggerID string) error
@@ -92,25 +92,25 @@ type IntegrationManager interface {
 	ConnectGitHub(ctx context.Context, config *GitHubConfig) error
 	SyncGitHubRepository(ctx context.Context, repoURL string) error
 	CreateGitHubWebhook(ctx context.Context, repoURL string, events []string) error
-	
+
 	// GitLab integration
 	ConnectGitLab(ctx context.Context, config *GitLabConfig) error
 	SyncGitLabRepository(ctx context.Context, repoURL string) error
 	CreateGitLabWebhook(ctx context.Context, repoURL string, events []string) error
-	
+
 	// Jenkins integration
 	ConnectJenkins(ctx context.Context, config *JenkinsConfig) error
 	TriggerJenkinsJob(ctx context.Context, jobName string, params map[string]interface{}) error
 	GetJenkinsJobStatus(ctx context.Context, jobName string, buildNumber int) (*BuildStatus, error)
-	
+
 	// Slack integration
 	ConnectSlack(ctx context.Context, config *SlackConfig) error
 	SendSlackMessage(ctx context.Context, channel string, message string) error
-	
+
 	// Email integration
 	ConnectEmail(ctx context.Context, config *EmailConfig) error
 	SendEmail(ctx context.Context, to []string, subject string, body string) error
-	
+
 	// Generic webhook
 	RegisterWebhook(ctx context.Context, config *WebhookConfig) error
 	SendWebhook(ctx context.Context, url string, payload map[string]interface{}) error
@@ -130,12 +130,12 @@ type WorkflowFilter struct {
 
 // ExecutionFilter represents filters for execution queries
 type ExecutionFilter struct {
-	WorkflowID string            `json:"workflow_id,omitempty"`
-	Status     []ExecutionStatus `json:"status,omitempty"`
-	StartedAfter *time.Time      `json:"started_after,omitempty"`
-	StartedBefore *time.Time     `json:"started_before,omitempty"`
-	Limit      int              `json:"limit,omitempty"`
-	Offset     int              `json:"offset,omitempty"`
+	WorkflowID    string            `json:"workflow_id,omitempty"`
+	Status        []ExecutionStatus `json:"status,omitempty"`
+	StartedAfter  *time.Time        `json:"started_after,omitempty"`
+	StartedBefore *time.Time        `json:"started_before,omitempty"`
+	Limit         int               `json:"limit,omitempty"`
+	Offset        int               `json:"offset,omitempty"`
 }
 
 // TemplateFilter represents filters for template queries
@@ -173,20 +173,20 @@ type PipelineExecutionFilter struct {
 
 // ExecutionParams represents parameters for pipeline execution
 type ExecutionParams struct {
-	Branch    string                 `json:"branch,omitempty"`
-	Commit    string                 `json:"commit,omitempty"`
-	Variables map[string]interface{} `json:"variables,omitempty"`
-	TriggerType string               `json:"trigger_type,omitempty"`
+	Branch      string                 `json:"branch,omitempty"`
+	Commit      string                 `json:"commit,omitempty"`
+	Variables   map[string]interface{} `json:"variables,omitempty"`
+	TriggerType string                 `json:"trigger_type,omitempty"`
 }
 
 // ScheduledWorkflow represents a scheduled workflow
 type ScheduledWorkflow struct {
-	WorkflowID   string    `json:"workflow_id"`
-	Schedule     *Schedule `json:"schedule"`
-	NextRun      time.Time `json:"next_run"`
-	LastRun      *time.Time `json:"last_run,omitempty"`
-	LastStatus   ExecutionStatus `json:"last_status,omitempty"`
-	Enabled      bool      `json:"enabled"`
+	WorkflowID string          `json:"workflow_id"`
+	Schedule   *Schedule       `json:"schedule"`
+	NextRun    time.Time       `json:"next_run"`
+	LastRun    *time.Time      `json:"last_run,omitempty"`
+	LastStatus ExecutionStatus `json:"last_status,omitempty"`
+	Enabled    bool            `json:"enabled"`
 }
 
 // BuildStatus represents build status information
@@ -233,13 +233,13 @@ type SlackConfig struct {
 
 // EmailConfig represents email integration configuration
 type EmailConfig struct {
-	SMTPHost     string `json:"smtp_host"`
-	SMTPPort     int    `json:"smtp_port"`
-	Username     string `json:"username"`
-	Password     string `json:"password"`
-	FromAddress  string `json:"from_address"`
-	FromName     string `json:"from_name,omitempty"`
-	UseTLS       bool   `json:"use_tls"`
+	SMTPHost    string `json:"smtp_host"`
+	SMTPPort    int    `json:"smtp_port"`
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	FromAddress string `json:"from_address"`
+	FromName    string `json:"from_name,omitempty"`
+	UseTLS      bool   `json:"use_tls"`
 }
 
 // WebhookConfig represents webhook configuration
@@ -255,24 +255,24 @@ type WebhookConfig struct {
 
 // WorkflowAnalytics represents workflow analytics data
 type WorkflowAnalytics struct {
-	WorkflowID       string                 `json:"workflow_id"`
-	TimeRange        *TimeRange             `json:"time_range"`
-	TotalExecutions  int                    `json:"total_executions"`
-	SuccessfulRuns   int                    `json:"successful_runs"`
-	FailedRuns       int                    `json:"failed_runs"`
-	AverageRunTime   time.Duration          `json:"average_run_time"`
-	SuccessRate      float32                `json:"success_rate"`
-	ExecutionTrends  []*ExecutionTrend      `json:"execution_trends"`
-	ErrorDistribution map[string]int        `json:"error_distribution"`
-	Metadata         map[string]interface{} `json:"metadata,omitempty"`
+	WorkflowID        string                 `json:"workflow_id"`
+	TimeRange         *TimeRange             `json:"time_range"`
+	TotalExecutions   int                    `json:"total_executions"`
+	SuccessfulRuns    int                    `json:"successful_runs"`
+	FailedRuns        int                    `json:"failed_runs"`
+	AverageRunTime    time.Duration          `json:"average_run_time"`
+	SuccessRate       float32                `json:"success_rate"`
+	ExecutionTrends   []*ExecutionTrend      `json:"execution_trends"`
+	ErrorDistribution map[string]int         `json:"error_distribution"`
+	Metadata          map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // ExecutionTrend represents execution trend data
 type ExecutionTrend struct {
-	Date       time.Time `json:"date"`
-	Executions int       `json:"executions"`
-	Successes  int       `json:"successes"`
-	Failures   int       `json:"failures"`
+	Date       time.Time     `json:"date"`
+	Executions int           `json:"executions"`
+	Successes  int           `json:"successes"`
+	Failures   int           `json:"failures"`
 	AvgRunTime time.Duration `json:"avg_run_time"`
 }
 

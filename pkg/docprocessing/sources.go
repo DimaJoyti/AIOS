@@ -186,11 +186,11 @@ func (fs *FileSource) createDocumentFromFile(filePath string, info os.FileInfo) 
 		Content:     string(content),
 		ContentType: contentType,
 		Metadata: map[string]interface{}{
-			"file_path":    filePath,
-			"file_size":    info.Size(),
-			"file_mode":    info.Mode().String(),
-			"modified_at":  info.ModTime(),
-			"extension":    filepath.Ext(filePath),
+			"file_path":   filePath,
+			"file_size":   info.Size(),
+			"file_mode":   info.Mode().String(),
+			"modified_at": info.ModTime(),
+			"extension":   filepath.Ext(filePath),
 		},
 		CreatedAt: info.ModTime(),
 		UpdatedAt: info.ModTime(),
@@ -203,7 +203,7 @@ func (fs *FileSource) createDocumentFromFile(filePath string, info os.FileInfo) 
 
 func (fs *FileSource) detectContentType(filePath string, content []byte) string {
 	ext := strings.ToLower(filepath.Ext(filePath))
-	
+
 	switch ext {
 	case ".pdf":
 		return "application/pdf"
@@ -388,9 +388,9 @@ func (us *URLSource) extractTitleFromURL(url string) string {
 
 // ReaderSource implements DocumentSource for io.Reader sources
 type ReaderSource struct {
-	readers     []ReaderInfo
-	logger      *logrus.Logger
-	tracer      trace.Tracer
+	readers []ReaderInfo
+	logger  *logrus.Logger
+	tracer  trace.Tracer
 }
 
 // ReaderInfo contains information about a reader
@@ -413,7 +413,7 @@ func NewReaderSource(logger *logrus.Logger) *ReaderSource {
 // AddReader adds a reader to the source
 func (rs *ReaderSource) AddReader(reader io.Reader, contentType string, metadata map[string]interface{}) string {
 	id := uuid.New().String()
-	
+
 	if metadata == nil {
 		metadata = make(map[string]interface{})
 	}

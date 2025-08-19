@@ -36,11 +36,11 @@ type WindowManager struct {
 	tilingEngine    *TilingEngine
 	multiMonitorMgr *MultiMonitorManager
 	// windowAnimator  *WindowAnimator // TODO: implement
-	// rulesEngine     *WindowRulesEngine // TODO: implement  
+	// rulesEngine     *WindowRulesEngine // TODO: implement
 	// snapManager     *SnapManager // TODO: implement
 
 	// State management
-	activeWindow  *models.Window
+	activeWindow *models.Window
 	// focusHistory  []FocusEvent // TODO: implement event types
 	// windowHistory []WindowEvent // TODO: implement event types
 	// layoutHistory []LayoutEvent // TODO: implement event types
@@ -49,7 +49,7 @@ type WindowManager struct {
 
 	// Performance tracking
 	// performanceMetrics *WindowPerformanceMetrics // TODO: implement
-	lastOptimization   time.Time
+	lastOptimization time.Time
 }
 
 // WindowRule represents a window management rule
@@ -108,15 +108,15 @@ func NewWindowManager(
 	tracer := otel.Tracer("window-manager")
 
 	wm := &WindowManager{
-		logger:       logger,
-		tracer:       tracer,
-		config:       config,
-		windows:      make(map[string]*models.Window),
-		layouts:      make(map[string]*models.WindowLayout),
-		rules:        []WindowRule{},
-		stopCh:       make(chan struct{}),
-		nlpService:   nlpService,
-		cvService:    cvService,
+		logger:     logger,
+		tracer:     tracer,
+		config:     config,
+		windows:    make(map[string]*models.Window),
+		layouts:    make(map[string]*models.WindowLayout),
+		rules:      []WindowRule{},
+		stopCh:     make(chan struct{}),
+		nlpService: nlpService,
+		cvService:  cvService,
 		// focusHistory: make([]FocusEvent, 0), // TODO: implement
 	}
 
@@ -614,7 +614,7 @@ func (wm *WindowManager) convertRulesToModels() []models.WindowRule {
 				aiGenerated = aiGen
 			}
 		}
-		
+
 		rules[i] = models.WindowRule{
 			ID:          rule.ID,
 			Name:        rule.Name,

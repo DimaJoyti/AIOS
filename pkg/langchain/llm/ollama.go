@@ -31,24 +31,24 @@ type OllamaMessage struct {
 
 // OllamaChatRequest represents an Ollama chat request
 type OllamaChatRequest struct {
-	Model    string          `json:"model"`
-	Messages []OllamaMessage `json:"messages"`
-	Stream   bool            `json:"stream,omitempty"`
+	Model    string                 `json:"model"`
+	Messages []OllamaMessage        `json:"messages"`
+	Stream   bool                   `json:"stream,omitempty"`
 	Options  map[string]interface{} `json:"options,omitempty"`
 }
 
 // OllamaChatResponse represents an Ollama chat response
 type OllamaChatResponse struct {
-	Model     string        `json:"model"`
-	CreatedAt time.Time     `json:"created_at"`
-	Message   OllamaMessage `json:"message"`
-	Done      bool          `json:"done"`
-	TotalDuration int64     `json:"total_duration,omitempty"`
-	LoadDuration  int64     `json:"load_duration,omitempty"`
-	PromptEvalCount int     `json:"prompt_eval_count,omitempty"`
-	PromptEvalDuration int64 `json:"prompt_eval_duration,omitempty"`
-	EvalCount     int       `json:"eval_count,omitempty"`
-	EvalDuration  int64     `json:"eval_duration,omitempty"`
+	Model              string        `json:"model"`
+	CreatedAt          time.Time     `json:"created_at"`
+	Message            OllamaMessage `json:"message"`
+	Done               bool          `json:"done"`
+	TotalDuration      int64         `json:"total_duration,omitempty"`
+	LoadDuration       int64         `json:"load_duration,omitempty"`
+	PromptEvalCount    int           `json:"prompt_eval_count,omitempty"`
+	PromptEvalDuration int64         `json:"prompt_eval_duration,omitempty"`
+	EvalCount          int           `json:"eval_count,omitempty"`
+	EvalDuration       int64         `json:"eval_duration,omitempty"`
 }
 
 // OllamaEmbeddingRequest represents an Ollama embedding request
@@ -135,7 +135,7 @@ func (o *OllamaLLM) Complete(ctx context.Context, req *CompletionRequest) (*Comp
 
 	// Convert to standard format
 	response := o.convertFromOllamaResponse(&ollamaResp)
-	
+
 	span.SetAttributes(
 		attribute.Int("llm.usage.prompt_tokens", response.Usage.PromptTokens),
 		attribute.Int("llm.usage.completion_tokens", response.Usage.CompletionTokens),
@@ -383,7 +383,7 @@ func (o *OllamaLLM) makeStreamingRequest(ctx context.Context, endpoint string, p
 
 func (o *OllamaLLM) processStreamingResponse(body io.Reader, responseCh chan<- StreamResponse) {
 	decoder := json.NewDecoder(body)
-	
+
 	for {
 		var resp OllamaChatResponse
 		if err := decoder.Decode(&resp); err != nil {

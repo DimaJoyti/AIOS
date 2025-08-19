@@ -23,17 +23,17 @@ type SessionManager struct {
 
 // MCPSession represents an enhanced MCP session with context and memory
 type MCPSession struct {
-	ID              string                 `json:"id"`
-	ClientID        string                 `json:"client_id"`
-	CreatedAt       time.Time              `json:"created_at"`
-	LastActivity    time.Time              `json:"last_activity"`
-	Context         *SessionContext        `json:"context"`
-	Memory          *SessionMemory         `json:"memory"`
-	ActiveTools     map[string]*ToolState  `json:"active_tools"`
-	Capabilities    []string               `json:"capabilities"`
-	Metadata        map[string]interface{} `json:"metadata"`
-	IsActive        bool                   `json:"is_active"`
-	WorkflowState   *WorkflowState         `json:"workflow_state,omitempty"`
+	ID            string                 `json:"id"`
+	ClientID      string                 `json:"client_id"`
+	CreatedAt     time.Time              `json:"created_at"`
+	LastActivity  time.Time              `json:"last_activity"`
+	Context       *SessionContext        `json:"context"`
+	Memory        *SessionMemory         `json:"memory"`
+	ActiveTools   map[string]*ToolState  `json:"active_tools"`
+	Capabilities  []string               `json:"capabilities"`
+	Metadata      map[string]interface{} `json:"metadata"`
+	IsActive      bool                   `json:"is_active"`
+	WorkflowState *WorkflowState         `json:"workflow_state,omitempty"`
 }
 
 // SessionContext holds contextual information for the session
@@ -48,11 +48,11 @@ type SessionContext struct {
 
 // SessionMemory holds persistent memory for the session
 type SessionMemory struct {
-	ShortTerm  []MemoryItem `json:"short_term"`
-	LongTerm   []MemoryItem `json:"long_term"`
-	Facts      []Fact       `json:"facts"`
-	MaxItems   int          `json:"max_items"`
-	TTL        time.Duration `json:"ttl"`
+	ShortTerm []MemoryItem  `json:"short_term"`
+	LongTerm  []MemoryItem  `json:"long_term"`
+	Facts     []Fact        `json:"facts"`
+	MaxItems  int           `json:"max_items"`
+	TTL       time.Duration `json:"ttl"`
 }
 
 // ToolState represents the state of an active tool
@@ -67,13 +67,13 @@ type ToolState struct {
 
 // WorkflowState manages multi-step workflows
 type WorkflowState struct {
-	WorkflowID    string                 `json:"workflow_id"`
-	CurrentStep   int                    `json:"current_step"`
-	TotalSteps    int                    `json:"total_steps"`
-	StepResults   []interface{}          `json:"step_results"`
-	WorkflowType  string                 `json:"workflow_type"`
-	Parameters    map[string]interface{} `json:"parameters"`
-	Status        string                 `json:"status"` // running, paused, completed, error
+	WorkflowID   string                 `json:"workflow_id"`
+	CurrentStep  int                    `json:"current_step"`
+	TotalSteps   int                    `json:"total_steps"`
+	StepResults  []interface{}          `json:"step_results"`
+	WorkflowType string                 `json:"workflow_type"`
+	Parameters   map[string]interface{} `json:"parameters"`
+	Status       string                 `json:"status"` // running, paused, completed, error
 }
 
 // SearchHistoryItem represents a search query in history

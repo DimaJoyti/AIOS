@@ -223,7 +223,7 @@ func (ae *DefaultActionExecutor) executeScriptAction(ctx context.Context, action
 	}
 
 	cmd := exec.CommandContext(ctx, shell, "-c", script)
-	
+
 	// Set environment variables from input
 	env := []string{}
 	for key, value := range input {
@@ -251,7 +251,7 @@ func (ae *DefaultActionExecutor) executeScriptAction(ctx context.Context, action
 func (ae *DefaultActionExecutor) executeDatabaseAction(ctx context.Context, action *Action, input map[string]interface{}) (map[string]interface{}, error) {
 	// Simplified database action
 	query, _ := action.Config["query"].(string)
-	
+
 	ae.logger.WithField("query", query).Info("Database action executed (simulated)")
 
 	return map[string]interface{}{
@@ -357,8 +357,8 @@ func (tm *DefaultTriggerManager) RegisterTrigger(ctx context.Context, workflowID
 	tm.triggers[trigger.ID] = registration
 
 	tm.logger.WithFields(logrus.Fields{
-		"trigger_id":  trigger.ID,
-		"workflow_id": workflowID,
+		"trigger_id":   trigger.ID,
+		"workflow_id":  workflowID,
 		"trigger_type": trigger.Type,
 	}).Info("Trigger registered")
 
@@ -445,8 +445,8 @@ func (tm *DefaultTriggerManager) eventMatchesTrigger(event *Event, trigger *Trig
 
 // DefaultScheduleManager implements ScheduleManager interface
 type DefaultScheduleManager struct {
-	logger            *logrus.Logger
-	tracer            trace.Tracer
+	logger             *logrus.Logger
+	tracer             trace.Tracer
 	scheduledWorkflows map[string]*ScheduledWorkflow
 }
 
@@ -472,9 +472,9 @@ func (sm *DefaultScheduleManager) ScheduleWorkflow(ctx context.Context, workflow
 	sm.scheduledWorkflows[workflowID] = scheduledWorkflow
 
 	sm.logger.WithFields(logrus.Fields{
-		"workflow_id": workflowID,
+		"workflow_id":   workflowID,
 		"schedule_type": schedule.Type,
-		"next_run":    scheduledWorkflow.NextRun,
+		"next_run":      scheduledWorkflow.NextRun,
 	}).Info("Workflow scheduled")
 
 	return nil

@@ -13,34 +13,34 @@ import (
 
 // TestReporter provides comprehensive test reporting capabilities
 type TestReporter struct {
-	config ReportConfig
+	config  ReportConfig
 	results []TestResult
 }
 
 // ReportConfig defines configuration for test reporting
 type ReportConfig struct {
-	OutputDir     string   `json:"output_dir"`
-	Formats       []string `json:"formats"` // html, json, xml, junit
-	IncludeCoverage bool   `json:"include_coverage"`
-	IncludeMetrics  bool   `json:"include_metrics"`
-	Theme           string `json:"theme"` // light, dark
+	OutputDir       string   `json:"output_dir"`
+	Formats         []string `json:"formats"` // html, json, xml, junit
+	IncludeCoverage bool     `json:"include_coverage"`
+	IncludeMetrics  bool     `json:"include_metrics"`
+	Theme           string   `json:"theme"` // light, dark
 }
 
 // TestResult represents a comprehensive test result
 type TestResult struct {
-	Suite       string        `json:"suite"`
-	Name        string        `json:"name"`
-	Status      TestStatus    `json:"status"`
-	Duration    time.Duration `json:"duration"`
-	StartTime   time.Time     `json:"start_time"`
-	EndTime     time.Time     `json:"end_time"`
-	Error       string        `json:"error,omitempty"`
-	Output      string        `json:"output,omitempty"`
-	Assertions  int           `json:"assertions"`
-	Coverage    *Coverage     `json:"coverage,omitempty"`
-	Metrics     *TestMetrics  `json:"metrics,omitempty"`
-	Tags        []string      `json:"tags"`
-	Properties  map[string]interface{} `json:"properties,omitempty"`
+	Suite      string                 `json:"suite"`
+	Name       string                 `json:"name"`
+	Status     TestStatus             `json:"status"`
+	Duration   time.Duration          `json:"duration"`
+	StartTime  time.Time              `json:"start_time"`
+	EndTime    time.Time              `json:"end_time"`
+	Error      string                 `json:"error,omitempty"`
+	Output     string                 `json:"output,omitempty"`
+	Assertions int                    `json:"assertions"`
+	Coverage   *Coverage              `json:"coverage,omitempty"`
+	Metrics    *TestMetrics           `json:"metrics,omitempty"`
+	Tags       []string               `json:"tags"`
+	Properties map[string]interface{} `json:"properties,omitempty"`
 }
 
 // TestStatus represents the status of a test
@@ -93,7 +93,7 @@ func NewTestReporter(config ReportConfig) *TestReporter {
 	if config.Theme == "" {
 		config.Theme = "light"
 	}
-	
+
 	return &TestReporter{
 		config:  config,
 		results: make([]TestResult, 0),
@@ -116,9 +116,9 @@ func (tr *TestReporter) GenerateReports() error {
 	if err := os.MkdirAll(tr.config.OutputDir, 0755); err != nil {
 		return fmt.Errorf("failed to create output directory: %w", err)
 	}
-	
+
 	summary := tr.calculateSummary()
-	
+
 	for _, format := range tr.config.Formats {
 		switch strings.ToLower(format) {
 		case "html":
@@ -141,7 +141,7 @@ func (tr *TestReporter) GenerateReports() error {
 			return fmt.Errorf("unsupported report format: %s", format)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -151,14 +151,14 @@ func (tr *TestReporter) calculateSummary() TestSummary {
 		TotalTests: len(tr.results),
 		Timestamp:  time.Now(),
 	}
-	
+
 	var totalDuration time.Duration
 	var totalLines, totalFunctions, totalBranches, totalStatements float64
 	var coverageCount int
-	
+
 	for _, result := range tr.results {
 		totalDuration += result.Duration
-		
+
 		switch result.Status {
 		case StatusPassed:
 			summary.PassedTests++
@@ -169,7 +169,7 @@ func (tr *TestReporter) calculateSummary() TestSummary {
 		case StatusError:
 			summary.ErrorTests++
 		}
-		
+
 		if result.Coverage != nil {
 			totalLines += result.Coverage.Lines
 			totalFunctions += result.Coverage.Functions
@@ -178,13 +178,13 @@ func (tr *TestReporter) calculateSummary() TestSummary {
 			coverageCount++
 		}
 	}
-	
+
 	summary.TotalDuration = totalDuration
-	
+
 	if summary.TotalTests > 0 {
 		summary.SuccessRate = float64(summary.PassedTests) / float64(summary.TotalTests) * 100
 	}
-	
+
 	if coverageCount > 0 {
 		summary.Coverage = &Coverage{
 			Lines:      totalLines / float64(coverageCount),
@@ -193,7 +193,7 @@ func (tr *TestReporter) calculateSummary() TestSummary {
 			Statements: totalStatements / float64(coverageCount),
 		}
 	}
-	
+
 	return summary
 }
 
@@ -274,12 +274,12 @@ func (tr *TestReporter) generateHTMLReport(summary TestSummary) error {
 </body>
 </html>
 `
-	
+
 	t, err := template.New("report").Parse(tmpl)
 	if err != nil {
 		return err
 	}
-	
+
 	data := struct {
 		TestSummary
 		Results []TestResult
@@ -287,13 +287,13 @@ func (tr *TestReporter) generateHTMLReport(summary TestSummary) error {
 		TestSummary: summary,
 		Results:     tr.results,
 	}
-	
+
 	file, err := os.Create(filepath.Join(tr.config.OutputDir, "report.html"))
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	
+
 	return t.Execute(file, data)
 }
 
@@ -306,12 +306,12 @@ func (tr *TestReporter) generateJSONReport(summary TestSummary) error {
 		Summary: summary,
 		Results: tr.results,
 	}
-	
+
 	data, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
 		return err
 	}
-	
+
 	return os.WriteFile(filepath.Join(tr.config.OutputDir, "report.json"), data, 0644)
 }
 
@@ -319,38 +319,38 @@ func (tr *TestReporter) generateJSONReport(summary TestSummary) error {
 func (tr *TestReporter) generateXMLReport(summary TestSummary) error {
 	// Simplified XML generation
 	var xml strings.Builder
-	
+
 	xml.WriteString(`<?xml version="1.0" encoding="UTF-8"?>` + "\n")
 	xml.WriteString(`<testsuites>` + "\n")
-	
+
 	// Group by suite
 	suites := make(map[string][]TestResult)
 	for _, result := range tr.results {
 		suites[result.Suite] = append(suites[result.Suite], result)
 	}
-	
+
 	for suiteName, suiteResults := range suites {
 		xml.WriteString(fmt.Sprintf(`  <testsuite name="%s" tests="%d">`, suiteName, len(suiteResults)) + "\n")
-		
+
 		for _, result := range suiteResults {
 			xml.WriteString(fmt.Sprintf(`    <testcase name="%s" time="%.3f">`,
 				result.Name, result.Duration.Seconds()) + "\n")
-			
+
 			if result.Status == StatusFailed || result.Status == StatusError {
 				xml.WriteString(fmt.Sprintf(`      <failure message="%s">%s</failure>`,
 					result.Error, result.Output) + "\n")
 			} else if result.Status == StatusSkipped {
 				xml.WriteString(`      <skipped/>` + "\n")
 			}
-			
+
 			xml.WriteString(`    </testcase>` + "\n")
 		}
-		
+
 		xml.WriteString(`  </testsuite>` + "\n")
 	}
-	
+
 	xml.WriteString(`</testsuites>` + "\n")
-	
+
 	return os.WriteFile(filepath.Join(tr.config.OutputDir, "report.xml"), []byte(xml.String()), 0644)
 }
 
@@ -394,15 +394,15 @@ func (tr *TestReporter) GetFailedResults() []TestResult {
 func (tr *TestReporter) GetSlowestTests(limit int) []TestResult {
 	results := make([]TestResult, len(tr.results))
 	copy(results, tr.results)
-	
+
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].Duration > results[j].Duration
 	})
-	
+
 	if limit > 0 && limit < len(results) {
 		results = results[:limit]
 	}
-	
+
 	return results
 }
 

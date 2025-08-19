@@ -297,7 +297,7 @@ func (ae *DefaultAnalyticsEngine) createDefaultDashboards() {
 				Position:    &WidgetPosition{X: 9, Y: 0},
 				Size:        &WidgetSize{Width: 3, Height: 2},
 				Config: map[string]interface{}{
-					"progress_type": "circular",
+					"progress_type":   "circular",
 					"show_percentage": true,
 				},
 				DataSource: &DataSource{
@@ -334,7 +334,7 @@ func (ae *DefaultAnalyticsEngine) createDefaultDashboards() {
 				Position:    &WidgetPosition{X: 0, Y: 0},
 				Size:        &WidgetSize{Width: 6, Height: 4},
 				Config: map[string]interface{}{
-					"chart_type": "bar",
+					"chart_type":  "bar",
 					"orientation": "horizontal",
 				},
 				DataSource: &DataSource{

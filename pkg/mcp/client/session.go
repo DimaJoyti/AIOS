@@ -85,7 +85,7 @@ func (s *ClientSession) SendRequest(ctx context.Context, request protocol.Reques
 	// The client handles this at a higher level
 	responseCh := make(chan protocol.Response, 1)
 	close(responseCh) // Close immediately as we don't use this channel
-	
+
 	return responseCh, nil
 }
 

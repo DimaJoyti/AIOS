@@ -34,7 +34,7 @@ func (m *MockIntentClassifier) ClassifyIntent(ctx context.Context, text string) 
 
 	// Simple keyword-based intent classification
 	text = strings.ToLower(text)
-	
+
 	var intent string
 	var confidence float64
 	var entities []models.NamedEntity
@@ -129,10 +129,10 @@ func (m *MockEntityExtractor) ExtractEntities(ctx context.Context, text string) 
 	m.logger.Info("Mock entity extractor: extracting entities", "text", text)
 
 	entities := []models.NamedEntity{}
-	
+
 	// Simple pattern-based entity extraction
 	words := strings.Fields(strings.ToLower(text))
-	
+
 	for i, word := range words {
 		switch {
 		case isApplication(word):
@@ -201,25 +201,25 @@ func (m *MockSentimentAnalyzer) AnalyzeSentiment(ctx context.Context, text strin
 
 	// Simple keyword-based sentiment analysis
 	text = strings.ToLower(text)
-	
+
 	positiveWords := []string{"good", "great", "excellent", "amazing", "wonderful", "fantastic", "love", "like", "happy", "pleased"}
 	negativeWords := []string{"bad", "terrible", "awful", "horrible", "hate", "dislike", "angry", "frustrated", "disappointed", "sad"}
-	
+
 	positiveCount := 0
 	negativeCount := 0
-	
+
 	for _, word := range positiveWords {
 		if strings.Contains(text, word) {
 			positiveCount++
 		}
 	}
-	
+
 	for _, word := range negativeWords {
 		if strings.Contains(text, word) {
 			negativeCount++
 		}
 	}
-	
+
 	var sentiment models.SentimentScore
 	if positiveCount > negativeCount {
 		sentiment = models.SentimentScore{
@@ -280,16 +280,16 @@ func (m *MockLanguageDetector) DetectLanguage(ctx context.Context, text string) 
 
 	// Simple heuristic-based language detection
 	text = strings.ToLower(text)
-	
+
 	// Check for common words in different languages
 	englishWords := []string{"the", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by"}
 	spanishWords := []string{"el", "la", "y", "o", "pero", "en", "de", "con", "por", "para", "que", "es"}
 	frenchWords := []string{"le", "la", "et", "ou", "mais", "dans", "de", "avec", "par", "pour", "que", "est"}
-	
+
 	englishCount := countWords(text, englishWords)
 	spanishCount := countWords(text, spanishWords)
 	frenchCount := countWords(text, frenchWords)
-	
+
 	if englishCount >= spanishCount && englishCount >= frenchCount {
 		return "en", 0.85 + rand.Float64()*0.1, nil
 	} else if spanishCount >= frenchCount {

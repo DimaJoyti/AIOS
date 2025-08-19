@@ -46,28 +46,28 @@ type Contract struct {
 
 // ContractRequest represents the expected request format
 type ContractRequest struct {
-	Schema   *JSONSchema            `json:"schema"`
-	Examples []interface{}          `json:"examples"`
-	Headers  map[string]string      `json:"headers"`
+	Schema   *JSONSchema       `json:"schema"`
+	Examples []interface{}     `json:"examples"`
+	Headers  map[string]string `json:"headers"`
 }
 
 // ContractResponse represents the expected response format
 type ContractResponse struct {
-	StatusCode int                    `json:"status_code"`
-	Schema     *JSONSchema            `json:"schema"`
-	Headers    map[string]string      `json:"headers"`
-	Examples   []interface{}          `json:"examples"`
+	StatusCode int               `json:"status_code"`
+	Schema     *JSONSchema       `json:"schema"`
+	Headers    map[string]string `json:"headers"`
+	Examples   []interface{}     `json:"examples"`
 }
 
 // ContractTestResult represents the result of a contract test
 type ContractTestResult struct {
-	Contract    Contract              `json:"contract"`
-	Passed      bool                  `json:"passed"`
-	Errors      []ContractError       `json:"errors"`
-	Duration    time.Duration         `json:"duration"`
-	Timestamp   time.Time             `json:"timestamp"`
-	RequestData interface{}           `json:"request_data,omitempty"`
-	ResponseData interface{}          `json:"response_data,omitempty"`
+	Contract     Contract        `json:"contract"`
+	Passed       bool            `json:"passed"`
+	Errors       []ContractError `json:"errors"`
+	Duration     time.Duration   `json:"duration"`
+	Timestamp    time.Time       `json:"timestamp"`
+	RequestData  interface{}     `json:"request_data,omitempty"`
+	ResponseData interface{}     `json:"response_data,omitempty"`
 }
 
 // ContractError represents a contract validation error
@@ -98,14 +98,14 @@ func (ct *ContractTester) RegisterSchema(name string, schema *JSONSchema) {
 // TestContract tests a single API contract
 func (ct *ContractTester) TestContract(ctx context.Context, contract Contract) (*ContractTestResult, error) {
 	start := time.Now()
-	
+
 	result := &ContractTestResult{
 		Contract:  contract,
 		Passed:    true,
 		Errors:    make([]ContractError, 0),
 		Timestamp: start,
 	}
-	
+
 	// Test with each example if available
 	if contract.Request != nil && len(contract.Request.Examples) > 0 {
 		for _, example := range contract.Request.Examples {
@@ -119,7 +119,7 @@ func (ct *ContractTester) TestContract(ctx context.Context, contract Contract) (
 			return nil, err
 		}
 	}
-	
+
 	result.Duration = time.Since(start)
 	return result, nil
 }
@@ -136,14 +136,14 @@ func (ct *ContractTester) testWithExample(ctx context.Context, contract Contract
 		requestBody = bytes.NewReader(jsonData)
 		result.RequestData = example
 	}
-	
+
 	// Create HTTP request
 	url := ct.baseURL + contract.Endpoint
 	req, err := http.NewRequestWithContext(ctx, contract.Method, url, requestBody)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
-	
+
 	// Set headers
 	if contract.Headers != nil {
 		for key, value := range contract.Headers {
@@ -155,12 +155,12 @@ func (ct *ContractTester) testWithExample(ctx context.Context, contract Contract
 			req.Header.Set(key, value)
 		}
 	}
-	
+
 	// Set content type for JSON requests
 	if example != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	
+
 	// Execute request
 	resp, err := ct.client.Do(req)
 	if err != nil {
@@ -172,10 +172,10 @@ func (ct *ContractTester) testWithExample(ctx context.Context, contract Contract
 		return nil
 	}
 	defer resp.Body.Close()
-	
+
 	// Validate response
 	ct.validateResponse(resp, contract.Response, result)
-	
+
 	return nil
 }
 
@@ -191,7 +191,7 @@ func (ct *ContractTester) validateResponse(resp *http.Response, expected *Contra
 			Description: "Status code mismatch",
 		})
 	}
-	
+
 	// Validate headers
 	if expected.Headers != nil {
 		for key, expectedValue := range expected.Headers {
@@ -208,7 +208,7 @@ func (ct *ContractTester) validateResponse(resp *http.Response, expected *Contra
 			}
 		}
 	}
-	
+
 	// Validate response body schema
 	if expected.Schema != nil {
 		body, err := io.ReadAll(resp.Body)
@@ -220,7 +220,7 @@ func (ct *ContractTester) validateResponse(resp *http.Response, expected *Contra
 			})
 			return
 		}
-		
+
 		var responseData interface{}
 		if len(body) > 0 {
 			if err := json.Unmarshal(body, &responseData); err != nil {
@@ -232,9 +232,9 @@ func (ct *ContractTester) validateResponse(resp *http.Response, expected *Contra
 				return
 			}
 		}
-		
+
 		result.ResponseData = responseData
-		
+
 		// Validate against schema
 		ct.validateJSONSchema(responseData, expected.Schema, "", result)
 	}
@@ -245,7 +245,7 @@ func (ct *ContractTester) validateJSONSchema(data interface{}, schema *JSONSchem
 	if schema == nil {
 		return
 	}
-	
+
 	// Type validation
 	if !ct.validateType(data, schema.Type) {
 		result.Passed = false
@@ -258,7 +258,7 @@ func (ct *ContractTester) validateJSONSchema(data interface{}, schema *JSONSchem
 		})
 		return
 	}
-	
+
 	// Object validation
 	if schema.Type == "object" && data != nil {
 		dataMap, ok := data.(map[string]interface{})
@@ -271,7 +271,7 @@ func (ct *ContractTester) validateJSONSchema(data interface{}, schema *JSONSchem
 			})
 			return
 		}
-		
+
 		// Check required fields
 		for _, required := range schema.Required {
 			if _, exists := dataMap[required]; !exists {
@@ -285,7 +285,7 @@ func (ct *ContractTester) validateJSONSchema(data interface{}, schema *JSONSchem
 				})
 			}
 		}
-		
+
 		// Validate properties
 		if schema.Properties != nil {
 			for key, value := range dataMap {
@@ -295,7 +295,7 @@ func (ct *ContractTester) validateJSONSchema(data interface{}, schema *JSONSchem
 			}
 		}
 	}
-	
+
 	// Array validation
 	if schema.Type == "array" && data != nil {
 		dataArray, ok := data.([]interface{})
@@ -308,7 +308,7 @@ func (ct *ContractTester) validateJSONSchema(data interface{}, schema *JSONSchem
 			})
 			return
 		}
-		
+
 		// Validate items
 		if schema.Items != nil {
 			for i, item := range dataArray {
@@ -317,7 +317,7 @@ func (ct *ContractTester) validateJSONSchema(data interface{}, schema *JSONSchem
 			}
 		}
 	}
-	
+
 	// String validation
 	if schema.Type == "string" && data != nil {
 		str, ok := data.(string)
@@ -333,7 +333,7 @@ func (ct *ContractTester) validateJSONSchema(data interface{}, schema *JSONSchem
 					Description: "String is too short",
 				})
 			}
-			
+
 			if schema.MaxLength != nil && len(str) > *schema.MaxLength {
 				result.Passed = false
 				result.Errors = append(result.Errors, ContractError{
@@ -346,12 +346,12 @@ func (ct *ContractTester) validateJSONSchema(data interface{}, schema *JSONSchem
 			}
 		}
 	}
-	
+
 	// Number validation
 	if (schema.Type == "number" || schema.Type == "integer") && data != nil {
 		var num float64
 		var ok bool
-		
+
 		switch v := data.(type) {
 		case float64:
 			num, ok = v, true
@@ -360,7 +360,7 @@ func (ct *ContractTester) validateJSONSchema(data interface{}, schema *JSONSchem
 		case int64:
 			num, ok = float64(v), true
 		}
-		
+
 		if ok {
 			if schema.Minimum != nil && num < *schema.Minimum {
 				result.Passed = false
@@ -372,7 +372,7 @@ func (ct *ContractTester) validateJSONSchema(data interface{}, schema *JSONSchem
 					Description: "Number is too small",
 				})
 			}
-			
+
 			if schema.Maximum != nil && num > *schema.Maximum {
 				result.Passed = false
 				result.Errors = append(result.Errors, ContractError{
@@ -392,7 +392,7 @@ func (ct *ContractTester) validateType(data interface{}, expectedType string) bo
 	if data == nil {
 		return expectedType == "null"
 	}
-	
+
 	actualType := ct.getActualType(data)
 	return actualType == expectedType
 }
@@ -402,7 +402,7 @@ func (ct *ContractTester) getActualType(data interface{}) string {
 	if data == nil {
 		return "null"
 	}
-	
+
 	switch data.(type) {
 	case bool:
 		return "boolean"
@@ -430,7 +430,7 @@ func (ct *ContractTester) joinPath(base, component string) string {
 // TestContracts tests multiple contracts
 func (ct *ContractTester) TestContracts(ctx context.Context, contracts []Contract) ([]*ContractTestResult, error) {
 	results := make([]*ContractTestResult, 0, len(contracts))
-	
+
 	for _, contract := range contracts {
 		result, err := ct.TestContract(ctx, contract)
 		if err != nil {
@@ -438,20 +438,20 @@ func (ct *ContractTester) TestContracts(ctx context.Context, contracts []Contrac
 		}
 		results = append(results, result)
 	}
-	
+
 	return results, nil
 }
 
 // GenerateContractReport generates a report for contract test results
 func (ct *ContractTester) GenerateContractReport(results []*ContractTestResult) string {
 	var report strings.Builder
-	
+
 	report.WriteString("API Contract Test Report\n")
 	report.WriteString("========================\n\n")
-	
+
 	passed := 0
 	total := len(results)
-	
+
 	for _, result := range results {
 		if result.Passed {
 			passed++
@@ -463,10 +463,10 @@ func (ct *ContractTester) GenerateContractReport(results []*ContractTestResult) 
 			}
 		}
 	}
-	
-	report.WriteString(fmt.Sprintf("\nSummary: %d/%d contracts passed (%.1f%%)\n", 
+
+	report.WriteString(fmt.Sprintf("\nSummary: %d/%d contracts passed (%.1f%%)\n",
 		passed, total, float64(passed)/float64(total)*100))
-	
+
 	return report.String()
 }
 

@@ -7,80 +7,79 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-
 // MetricsSnapshot represents a snapshot of resource metrics
 type MetricsSnapshot struct {
 	// Access metrics
-	TotalAccesses    int64                    `json:"total_accesses"`
-	SuccessfulAccesses int64                  `json:"successful_accesses"`
-	FailedAccesses   int64                    `json:"failed_accesses"`
-	SuccessRate      float64                  `json:"success_rate"`
-	
+	TotalAccesses      int64   `json:"total_accesses"`
+	SuccessfulAccesses int64   `json:"successful_accesses"`
+	FailedAccesses     int64   `json:"failed_accesses"`
+	SuccessRate        float64 `json:"success_rate"`
+
 	// Performance metrics
-	AverageLatency   time.Duration            `json:"average_latency"`
-	MinLatency       time.Duration            `json:"min_latency"`
-	MaxLatency       time.Duration            `json:"max_latency"`
-	TotalLatency     time.Duration            `json:"total_latency"`
-	
+	AverageLatency time.Duration `json:"average_latency"`
+	MinLatency     time.Duration `json:"min_latency"`
+	MaxLatency     time.Duration `json:"max_latency"`
+	TotalLatency   time.Duration `json:"total_latency"`
+
 	// Cache metrics
-	CacheHits        int64                    `json:"cache_hits"`
-	CacheMisses      int64                    `json:"cache_misses"`
-	CacheHitRate     float64                  `json:"cache_hit_rate"`
-	
+	CacheHits    int64   `json:"cache_hits"`
+	CacheMisses  int64   `json:"cache_misses"`
+	CacheHitRate float64 `json:"cache_hit_rate"`
+
 	// Resource metrics
-	TotalResources   int                      `json:"total_resources"`
-	TotalSize        int64                    `json:"total_size"`
-	AverageSize      int64                    `json:"average_size"`
-	
+	TotalResources int   `json:"total_resources"`
+	TotalSize      int64 `json:"total_size"`
+	AverageSize    int64 `json:"average_size"`
+
 	// Operation metrics
-	OperationCounts  map[string]int64         `json:"operation_counts"`
+	OperationCounts    map[string]int64         `json:"operation_counts"`
 	OperationLatencies map[string]time.Duration `json:"operation_latencies"`
-	
+
 	// Error metrics
-	ErrorCounts      map[string]int64         `json:"error_counts"`
-	ErrorsByURI      map[string]int64         `json:"errors_by_uri"`
-	
+	ErrorCounts map[string]int64 `json:"error_counts"`
+	ErrorsByURI map[string]int64 `json:"errors_by_uri"`
+
 	// Time metrics
-	StartTime        time.Time                `json:"start_time"`
-	LastAccess       time.Time                `json:"last_access"`
-	CollectionTime   time.Time                `json:"collection_time"`
+	StartTime      time.Time `json:"start_time"`
+	LastAccess     time.Time `json:"last_access"`
+	CollectionTime time.Time `json:"collection_time"`
 }
 
 // DefaultResourceMetrics implements ResourceMetrics
 type DefaultResourceMetrics struct {
-	mu                 sync.RWMutex
-	startTime          time.Time
-	lastAccess         time.Time
-	
+	mu         sync.RWMutex
+	startTime  time.Time
+	lastAccess time.Time
+
 	// Access counters
 	totalAccesses      int64
 	successfulAccesses int64
 	failedAccesses     int64
-	
+
 	// Latency tracking
-	totalLatency       time.Duration
-	minLatency         time.Duration
-	maxLatency         time.Duration
-	latencyCount       int64
-	
+	totalLatency time.Duration
+	minLatency   time.Duration
+	maxLatency   time.Duration
+	latencyCount int64
+
 	// Cache tracking
-	cacheHits          int64
-	cacheMisses        int64
-	
+	cacheHits   int64
+	cacheMisses int64
+
 	// Resource tracking
-	resourceSizes      map[string]int64
-	totalSize          int64
-	
+	resourceSizes map[string]int64
+	totalSize     int64
+
 	// Operation tracking
-	operationCounts    map[string]int64
-	operationLatencies map[string]time.Duration
+	operationCounts       map[string]int64
+	operationLatencies    map[string]time.Duration
 	operationLatencyCount map[string]int64
-	
+
 	// Error tracking
-	errorCounts        map[string]int64
-	errorsByURI        map[string]int64
-	
-	logger             *logrus.Logger
+	errorCounts map[string]int64
+	errorsByURI map[string]int64
+
+	logger *logrus.Logger
 }
 
 // NewResourceMetrics creates a new resource metrics collector
@@ -101,28 +100,28 @@ func NewResourceMetrics(logger *logrus.Logger) (ResourceMetrics, error) {
 func (m *DefaultResourceMetrics) RecordResourceAccess(uri, operation string, duration time.Duration, success bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	m.totalAccesses++
 	m.lastAccess = time.Now()
-	
+
 	if success {
 		m.successfulAccesses++
 	} else {
 		m.failedAccesses++
 		m.errorsByURI[uri]++
 	}
-	
+
 	// Update latency metrics
 	m.totalLatency += duration
 	m.latencyCount++
-	
+
 	if m.minLatency == 0 || duration < m.minLatency {
 		m.minLatency = duration
 	}
 	if duration > m.maxLatency {
 		m.maxLatency = duration
 	}
-	
+
 	// Update operation metrics
 	m.operationCounts[operation]++
 	m.operationLatencies[operation] += duration
@@ -133,12 +132,12 @@ func (m *DefaultResourceMetrics) RecordResourceAccess(uri, operation string, dur
 func (m *DefaultResourceMetrics) RecordResourceSize(uri string, size int64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	oldSize, exists := m.resourceSizes[uri]
 	if exists {
 		m.totalSize -= oldSize
 	}
-	
+
 	m.resourceSizes[uri] = size
 	m.totalSize += size
 }
@@ -147,7 +146,7 @@ func (m *DefaultResourceMetrics) RecordResourceSize(uri string, size int64) {
 func (m *DefaultResourceMetrics) RecordCacheHit(uri string, hit bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if hit {
 		m.cacheHits++
 	} else {
@@ -159,7 +158,7 @@ func (m *DefaultResourceMetrics) RecordCacheHit(uri string, hit bool) {
 func (m *DefaultResourceMetrics) RecordError(uri, operation string, err error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	errorType := "unknown"
 	if err != nil {
 		errorType = err.Error()
@@ -167,10 +166,10 @@ func (m *DefaultResourceMetrics) RecordError(uri, operation string, err error) {
 			errorType = errorType[:100] + "..."
 		}
 	}
-	
+
 	m.errorCounts[errorType]++
 	m.errorsByURI[uri]++
-	
+
 	m.logger.WithFields(logrus.Fields{
 		"uri":       uri,
 		"operation": operation,
@@ -182,7 +181,7 @@ func (m *DefaultResourceMetrics) RecordError(uri, operation string, err error) {
 func (m *DefaultResourceMetrics) GetMetrics() *MetricsSnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	snapshot := &MetricsSnapshot{
 		TotalAccesses:      m.totalAccesses,
 		SuccessfulAccesses: m.successfulAccesses,
@@ -202,43 +201,43 @@ func (m *DefaultResourceMetrics) GetMetrics() *MetricsSnapshot {
 		ErrorCounts:        make(map[string]int64),
 		ErrorsByURI:        make(map[string]int64),
 	}
-	
+
 	// Calculate derived metrics
 	if m.totalAccesses > 0 {
 		snapshot.SuccessRate = float64(m.successfulAccesses) / float64(m.totalAccesses)
 	}
-	
+
 	if m.latencyCount > 0 {
 		snapshot.AverageLatency = m.totalLatency / time.Duration(m.latencyCount)
 	}
-	
+
 	if m.cacheHits+m.cacheMisses > 0 {
 		snapshot.CacheHitRate = float64(m.cacheHits) / float64(m.cacheHits+m.cacheMisses)
 	}
-	
+
 	if len(m.resourceSizes) > 0 {
 		snapshot.AverageSize = m.totalSize / int64(len(m.resourceSizes))
 	}
-	
+
 	// Copy maps to avoid race conditions
 	for op, count := range m.operationCounts {
 		snapshot.OperationCounts[op] = count
 	}
-	
+
 	for op, latency := range m.operationLatencies {
 		if count := m.operationLatencyCount[op]; count > 0 {
 			snapshot.OperationLatencies[op] = latency / time.Duration(count)
 		}
 	}
-	
+
 	for errorType, count := range m.errorCounts {
 		snapshot.ErrorCounts[errorType] = count
 	}
-	
+
 	for uri, count := range m.errorsByURI {
 		snapshot.ErrorsByURI[uri] = count
 	}
-	
+
 	return snapshot
 }
 
@@ -246,7 +245,7 @@ func (m *DefaultResourceMetrics) GetMetrics() *MetricsSnapshot {
 func (m *DefaultResourceMetrics) Reset() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	m.startTime = time.Now()
 	m.lastAccess = time.Time{}
 	m.totalAccesses = 0
@@ -259,14 +258,14 @@ func (m *DefaultResourceMetrics) Reset() {
 	m.cacheHits = 0
 	m.cacheMisses = 0
 	m.totalSize = 0
-	
+
 	m.resourceSizes = make(map[string]int64)
 	m.operationCounts = make(map[string]int64)
 	m.operationLatencies = make(map[string]time.Duration)
 	m.operationLatencyCount = make(map[string]int64)
 	m.errorCounts = make(map[string]int64)
 	m.errorsByURI = make(map[string]int64)
-	
+
 	m.logger.Info("Resource metrics reset")
 }
 
@@ -294,11 +293,11 @@ func NewMetricsReporter(metrics ResourceMetrics, interval time.Duration, logger 
 func (r *MetricsReporter) Start() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	
+
 	if r.running {
 		return
 	}
-	
+
 	r.running = true
 	go r.reportLoop()
 }
@@ -307,11 +306,11 @@ func (r *MetricsReporter) Start() {
 func (r *MetricsReporter) Stop() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	
+
 	if !r.running {
 		return
 	}
-	
+
 	r.running = false
 	close(r.stopChan)
 }
@@ -320,7 +319,7 @@ func (r *MetricsReporter) Stop() {
 func (r *MetricsReporter) reportLoop() {
 	ticker := time.NewTicker(r.interval)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-ticker.C:
@@ -334,15 +333,15 @@ func (r *MetricsReporter) reportLoop() {
 // reportMetrics logs current metrics
 func (r *MetricsReporter) reportMetrics() {
 	snapshot := r.metrics.(*DefaultResourceMetrics).GetMetrics()
-	
+
 	r.logger.WithFields(logrus.Fields{
-		"total_accesses":    snapshot.TotalAccesses,
-		"success_rate":      snapshot.SuccessRate,
-		"cache_hit_rate":    snapshot.CacheHitRate,
-		"average_latency":   snapshot.AverageLatency,
-		"total_resources":   snapshot.TotalResources,
-		"total_size":        snapshot.TotalSize,
-		"uptime":           time.Since(snapshot.StartTime),
+		"total_accesses":  snapshot.TotalAccesses,
+		"success_rate":    snapshot.SuccessRate,
+		"cache_hit_rate":  snapshot.CacheHitRate,
+		"average_latency": snapshot.AverageLatency,
+		"total_resources": snapshot.TotalResources,
+		"total_size":      snapshot.TotalSize,
+		"uptime":          time.Since(snapshot.StartTime),
 	}).Info("Resource metrics report")
 }
 
@@ -350,13 +349,13 @@ func (r *MetricsReporter) reportMetrics() {
 func (m *DefaultResourceMetrics) GetOverallStats() map[string]interface{} {
 	snapshot := m.GetMetrics()
 	return map[string]interface{}{
-		"total_accesses":     snapshot.TotalAccesses,
+		"total_accesses":      snapshot.TotalAccesses,
 		"successful_accesses": snapshot.SuccessfulAccesses,
-		"failed_accesses":    snapshot.FailedAccesses,
-		"cache_hit_rate":     snapshot.CacheHitRate,
-		"average_latency":    snapshot.AverageLatency,
-		"total_size":         snapshot.TotalSize,
-		"uptime":            time.Since(snapshot.StartTime).String(),
+		"failed_accesses":     snapshot.FailedAccesses,
+		"cache_hit_rate":      snapshot.CacheHitRate,
+		"average_latency":     snapshot.AverageLatency,
+		"total_size":          snapshot.TotalSize,
+		"uptime":              time.Since(snapshot.StartTime).String(),
 	}
 }
 
@@ -364,7 +363,7 @@ func (m *DefaultResourceMetrics) GetOverallStats() map[string]interface{} {
 func (m *DefaultResourceMetrics) GetResourceStats(uri string) map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	if size, exists := m.resourceSizes[uri]; exists {
 		return map[string]interface{}{
 			"uri":        uri,
@@ -372,7 +371,7 @@ func (m *DefaultResourceMetrics) GetResourceStats(uri string) map[string]interfa
 			"errors":     m.errorsByURI[uri],
 		}
 	}
-	
+
 	return map[string]interface{}{
 		"uri":    uri,
 		"exists": false,
@@ -383,17 +382,17 @@ func (m *DefaultResourceMetrics) GetResourceStats(uri string) map[string]interfa
 func (m *DefaultResourceMetrics) GetTopResources(limit int) []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	type resourceData struct {
-		uri   string
-		size  int64
+		uri  string
+		size int64
 	}
-	
+
 	var resources []resourceData
 	for uri, size := range m.resourceSizes {
 		resources = append(resources, resourceData{uri: uri, size: size})
 	}
-	
+
 	// Simple sorting by size (largest first)
 	for i := 0; i < len(resources)-1; i++ {
 		for j := i + 1; j < len(resources); j++ {
@@ -402,11 +401,11 @@ func (m *DefaultResourceMetrics) GetTopResources(limit int) []string {
 			}
 		}
 	}
-	
+
 	result := make([]string, 0, limit)
 	for i := 0; i < len(resources) && i < limit; i++ {
 		result = append(result, resources[i].uri)
 	}
-	
+
 	return result
 }

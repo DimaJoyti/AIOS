@@ -45,41 +45,41 @@ type SearchResult struct {
 
 // DocumentAgent handles document processing tasks
 type DocumentAgent struct {
-	id              string
+	id               string
 	knowledgeService *knowledge.Service
-	logger          *logrus.Logger
-	tracer          trace.Tracer
-	available       bool
+	logger           *logrus.Logger
+	tracer           trace.Tracer
+	available        bool
 }
 
 // RAGAgent handles retrieval-augmented generation tasks
 type RAGAgent struct {
-	id              string
+	id               string
 	knowledgeService *knowledge.Service
-	logger          *logrus.Logger
-	tracer          trace.Tracer
-	available       bool
+	logger           *logrus.Logger
+	tracer           trace.Tracer
+	available        bool
 }
 
 // NewDocumentAgent creates a new document processing agent
 func NewDocumentAgent(knowledgeService *knowledge.Service, logger *logrus.Logger) (*DocumentAgent, error) {
 	return &DocumentAgent{
-		id:              "document-agent",
+		id:               "document-agent",
 		knowledgeService: knowledgeService,
-		logger:          logger,
-		tracer:          otel.Tracer("ai.knowledge.document"),
-		available:       true,
+		logger:           logger,
+		tracer:           otel.Tracer("ai.knowledge.document"),
+		available:        true,
 	}, nil
 }
 
 // NewRAGAgent creates a new RAG agent
 func NewRAGAgent(knowledgeService *knowledge.Service, logger *logrus.Logger) (*RAGAgent, error) {
 	return &RAGAgent{
-		id:              "rag-agent",
+		id:               "rag-agent",
 		knowledgeService: knowledgeService,
-		logger:          logger,
-		tracer:          otel.Tracer("ai.knowledge.rag"),
-		available:       true,
+		logger:           logger,
+		tracer:           otel.Tracer("ai.knowledge.rag"),
+		available:        true,
 	}, nil
 }
 

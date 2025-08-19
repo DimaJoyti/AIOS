@@ -20,10 +20,10 @@ type TilingEngine struct {
 	config     TilingConfig
 	algorithms map[string]TilingAlgorithm
 	mu         sync.RWMutex
-	
+
 	// AI integration
 	aiOrchestrator *ai.Orchestrator
-	
+
 	// State
 	currentAlgorithm string
 	tilingHistory    []TilingEvent
@@ -32,15 +32,15 @@ type TilingEngine struct {
 
 // TilingConfig defines tiling engine configuration
 type TilingConfig struct {
-	DefaultAlgorithm    string        `json:"default_algorithm"`
-	GapSize            int           `json:"gap_size"`
-	BorderWidth        int           `json:"border_width"`
-	MinWindowSize      models.Size   `json:"min_window_size"`
-	MaxWindowSize      models.Size   `json:"max_window_size"`
-	AnimationDuration  time.Duration `json:"animation_duration"`
-	SmartGaps          bool          `json:"smart_gaps"`
-	AdaptiveLayout     bool          `json:"adaptive_layout"`
-	AIOptimization     bool          `json:"ai_optimization"`
+	DefaultAlgorithm  string        `json:"default_algorithm"`
+	GapSize           int           `json:"gap_size"`
+	BorderWidth       int           `json:"border_width"`
+	MinWindowSize     models.Size   `json:"min_window_size"`
+	MaxWindowSize     models.Size   `json:"max_window_size"`
+	AnimationDuration time.Duration `json:"animation_duration"`
+	SmartGaps         bool          `json:"smart_gaps"`
+	AdaptiveLayout    bool          `json:"adaptive_layout"`
+	AIOptimization    bool          `json:"ai_optimization"`
 }
 
 // TilingAlgorithm interface for different tiling strategies
@@ -77,12 +77,12 @@ type TilingEvent struct {
 
 // UserTilingPreferences stores user preferences for tiling
 type UserTilingPreferences struct {
-	PreferredAlgorithm string                 `json:"preferred_algorithm"`
-	AlgorithmWeights   map[string]float64     `json:"algorithm_weights"`
-	ContextPreferences map[string]string      `json:"context_preferences"`
-	CustomLayouts      []CustomLayout         `json:"custom_layouts"`
-	AdaptationEnabled  bool                   `json:"adaptation_enabled"`
-	LastUpdated        time.Time              `json:"last_updated"`
+	PreferredAlgorithm string             `json:"preferred_algorithm"`
+	AlgorithmWeights   map[string]float64 `json:"algorithm_weights"`
+	ContextPreferences map[string]string  `json:"context_preferences"`
+	CustomLayouts      []CustomLayout     `json:"custom_layouts"`
+	AdaptationEnabled  bool               `json:"adaptation_enabled"`
+	LastUpdated        time.Time          `json:"last_updated"`
 }
 
 // CustomLayout represents a user-defined layout
@@ -97,16 +97,16 @@ type CustomLayout struct {
 
 // LayoutCondition defines when a custom layout should be applied
 type LayoutCondition struct {
-	Type      string      `json:"type"`      // "window_count", "application", "time", "context"
-	Operator  string      `json:"operator"`  // "equals", "greater_than", "contains", etc.
-	Value     interface{} `json:"value"`
-	Weight    float64     `json:"weight"`
+	Type     string      `json:"type"`     // "window_count", "application", "time", "context"
+	Operator string      `json:"operator"` // "equals", "greater_than", "contains", etc.
+	Value    interface{} `json:"value"`
+	Weight   float64     `json:"weight"`
 }
 
 // NewTilingEngine creates a new tiling engine
 func NewTilingEngine(logger *logrus.Logger, config TilingConfig, aiOrchestrator *ai.Orchestrator) *TilingEngine {
 	tracer := otel.Tracer("tiling-engine")
-	
+
 	engine := &TilingEngine{
 		logger:         logger,
 		tracer:         tracer,
@@ -123,10 +123,10 @@ func NewTilingEngine(logger *logrus.Logger, config TilingConfig, aiOrchestrator 
 			LastUpdated:        time.Now(),
 		},
 	}
-	
+
 	// Register built-in algorithms
 	engine.registerBuiltinAlgorithms()
-	
+
 	return engine
 }
 
@@ -141,12 +141,12 @@ func (te *TilingEngine) registerBuiltinAlgorithms() {
 		NewTabletAlgorithm(),
 		NewAIOptimizedAlgorithm(te.aiOrchestrator),
 	}
-	
+
 	for _, algo := range algorithms {
 		te.algorithms[algo.Name()] = algo
 		te.preferences.AlgorithmWeights[algo.Name()] = 1.0
 	}
-	
+
 	te.currentAlgorithm = te.config.DefaultAlgorithm
 }
 
@@ -154,27 +154,27 @@ func (te *TilingEngine) registerBuiltinAlgorithms() {
 func (te *TilingEngine) TileWindows(ctx context.Context, windows []*models.Window, workspace models.Rectangle) ([]*WindowPlacement, error) {
 	ctx, span := te.tracer.Start(ctx, "tilingEngine.TileWindows")
 	defer span.End()
-	
+
 	start := time.Now()
-	
+
 	te.mu.Lock()
 	defer te.mu.Unlock()
-	
+
 	// Select optimal algorithm
 	algorithm := te.selectOptimalAlgorithm(ctx, windows, workspace)
-	
+
 	te.logger.WithFields(logrus.Fields{
 		"algorithm":    algorithm,
 		"window_count": len(windows),
 		"workspace":    workspace,
 	}).Debug("Tiling windows")
-	
+
 	// Get the algorithm implementation
 	algo, exists := te.algorithms[algorithm]
 	if !exists {
 		return nil, fmt.Errorf("tiling algorithm %s not found", algorithm)
 	}
-	
+
 	// Perform tiling
 	placements, err := algo.Tile(windows, workspace)
 	if err != nil {
@@ -188,12 +188,12 @@ func (te *TilingEngine) TileWindows(ctx context.Context, windows []*models.Windo
 		})
 		return nil, fmt.Errorf("tiling failed: %w", err)
 	}
-	
+
 	// Apply smart gaps if enabled
 	if te.config.SmartGaps {
 		placements = te.applySmartGaps(placements, workspace)
 	}
-	
+
 	// Record successful tiling
 	placementValues := make([]WindowPlacement, len(placements))
 	for i, p := range placements {
@@ -201,7 +201,7 @@ func (te *TilingEngine) TileWindows(ctx context.Context, windows []*models.Windo
 			placementValues[i] = *p
 		}
 	}
-	
+
 	te.recordTilingEvent(TilingEvent{
 		Timestamp:   start,
 		Algorithm:   algorithm,
@@ -210,10 +210,10 @@ func (te *TilingEngine) TileWindows(ctx context.Context, windows []*models.Windo
 		Success:     true,
 		Placements:  placementValues,
 	})
-	
+
 	// Update algorithm weights based on success
 	te.updateAlgorithmWeights(algorithm, true, time.Since(start))
-	
+
 	return placements, nil
 }
 
@@ -223,22 +223,22 @@ func (te *TilingEngine) selectOptimalAlgorithm(ctx context.Context, windows []*m
 	if !te.config.AIOptimization {
 		return te.preferences.PreferredAlgorithm
 	}
-	
+
 	// Analyze context
 	context := te.analyzeContext(windows, workspace)
-	
+
 	// Check for custom layouts that match conditions
 	if customAlgo := te.findMatchingCustomLayout(context); customAlgo != "" {
 		return customAlgo
 	}
-	
+
 	// Use AI to select optimal algorithm
 	if te.aiOrchestrator != nil {
 		if aiAlgo := te.getAIRecommendation(ctx, context); aiAlgo != "" {
 			return aiAlgo
 		}
 	}
-	
+
 	// Fall back to weighted selection based on historical performance
 	return te.selectByWeight(context)
 }
@@ -246,13 +246,13 @@ func (te *TilingEngine) selectOptimalAlgorithm(ctx context.Context, windows []*m
 // analyzeContext analyzes the current context for algorithm selection
 func (te *TilingEngine) analyzeContext(windows []*models.Window, workspace models.Rectangle) map[string]interface{} {
 	context := make(map[string]interface{})
-	
+
 	context["window_count"] = len(windows)
 	context["workspace_ratio"] = float64(workspace.Width) / float64(workspace.Height)
 	context["workspace_area"] = workspace.Width * workspace.Height
 	context["time_of_day"] = time.Now().Hour()
 	context["day_of_week"] = time.Now().Weekday().String()
-	
+
 	// Analyze window types
 	appTypes := make(map[string]int)
 	totalArea := 0
@@ -260,11 +260,11 @@ func (te *TilingEngine) analyzeContext(windows []*models.Window, workspace model
 		appTypes[window.Application]++
 		totalArea += window.Size.Width * window.Size.Height
 	}
-	
+
 	context["application_types"] = appTypes
 	context["average_window_area"] = totalArea / len(windows)
 	context["dominant_application"] = te.findDominantApplication(appTypes)
-	
+
 	return context
 }
 
@@ -272,14 +272,14 @@ func (te *TilingEngine) analyzeContext(windows []*models.Window, workspace model
 func (te *TilingEngine) findDominantApplication(appTypes map[string]int) string {
 	maxCount := 0
 	dominant := ""
-	
+
 	for app, count := range appTypes {
 		if count > maxCount {
 			maxCount = count
 			dominant = app
 		}
 	}
-	
+
 	return dominant
 }
 
@@ -287,8 +287,8 @@ func (te *TilingEngine) findDominantApplication(appTypes map[string]int) string 
 func (te *TilingEngine) getAIRecommendation(ctx context.Context, context map[string]interface{}) string {
 	// Create AI request for algorithm recommendation
 	aiRequest := &models.AIRequest{
-		ID:   fmt.Sprintf("tiling-algo-%d", time.Now().Unix()),
-		Type: "recommendation",
+		ID:    fmt.Sprintf("tiling-algo-%d", time.Now().Unix()),
+		Type:  "recommendation",
 		Input: fmt.Sprintf("Recommend optimal tiling algorithm for context: %+v", context),
 		Parameters: map[string]interface{}{
 			"task":       "algorithm_selection",
@@ -299,20 +299,20 @@ func (te *TilingEngine) getAIRecommendation(ctx context.Context, context map[str
 		Timeout:   5 * time.Second,
 		Timestamp: time.Now(),
 	}
-	
+
 	response, err := te.aiOrchestrator.ProcessRequest(ctx, aiRequest)
 	if err != nil {
 		te.logger.WithError(err).Debug("Failed to get AI algorithm recommendation")
 		return ""
 	}
-	
+
 	// Parse AI response to extract algorithm name
 	if result, ok := response.Result.(string); ok {
 		if _, exists := te.algorithms[result]; exists {
 			return result
 		}
 	}
-	
+
 	return ""
 }
 
@@ -320,10 +320,10 @@ func (te *TilingEngine) getAIRecommendation(ctx context.Context, context map[str
 func (te *TilingEngine) selectByWeight(context map[string]interface{}) string {
 	// Calculate weighted scores for each algorithm
 	scores := make(map[string]float64)
-	
+
 	for name, weight := range te.preferences.AlgorithmWeights {
 		scores[name] = weight
-		
+
 		// Apply context-specific adjustments
 		if contextPref, exists := te.preferences.ContextPreferences[te.contextKey(context)]; exists {
 			if contextPref == name {
@@ -331,18 +331,18 @@ func (te *TilingEngine) selectByWeight(context map[string]interface{}) string {
 			}
 		}
 	}
-	
+
 	// Select algorithm with highest score
 	maxScore := 0.0
 	selected := te.preferences.PreferredAlgorithm
-	
+
 	for name, score := range scores {
 		if score > maxScore {
 			maxScore = score
 			selected = name
 		}
 	}
-	
+
 	return selected
 }
 
@@ -358,41 +358,41 @@ func (te *TilingEngine) applySmartGaps(placements []*WindowPlacement, workspace 
 	if len(placements) <= 1 {
 		return placements // No gaps needed for single window
 	}
-	
+
 	// Calculate adaptive gap size
 	gapSize := te.calculateAdaptiveGapSize(len(placements), workspace)
-	
+
 	// Apply gaps between windows
 	for i, placement := range placements {
 		// Reduce window size to accommodate gaps
 		placement.Size.Width -= gapSize
 		placement.Size.Height -= gapSize
-		
+
 		// Adjust position to center window in its allocated space
 		placement.Position.X += gapSize / 2
 		placement.Position.Y += gapSize / 2
-		
+
 		placements[i] = placement
 	}
-	
+
 	return placements
 }
 
 // calculateAdaptiveGapSize calculates optimal gap size based on context
 func (te *TilingEngine) calculateAdaptiveGapSize(windowCount int, workspace models.Rectangle) int {
 	baseGap := te.config.GapSize
-	
+
 	// Reduce gaps for many windows
 	if windowCount > 4 {
 		baseGap = int(float64(baseGap) * 0.7)
 	}
-	
+
 	// Adjust based on workspace size
 	workspaceArea := workspace.Width * workspace.Height
 	if workspaceArea < 1920*1080 { // Small screen
 		baseGap = int(float64(baseGap) * 0.8)
 	}
-	
+
 	return baseGap
 }
 
@@ -415,7 +415,7 @@ func (te *TilingEngine) getRecentHistory(count int) []TilingEvent {
 
 func (te *TilingEngine) recordTilingEvent(event TilingEvent) {
 	te.tilingHistory = append(te.tilingHistory, event)
-	
+
 	// Keep only recent history
 	if len(te.tilingHistory) > 1000 {
 		te.tilingHistory = te.tilingHistory[100:]
@@ -426,7 +426,7 @@ func (te *TilingEngine) updateAlgorithmWeights(algorithm string, success bool, d
 	if success {
 		// Increase weight for successful algorithms
 		te.preferences.AlgorithmWeights[algorithm] *= 1.1
-		
+
 		// Bonus for fast algorithms
 		if duration < 100*time.Millisecond {
 			te.preferences.AlgorithmWeights[algorithm] *= 1.05
@@ -435,7 +435,7 @@ func (te *TilingEngine) updateAlgorithmWeights(algorithm string, success bool, d
 		// Decrease weight for failed algorithms
 		te.preferences.AlgorithmWeights[algorithm] *= 0.9
 	}
-	
+
 	// Normalize weights
 	te.normalizeWeights()
 }
@@ -445,7 +445,7 @@ func (te *TilingEngine) normalizeWeights() {
 	for _, weight := range te.preferences.AlgorithmWeights {
 		total += weight
 	}
-	
+
 	if total > 0 {
 		for name := range te.preferences.AlgorithmWeights {
 			te.preferences.AlgorithmWeights[name] /= total

@@ -18,13 +18,13 @@ import (
 
 // Profiler handles performance profiling
 type Profiler struct {
-	logger    *logrus.Logger
-	tracer    trace.Tracer
-	config    ProfilingConfig
-	profiles  map[string]*models.Profile
-	mu        sync.RWMutex
-	running   bool
-	stopCh    chan struct{}
+	logger   *logrus.Logger
+	tracer   trace.Tracer
+	config   ProfilingConfig
+	profiles map[string]*models.Profile
+	mu       sync.RWMutex
+	running  bool
+	stopCh   chan struct{}
 }
 
 // NewProfiler creates a new profiler
@@ -373,29 +373,29 @@ func (p *Profiler) GetRuntimeStats(ctx context.Context) (*models.RuntimeStats, e
 	runtime.ReadMemStats(&memStats)
 
 	return &models.RuntimeStats{
-		Goroutines:     runtime.NumGoroutine(),
-		CGoCalls:       runtime.NumCgoCall(),
-		HeapAlloc:      memStats.HeapAlloc,
-		HeapSys:        memStats.HeapSys,
-		HeapIdle:       memStats.HeapIdle,
-		HeapInuse:      memStats.HeapInuse,
-		HeapReleased:   memStats.HeapReleased,
-		HeapObjects:    memStats.HeapObjects,
-		StackInuse:     memStats.StackInuse,
-		StackSys:       memStats.StackSys,
-		MSpanInuse:     memStats.MSpanInuse,
-		MSpanSys:       memStats.MSpanSys,
-		MCacheInuse:    memStats.MCacheInuse,
-		MCacheSys:      memStats.MCacheSys,
-		GCSys:          memStats.GCSys,
-		OtherSys:       memStats.OtherSys,
-		NextGC:         memStats.NextGC,
-		LastGC:         time.Unix(0, int64(memStats.LastGC)),
-		PauseTotalNs:   memStats.PauseTotalNs,
-		NumGC:          memStats.NumGC,
-		NumForcedGC:    memStats.NumForcedGC,
-		GCCPUFraction:  memStats.GCCPUFraction,
-		Timestamp:      time.Now(),
+		Goroutines:    runtime.NumGoroutine(),
+		CGoCalls:      runtime.NumCgoCall(),
+		HeapAlloc:     memStats.HeapAlloc,
+		HeapSys:       memStats.HeapSys,
+		HeapIdle:      memStats.HeapIdle,
+		HeapInuse:     memStats.HeapInuse,
+		HeapReleased:  memStats.HeapReleased,
+		HeapObjects:   memStats.HeapObjects,
+		StackInuse:    memStats.StackInuse,
+		StackSys:      memStats.StackSys,
+		MSpanInuse:    memStats.MSpanInuse,
+		MSpanSys:      memStats.MSpanSys,
+		MCacheInuse:   memStats.MCacheInuse,
+		MCacheSys:     memStats.MCacheSys,
+		GCSys:         memStats.GCSys,
+		OtherSys:      memStats.OtherSys,
+		NextGC:        memStats.NextGC,
+		LastGC:        time.Unix(0, int64(memStats.LastGC)),
+		PauseTotalNs:  memStats.PauseTotalNs,
+		NumGC:         memStats.NumGC,
+		NumForcedGC:   memStats.NumForcedGC,
+		GCCPUFraction: memStats.GCCPUFraction,
+		Timestamp:     time.Now(),
 	}, nil
 }
 

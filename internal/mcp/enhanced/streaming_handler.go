@@ -50,8 +50,8 @@ type MCPMessage struct {
 
 // MCPError represents an MCP error
 type MCPError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
@@ -66,13 +66,13 @@ type StreamingToolRequest struct {
 
 // StreamingToolResponse represents a streaming tool response
 type StreamingToolResponse struct {
-	RequestID   string                 `json:"request_id"`
-	Type        string                 `json:"type"` // start, data, progress, complete, error
-	Data        interface{}            `json:"data,omitempty"`
-	Error       string                 `json:"error,omitempty"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	Timestamp   time.Time              `json:"timestamp"`
-	IsComplete  bool                   `json:"is_complete"`
+	RequestID  string                 `json:"request_id"`
+	Type       string                 `json:"type"` // start, data, progress, complete, error
+	Data       interface{}            `json:"data,omitempty"`
+	Error      string                 `json:"error,omitempty"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
+	Timestamp  time.Time              `json:"timestamp"`
+	IsComplete bool                   `json:"is_complete"`
 }
 
 // NewStreamingHandler creates a new streaming handler
@@ -325,13 +325,13 @@ func (sh *StreamingHandler) handleStreamingResult(conn *WebSocketConnection, req
 // handleToolList handles tool listing requests
 func (sh *StreamingHandler) handleToolList(ctx context.Context, conn *WebSocketConnection, msg *MCPMessage) {
 	tools := sh.toolRegistry.GetToolList()
-	
+
 	// Convert to MCP tool format
 	mcpTools := make([]map[string]interface{}, 0, len(tools))
 	for _, tool := range tools {
 		mcpTool := map[string]interface{}{
-			"name":         tool.Name,
-			"description":  tool.Description,
+			"name":        tool.Name,
+			"description": tool.Description,
 			"inputSchema": tool.Parameters,
 		}
 		mcpTools = append(mcpTools, mcpTool)
@@ -388,7 +388,7 @@ func (sh *StreamingHandler) handleSessionInit(ctx context.Context, conn *WebSock
 		Type: "response",
 		ID:   msg.ID,
 		Result: map[string]interface{}{
-			"session_id": session.ID,
+			"session_id":   session.ID,
 			"capabilities": session.Capabilities,
 		},
 	}

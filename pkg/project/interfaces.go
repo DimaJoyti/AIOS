@@ -112,15 +112,15 @@ type ProjectIntegrationManager interface {
 
 // ProjectFilter represents filters for project queries
 type ProjectFilter struct {
-	Status      []ProjectStatus `json:"status,omitempty"`
-	Owner       string          `json:"owner,omitempty"`
-	TeamMember  string          `json:"team_member,omitempty"`
-	Tags        []string        `json:"tags,omitempty"`
-	CreatedAfter *time.Time     `json:"created_after,omitempty"`
-	CreatedBefore *time.Time    `json:"created_before,omitempty"`
-	Search      string          `json:"search,omitempty"`
-	Limit       int             `json:"limit,omitempty"`
-	Offset      int             `json:"offset,omitempty"`
+	Status        []ProjectStatus `json:"status,omitempty"`
+	Owner         string          `json:"owner,omitempty"`
+	TeamMember    string          `json:"team_member,omitempty"`
+	Tags          []string        `json:"tags,omitempty"`
+	CreatedAfter  *time.Time      `json:"created_after,omitempty"`
+	CreatedBefore *time.Time      `json:"created_before,omitempty"`
+	Search        string          `json:"search,omitempty"`
+	Limit         int             `json:"limit,omitempty"`
+	Offset        int             `json:"offset,omitempty"`
 }
 
 // TaskFilter represents filters for task queries
@@ -151,43 +151,43 @@ type TimeRange struct {
 
 // ProjectAnalytics represents project analytics data
 type ProjectAnalytics struct {
-	ProjectID        string                 `json:"project_id"`
-	TimeRange        *TimeRange             `json:"time_range"`
-	TasksCreated     int                    `json:"tasks_created"`
-	TasksCompleted   int                    `json:"tasks_completed"`
-	TasksInProgress  int                    `json:"tasks_in_progress"`
-	AverageLeadTime  time.Duration          `json:"average_lead_time"`
-	AverageCycleTime time.Duration          `json:"average_cycle_time"`
-	Velocity         float32                `json:"velocity"`
-	BurndownData     []*BurndownPoint       `json:"burndown_data"`
-	StatusDistribution map[TaskStatus]int   `json:"status_distribution"`
-	PriorityDistribution map[Priority]int   `json:"priority_distribution"`
-	Metadata         map[string]interface{} `json:"metadata,omitempty"`
+	ProjectID            string                 `json:"project_id"`
+	TimeRange            *TimeRange             `json:"time_range"`
+	TasksCreated         int                    `json:"tasks_created"`
+	TasksCompleted       int                    `json:"tasks_completed"`
+	TasksInProgress      int                    `json:"tasks_in_progress"`
+	AverageLeadTime      time.Duration          `json:"average_lead_time"`
+	AverageCycleTime     time.Duration          `json:"average_cycle_time"`
+	Velocity             float32                `json:"velocity"`
+	BurndownData         []*BurndownPoint       `json:"burndown_data"`
+	StatusDistribution   map[TaskStatus]int     `json:"status_distribution"`
+	PriorityDistribution map[Priority]int       `json:"priority_distribution"`
+	Metadata             map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // TaskAnalytics represents task analytics data
 type TaskAnalytics struct {
-	ProjectID           string                 `json:"project_id"`
-	TimeRange           *TimeRange             `json:"time_range"`
-	CompletionRate      float32                `json:"completion_rate"`
-	AverageTimeToComplete time.Duration        `json:"average_time_to_complete"`
-	TasksByAssignee     map[string]int         `json:"tasks_by_assignee"`
-	TasksByType         map[TaskType]int       `json:"tasks_by_type"`
-	TasksByPriority     map[Priority]int       `json:"tasks_by_priority"`
-	OverdueTasks        int                    `json:"overdue_tasks"`
-	Metadata            map[string]interface{} `json:"metadata,omitempty"`
+	ProjectID             string                 `json:"project_id"`
+	TimeRange             *TimeRange             `json:"time_range"`
+	CompletionRate        float32                `json:"completion_rate"`
+	AverageTimeToComplete time.Duration          `json:"average_time_to_complete"`
+	TasksByAssignee       map[string]int         `json:"tasks_by_assignee"`
+	TasksByType           map[TaskType]int       `json:"tasks_by_type"`
+	TasksByPriority       map[Priority]int       `json:"tasks_by_priority"`
+	OverdueTasks          int                    `json:"overdue_tasks"`
+	Metadata              map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // TeamAnalytics represents team analytics data
 type TeamAnalytics struct {
-	ProjectID           string                 `json:"project_id"`
-	TimeRange           *TimeRange             `json:"time_range"`
-	TeamSize            int                    `json:"team_size"`
-	ActiveMembers       int                    `json:"active_members"`
-	WorkloadDistribution map[string]float32    `json:"workload_distribution"`
-	ProductivityMetrics *ProductivityMetrics   `json:"productivity_metrics"`
-	CollaborationMetrics *CollaborationMetrics `json:"collaboration_metrics"`
-	Metadata            map[string]interface{} `json:"metadata,omitempty"`
+	ProjectID            string                 `json:"project_id"`
+	TimeRange            *TimeRange             `json:"time_range"`
+	TeamSize             int                    `json:"team_size"`
+	ActiveMembers        int                    `json:"active_members"`
+	WorkloadDistribution map[string]float32     `json:"workload_distribution"`
+	ProductivityMetrics  *ProductivityMetrics   `json:"productivity_metrics"`
+	CollaborationMetrics *CollaborationMetrics  `json:"collaboration_metrics"`
+	Metadata             map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // BurndownPoint represents a point in burndown chart
@@ -199,11 +199,11 @@ type BurndownPoint struct {
 
 // ProductivityMetrics represents team productivity metrics
 type ProductivityMetrics struct {
-	TasksPerMember      float32 `json:"tasks_per_member"`
+	TasksPerMember      float32       `json:"tasks_per_member"`
 	AverageTaskDuration time.Duration `json:"average_task_duration"`
-	CodeCommits         int     `json:"code_commits"`
-	CodeReviews         int     `json:"code_reviews"`
-	BugsFixed           int     `json:"bugs_fixed"`
+	CodeCommits         int           `json:"code_commits"`
+	CodeReviews         int           `json:"code_reviews"`
+	BugsFixed           int           `json:"bugs_fixed"`
 }
 
 // CollaborationMetrics represents team collaboration metrics
@@ -241,13 +241,13 @@ type Report struct {
 type ReportType string
 
 const (
-	ReportTypeProject     ReportType = "project"
-	ReportTypeTask        ReportType = "task"
-	ReportTypeTeam        ReportType = "team"
-	ReportTypeTime        ReportType = "time"
-	ReportTypeVelocity    ReportType = "velocity"
-	ReportTypeBurndown    ReportType = "burndown"
-	ReportTypeCustom      ReportType = "custom"
+	ReportTypeProject  ReportType = "project"
+	ReportTypeTask     ReportType = "task"
+	ReportTypeTeam     ReportType = "team"
+	ReportTypeTime     ReportType = "time"
+	ReportTypeVelocity ReportType = "velocity"
+	ReportTypeBurndown ReportType = "burndown"
+	ReportTypeCustom   ReportType = "custom"
 )
 
 type ReportFormat string

@@ -15,37 +15,37 @@ import (
 
 // FileRecommendationEngine provides intelligent file recommendations
 type FileRecommendationEngine struct {
-	logger  *logrus.Logger
-	tracer  trace.Tracer
-	config  RecommendationConfig
-	mu      sync.RWMutex
-	
+	logger *logrus.Logger
+	tracer trace.Tracer
+	config RecommendationConfig
+	mu     sync.RWMutex
+
 	// AI integration
 	aiOrchestrator *ai.Orchestrator
-	
+
 	// Recommendation models
 	models map[string]RecommendationModel
-	
+
 	// Learning data
 	interactionHistory []InteractionEvent
 	userContext        *UserContext
 	fileGraph          *FileGraph
-	
+
 	// Performance metrics
-	accuracy           float64
-	totalRecommendations int
+	accuracy                float64
+	totalRecommendations    int
 	acceptedRecommendations int
 }
 
 // RecommendationConfig defines recommendation engine configuration
 type RecommendationConfig struct {
-	MaxRecommendations int           `json:"max_recommendations"`
-	MinConfidence      float64       `json:"min_confidence"`
-	ContextWindow      time.Duration `json:"context_window"`
-	LearningEnabled    bool          `json:"learning_enabled"`
-	ModelWeights       map[string]float64 `json:"model_weights"`
-	PersonalizationLevel string      `json:"personalization_level"` // "low", "medium", "high"
-	RealTimeUpdates    bool          `json:"real_time_updates"`
+	MaxRecommendations   int                `json:"max_recommendations"`
+	MinConfidence        float64            `json:"min_confidence"`
+	ContextWindow        time.Duration      `json:"context_window"`
+	LearningEnabled      bool               `json:"learning_enabled"`
+	ModelWeights         map[string]float64 `json:"model_weights"`
+	PersonalizationLevel string             `json:"personalization_level"` // "low", "medium", "high"
+	RealTimeUpdates      bool               `json:"real_time_updates"`
 }
 
 // RecommendationModel interface for different recommendation approaches
@@ -70,13 +70,13 @@ type FileRecommendation struct {
 
 // InteractionEvent represents a user interaction with files
 type InteractionEvent struct {
-	EventType   string                 `json:"event_type"` // "open", "edit", "save", "close", "search", "recommend_accept", "recommend_reject"
-	FilePath    string                 `json:"file_path"`
-	UserID      string                 `json:"user_id"`
-	Timestamp   time.Time              `json:"timestamp"`
-	Duration    time.Duration          `json:"duration"`
-	Context     map[string]interface{} `json:"context"`
-	Metadata    map[string]interface{} `json:"metadata"`
+	EventType string                 `json:"event_type"` // "open", "edit", "save", "close", "search", "recommend_accept", "recommend_reject"
+	FilePath  string                 `json:"file_path"`
+	UserID    string                 `json:"user_id"`
+	Timestamp time.Time              `json:"timestamp"`
+	Duration  time.Duration          `json:"duration"`
+	Context   map[string]interface{} `json:"context"`
+	Metadata  map[string]interface{} `json:"metadata"`
 }
 
 // UserContext represents current user context for recommendations
@@ -102,36 +102,36 @@ type FileGraph struct {
 
 // FileNode represents a file in the graph
 type FileNode struct {
-	FilePath     string                 `json:"file_path"`
-	FileType     string                 `json:"file_type"`
-	Size         int64                  `json:"size"`
-	ModTime      time.Time              `json:"mod_time"`
-	AccessCount  int                    `json:"access_count"`
-	Importance   float64                `json:"importance"`
-	Tags         []string               `json:"tags"`
-	Categories   []string               `json:"categories"`
-	Metadata     map[string]interface{} `json:"metadata"`
+	FilePath    string                 `json:"file_path"`
+	FileType    string                 `json:"file_type"`
+	Size        int64                  `json:"size"`
+	ModTime     time.Time              `json:"mod_time"`
+	AccessCount int                    `json:"access_count"`
+	Importance  float64                `json:"importance"`
+	Tags        []string               `json:"tags"`
+	Categories  []string               `json:"categories"`
+	Metadata    map[string]interface{} `json:"metadata"`
 }
 
 // Edge represents a relationship between files
 type Edge struct {
-	TargetPath   string  `json:"target_path"`
-	Relationship string  `json:"relationship"` // "similar", "dependency", "sequence", "project"
-	Weight       float64 `json:"weight"`
+	TargetPath   string    `json:"target_path"`
+	Relationship string    `json:"relationship"` // "similar", "dependency", "sequence", "project"
+	Weight       float64   `json:"weight"`
 	CreatedAt    time.Time `json:"created_at"`
 }
 
 // NewFileRecommendationEngine creates a new file recommendation engine
 func NewFileRecommendationEngine(logger *logrus.Logger, config RecommendationConfig, aiOrchestrator *ai.Orchestrator) *FileRecommendationEngine {
 	tracer := otel.Tracer("file-recommendation-engine")
-	
+
 	engine := &FileRecommendationEngine{
-		logger:              logger,
-		tracer:              tracer,
-		config:              config,
-		aiOrchestrator:      aiOrchestrator,
-		models:              make(map[string]RecommendationModel),
-		interactionHistory:  make([]InteractionEvent, 0),
+		logger:             logger,
+		tracer:             tracer,
+		config:             config,
+		aiOrchestrator:     aiOrchestrator,
+		models:             make(map[string]RecommendationModel),
+		interactionHistory: make([]InteractionEvent, 0),
 		userContext: &UserContext{
 			RecentFiles:   make([]string, 0),
 			ActiveTasks:   make([]string, 0),
@@ -143,10 +143,10 @@ func NewFileRecommendationEngine(logger *logrus.Logger, config RecommendationCon
 			Edges: make(map[string][]Edge),
 		},
 	}
-	
+
 	// Initialize recommendation models
 	engine.initializeModels()
-	
+
 	return engine
 }
 
@@ -157,7 +157,7 @@ func (fre *FileRecommendationEngine) initializeModels() {
 	fre.models["temporal"] = NewTemporalModel()
 	fre.models["graph"] = NewGraphBasedModel(fre.fileGraph)
 	fre.models["context"] = NewContextAwareModel()
-	
+
 	if fre.aiOrchestrator != nil {
 		fre.models["ai_hybrid"] = NewAIHybridModel(fre.aiOrchestrator)
 	}
@@ -167,24 +167,24 @@ func (fre *FileRecommendationEngine) initializeModels() {
 func (fre *FileRecommendationEngine) RecordInteraction(ctx context.Context, event InteractionEvent) error {
 	ctx, span := fre.tracer.Start(ctx, "fileRecommendationEngine.RecordInteraction")
 	defer span.End()
-	
+
 	fre.mu.Lock()
 	defer fre.mu.Unlock()
-	
+
 	// Add to history
 	fre.interactionHistory = append(fre.interactionHistory, event)
-	
+
 	// Maintain history size
 	if len(fre.interactionHistory) > 10000 {
 		fre.interactionHistory = fre.interactionHistory[1000:]
 	}
-	
+
 	// Update user context
 	fre.updateUserContext(event)
-	
+
 	// Update file graph
 	fre.updateFileGraph(event)
-	
+
 	// Update metrics for recommendation feedback
 	if event.EventType == "recommend_accept" {
 		fre.acceptedRecommendations++
@@ -192,13 +192,13 @@ func (fre *FileRecommendationEngine) RecordInteraction(ctx context.Context, even
 	} else if event.EventType == "recommend_reject" {
 		fre.updateAccuracy()
 	}
-	
+
 	fre.logger.WithFields(logrus.Fields{
 		"event_type": event.EventType,
 		"file_path":  event.FilePath,
 		"user_id":    event.UserID,
 	}).Debug("Interaction recorded")
-	
+
 	return nil
 }
 
@@ -206,33 +206,33 @@ func (fre *FileRecommendationEngine) RecordInteraction(ctx context.Context, even
 func (fre *FileRecommendationEngine) GetRecommendations(ctx context.Context, userID string) ([]FileRecommendation, error) {
 	ctx, span := fre.tracer.Start(ctx, "fileRecommendationEngine.GetRecommendations")
 	defer span.End()
-	
+
 	fre.mu.RLock()
 	defer fre.mu.RUnlock()
-	
+
 	// Update user context
 	fre.userContext.UserID = userID
 	fre.updateCurrentContext()
-	
+
 	// Get recommendations from all models
 	allRecommendations := make([]FileRecommendation, 0)
-	
+
 	for modelName, model := range fre.models {
 		recommendations := model.Recommend(fre.userContext, fre.interactionHistory)
-		
+
 		// Weight recommendations based on model accuracy and configuration
 		weight := fre.getModelWeight(modelName)
 		for i := range recommendations {
 			recommendations[i].Confidence *= weight
 			recommendations[i].ModelSource = modelName
 		}
-		
+
 		allRecommendations = append(allRecommendations, recommendations...)
 	}
-	
+
 	// Combine and rank recommendations
 	combinedRecommendations := fre.combineRecommendations(allRecommendations)
-	
+
 	// Filter by minimum confidence
 	filteredRecommendations := make([]FileRecommendation, 0)
 	for _, rec := range combinedRecommendations {
@@ -240,26 +240,26 @@ func (fre *FileRecommendationEngine) GetRecommendations(ctx context.Context, use
 			filteredRecommendations = append(filteredRecommendations, rec)
 		}
 	}
-	
+
 	// Limit to max recommendations
 	if len(filteredRecommendations) > fre.config.MaxRecommendations {
 		filteredRecommendations = filteredRecommendations[:fre.config.MaxRecommendations]
 	}
-	
+
 	fre.totalRecommendations += len(filteredRecommendations)
-	
+
 	fre.logger.WithFields(logrus.Fields{
-		"user_id":            userID,
+		"user_id":              userID,
 		"recommendation_count": len(filteredRecommendations),
 	}).Debug("Recommendations generated")
-	
+
 	return filteredRecommendations, nil
 }
 
 // updateUserContext updates the user context based on interaction
 func (fre *FileRecommendationEngine) updateUserContext(event InteractionEvent) {
 	fre.userContext.UserID = event.UserID
-	
+
 	// Update recent files
 	if event.EventType == "open" || event.EventType == "edit" {
 		// Add to recent files (avoid duplicates)
@@ -270,22 +270,22 @@ func (fre *FileRecommendationEngine) updateUserContext(event InteractionEvent) {
 				break
 			}
 		}
-		
+
 		if !found {
 			fre.userContext.RecentFiles = append([]string{event.FilePath}, fre.userContext.RecentFiles...)
-			
+
 			// Limit recent files
 			if len(fre.userContext.RecentFiles) > 20 {
 				fre.userContext.RecentFiles = fre.userContext.RecentFiles[:20]
 			}
 		}
 	}
-	
+
 	// Update working directory
 	if workDir, ok := event.Context["working_directory"].(string); ok {
 		fre.userContext.WorkingDirectory = workDir
 	}
-	
+
 	// Update current project
 	if project, ok := event.Context["project"].(string); ok {
 		fre.userContext.CurrentProject = project
@@ -296,7 +296,7 @@ func (fre *FileRecommendationEngine) updateUserContext(event InteractionEvent) {
 func (fre *FileRecommendationEngine) updateFileGraph(event InteractionEvent) {
 	fre.fileGraph.mu.Lock()
 	defer fre.fileGraph.mu.Unlock()
-	
+
 	// Create or update file node
 	if _, exists := fre.fileGraph.Nodes[event.FilePath]; !exists {
 		fre.fileGraph.Nodes[event.FilePath] = &FileNode{
@@ -309,18 +309,18 @@ func (fre *FileRecommendationEngine) updateFileGraph(event InteractionEvent) {
 			Metadata:    make(map[string]interface{}),
 		}
 	}
-	
+
 	node := fre.fileGraph.Nodes[event.FilePath]
 	node.AccessCount++
-	
+
 	// Update importance based on access frequency and recency
 	timeFactor := 1.0 - (time.Since(event.Timestamp).Hours() / (24 * 7)) // Week-based decay
 	if timeFactor < 0 {
 		timeFactor = 0
 	}
-	
+
 	node.Importance = (node.Importance + timeFactor) / 2.0
-	
+
 	// Create relationships with recent files
 	if len(fre.userContext.RecentFiles) > 1 {
 		for _, recentFile := range fre.userContext.RecentFiles[:min(5, len(fre.userContext.RecentFiles))] {
@@ -336,7 +336,7 @@ func (fre *FileRecommendationEngine) addFileRelationship(fromPath, toPath, relat
 	if _, exists := fre.fileGraph.Edges[fromPath]; !exists {
 		fre.fileGraph.Edges[fromPath] = make([]Edge, 0)
 	}
-	
+
 	// Check if relationship already exists
 	for i, edge := range fre.fileGraph.Edges[fromPath] {
 		if edge.TargetPath == toPath && edge.Relationship == relationship {
@@ -345,7 +345,7 @@ func (fre *FileRecommendationEngine) addFileRelationship(fromPath, toPath, relat
 			return
 		}
 	}
-	
+
 	// Add new relationship
 	fre.fileGraph.Edges[fromPath] = append(fre.fileGraph.Edges[fromPath], Edge{
 		TargetPath:   toPath,
@@ -360,7 +360,7 @@ func (fre *FileRecommendationEngine) updateCurrentContext() {
 	now := time.Now()
 	fre.userContext.TimeOfDay = now.Hour()
 	fre.userContext.DayOfWeek = int(now.Weekday())
-	
+
 	// Determine work mode based on recent activity
 	if len(fre.interactionHistory) > 0 {
 		recentEvents := fre.getRecentEvents(time.Hour)
@@ -372,7 +372,7 @@ func (fre *FileRecommendationEngine) updateCurrentContext() {
 func (fre *FileRecommendationEngine) getRecentEvents(window time.Duration) []InteractionEvent {
 	cutoff := time.Now().Add(-window)
 	recent := make([]InteractionEvent, 0)
-	
+
 	for i := len(fre.interactionHistory) - 1; i >= 0; i-- {
 		event := fre.interactionHistory[i]
 		if event.Timestamp.Before(cutoff) {
@@ -380,7 +380,7 @@ func (fre *FileRecommendationEngine) getRecentEvents(window time.Duration) []Int
 		}
 		recent = append(recent, event)
 	}
-	
+
 	return recent
 }
 
@@ -389,17 +389,17 @@ func (fre *FileRecommendationEngine) determineWorkMode(recentEvents []Interactio
 	if len(recentEvents) == 0 {
 		return "exploratory"
 	}
-	
+
 	// Analyze event patterns
 	uniqueFiles := make(map[string]bool)
 	totalEvents := len(recentEvents)
-	
+
 	for _, event := range recentEvents {
 		uniqueFiles[event.FilePath] = true
 	}
-	
+
 	fileVariety := float64(len(uniqueFiles)) / float64(totalEvents)
-	
+
 	if fileVariety < 0.3 {
 		return "focused" // Working on few files
 	} else if fileVariety > 0.7 {
@@ -416,7 +416,7 @@ func (fre *FileRecommendationEngine) combineRecommendations(recommendations []Fi
 	for _, rec := range recommendations {
 		recMap[rec.FilePath] = append(recMap[rec.FilePath], rec)
 	}
-	
+
 	// Combine recommendations for each file
 	combined := make([]FileRecommendation, 0)
 	for filePath, recs := range recMap {
@@ -427,7 +427,7 @@ func (fre *FileRecommendationEngine) combineRecommendations(recommendations []Fi
 			totalConfidence := 0.0
 			reasons := make([]string, 0)
 			tags := make(map[string]bool)
-			
+
 			for _, rec := range recs {
 				totalConfidence += rec.Confidence
 				reasons = append(reasons, rec.Reasoning)
@@ -435,13 +435,13 @@ func (fre *FileRecommendationEngine) combineRecommendations(recommendations []Fi
 					tags[tag] = true
 				}
 			}
-			
+
 			// Convert tags map to slice
 			tagSlice := make([]string, 0, len(tags))
 			for tag := range tags {
 				tagSlice = append(tagSlice, tag)
 			}
-			
+
 			combinedRec := FileRecommendation{
 				FilePath:    filePath,
 				Confidence:  totalConfidence / float64(len(recs)),
@@ -451,16 +451,16 @@ func (fre *FileRecommendationEngine) combineRecommendations(recommendations []Fi
 				Timestamp:   time.Now(),
 				ModelSource: "combined",
 			}
-			
+
 			combined = append(combined, combinedRec)
 		}
 	}
-	
+
 	// Sort by confidence
 	sort.Slice(combined, func(i, j int) bool {
 		return combined[i].Confidence > combined[j].Confidence
 	})
-	
+
 	return combined
 }
 
@@ -469,12 +469,12 @@ func (fre *FileRecommendationEngine) getModelWeight(modelName string) float64 {
 	if weight, exists := fre.config.ModelWeights[modelName]; exists {
 		return weight
 	}
-	
+
 	// Default weight based on model accuracy
 	if model, exists := fre.models[modelName]; exists {
 		return model.GetAccuracy()
 	}
-	
+
 	return 1.0
 }
 
@@ -489,7 +489,7 @@ func (fre *FileRecommendationEngine) updateAccuracy() {
 func (fre *FileRecommendationEngine) GetRecommendationMetrics() map[string]interface{} {
 	fre.mu.RLock()
 	defer fre.mu.RUnlock()
-	
+
 	return map[string]interface{}{
 		"total_recommendations":    fre.totalRecommendations,
 		"accepted_recommendations": fre.acceptedRecommendations,
@@ -509,7 +509,6 @@ func getFileTypeFromPath(path string) string {
 	return "unknown"
 }
 
-
 // Model implementations
 
 // CollaborativeFilteringModel implements collaborative filtering recommendations
@@ -524,7 +523,7 @@ func NewCollaborativeFilteringModel() RecommendationModel {
 func (m *CollaborativeFilteringModel) Recommend(context *UserContext, history []InteractionEvent) []FileRecommendation {
 	// Simple collaborative filtering based on similar users' behavior
 	recommendations := make([]FileRecommendation, 0)
-	
+
 	// Placeholder implementation - would normally analyze user similarity
 	for _, event := range history {
 		if event.EventType == "file_access" {
@@ -540,7 +539,7 @@ func (m *CollaborativeFilteringModel) Recommend(context *UserContext, history []
 			break
 		}
 	}
-	
+
 	return recommendations
 }
 
@@ -572,7 +571,7 @@ func NewContentBasedModel() RecommendationModel {
 
 func (m *ContentBasedModel) Recommend(context *UserContext, history []InteractionEvent) []FileRecommendation {
 	recommendations := make([]FileRecommendation, 0)
-	
+
 	// Analyze file types and content patterns
 	for _, event := range history {
 		if event.EventType == "file_edit" {
@@ -588,7 +587,7 @@ func (m *ContentBasedModel) Recommend(context *UserContext, history []Interactio
 			break
 		}
 	}
-	
+
 	return recommendations
 }
 
@@ -619,7 +618,7 @@ func NewTemporalModel() RecommendationModel {
 
 func (m *TemporalModel) Recommend(context *UserContext, history []InteractionEvent) []FileRecommendation {
 	recommendations := make([]FileRecommendation, 0)
-	
+
 	// Analyze temporal patterns
 	now := time.Now()
 	for _, event := range history {
@@ -636,7 +635,7 @@ func (m *TemporalModel) Recommend(context *UserContext, history []InteractionEve
 			break
 		}
 	}
-	
+
 	return recommendations
 }
 
@@ -671,7 +670,7 @@ func NewGraphBasedModel(fileGraph *FileGraph) RecommendationModel {
 
 func (m *GraphBasedModel) Recommend(context *UserContext, history []InteractionEvent) []FileRecommendation {
 	recommendations := make([]FileRecommendation, 0)
-	
+
 	// Use file relationships from graph
 	for _, event := range history {
 		recommendations = append(recommendations, FileRecommendation{
@@ -685,7 +684,7 @@ func (m *GraphBasedModel) Recommend(context *UserContext, history []InteractionE
 			break
 		}
 	}
-	
+
 	return recommendations
 }
 
@@ -716,7 +715,7 @@ func NewContextAwareModel() RecommendationModel {
 
 func (m *ContextAwareModel) Recommend(context *UserContext, history []InteractionEvent) []FileRecommendation {
 	recommendations := make([]FileRecommendation, 0)
-	
+
 	// Consider user context and environment
 	if context != nil {
 		recommendations = append(recommendations, FileRecommendation{
@@ -727,7 +726,7 @@ func (m *ContextAwareModel) Recommend(context *UserContext, history []Interactio
 			Timestamp:   time.Now(),
 		})
 	}
-	
+
 	return recommendations
 }
 
@@ -762,7 +761,7 @@ func NewAIHybridModel(aiOrchestrator *ai.Orchestrator) RecommendationModel {
 
 func (m *AIHybridModel) Recommend(context *UserContext, history []InteractionEvent) []FileRecommendation {
 	recommendations := make([]FileRecommendation, 0)
-	
+
 	// Use AI orchestrator for intelligent recommendations
 	if m.aiOrchestrator != nil {
 		recommendations = append(recommendations, FileRecommendation{
@@ -773,7 +772,7 @@ func (m *AIHybridModel) Recommend(context *UserContext, history []InteractionEve
 			Timestamp:   time.Now(),
 		})
 	}
-	
+
 	return recommendations
 }
 

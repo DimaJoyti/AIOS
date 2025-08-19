@@ -21,13 +21,13 @@ import (
 
 // AgentsService represents the AIOS Agents Service with Archon capabilities
 type AgentsService struct {
-	config         *config.Config
-	logger         *logrus.Logger
-	tracer         trace.Tracer
-	orchestrator   ai.Orchestrator
-	pythonAdapter  *adapters.PythonServiceAdapter
+	config           *config.Config
+	logger           *logrus.Logger
+	tracer           trace.Tracer
+	orchestrator     ai.Orchestrator
+	pythonAdapter    *adapters.PythonServiceAdapter
 	knowledgeService *knowledge.Service
-	httpServer     *http.Server
+	httpServer       *http.Server
 }
 
 func main() {

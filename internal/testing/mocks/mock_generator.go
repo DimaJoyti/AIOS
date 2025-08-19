@@ -42,7 +42,7 @@ func (g *MockGenerator) GetMock(name string) (*mock.Mock, bool) {
 func (g *MockGenerator) AssertAllExpectations(t mock.TestingT) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
-	
+
 	for name, mockObj := range g.mocks {
 		if !mockObj.AssertExpectations(t) {
 			panic(fmt.Sprintf("Mock %s failed expectations", name))
@@ -242,14 +242,14 @@ func (h *HTTPMock) SetResponse(pattern string, response *HTTPResponse) {
 func (h *HTTPMock) GetResponse(url string) (*HTTPResponse, bool) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
-	
+
 	// Simple pattern matching - in real implementation, use regex
 	for pattern, response := range h.responses {
 		if pattern == url || pattern == "*" {
 			return response, true
 		}
 	}
-	
+
 	return nil, false
 }
 
@@ -270,8 +270,8 @@ type DatabaseMock struct {
 
 // TransactionMock represents a mock database transaction
 type TransactionMock struct {
-	ID        string
-	Committed bool
+	ID         string
+	Committed  bool
 	RolledBack bool
 	Operations []string
 }
@@ -295,7 +295,7 @@ func NewDatabaseMock() *DatabaseMock {
 func (d *DatabaseMock) BeginTransaction(id string) *TransactionMock {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	
+
 	tx := &TransactionMock{
 		ID:         id,
 		Operations: make([]string, 0),
@@ -308,12 +308,12 @@ func (d *DatabaseMock) BeginTransaction(id string) *TransactionMock {
 func (d *DatabaseMock) CommitTransaction(id string) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	
+
 	tx, exists := d.transactions[id]
 	if !exists {
 		return fmt.Errorf("transaction %s not found", id)
 	}
-	
+
 	tx.Committed = true
 	return nil
 }
@@ -322,12 +322,12 @@ func (d *DatabaseMock) CommitTransaction(id string) error {
 func (d *DatabaseMock) RollbackTransaction(id string) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	
+
 	tx, exists := d.transactions[id]
 	if !exists {
 		return fmt.Errorf("transaction %s not found", id)
 	}
-	
+
 	tx.RolledBack = true
 	return nil
 }
@@ -343,12 +343,12 @@ func (d *DatabaseMock) SetQueryResult(query string, result *QueryResult) {
 func (d *DatabaseMock) ExecuteQuery(query string) (*QueryResult, error) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
-	
+
 	result, exists := d.queries[query]
 	if !exists {
 		return nil, fmt.Errorf("no mock result for query: %s", query)
 	}
-	
+
 	return result, result.Error
 }
 
@@ -461,20 +461,20 @@ func (r *ReflectionMock) GetMethodSignature(methodName string) ([]reflect.Type, 
 	if !exists {
 		return nil, nil, fmt.Errorf("method %s not found", methodName)
 	}
-	
+
 	methodType := method.Type
-	
+
 	// Input types (excluding receiver)
 	inputs := make([]reflect.Type, methodType.NumIn()-1)
 	for i := 1; i < methodType.NumIn(); i++ {
 		inputs[i-1] = methodType.In(i)
 	}
-	
+
 	// Output types
 	outputs := make([]reflect.Type, methodType.NumOut())
 	for i := 0; i < methodType.NumOut(); i++ {
 		outputs[i] = methodType.Out(i)
 	}
-	
+
 	return inputs, outputs, nil
 }

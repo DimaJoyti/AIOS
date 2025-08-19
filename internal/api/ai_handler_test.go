@@ -294,7 +294,7 @@ func TestProcessAIRequest(t *testing.T) {
 	requestBody, _ := json.Marshal(request)
 	req := httptest.NewRequest("POST", "/ai/process", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	rr := httptest.NewRecorder()
 
 	// Execute request
@@ -302,7 +302,7 @@ func TestProcessAIRequest(t *testing.T) {
 
 	// Verify response
 	assert.Equal(t, http.StatusOK, rr.Code)
-	
+
 	var response models.AIResponse
 	err := json.Unmarshal(rr.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -336,7 +336,7 @@ func TestProcessLLMQuery(t *testing.T) {
 	requestBody, _ := json.Marshal(request)
 	req := httptest.NewRequest("POST", "/ai/llm/query", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	rr := httptest.NewRecorder()
 
 	// Execute request
@@ -344,7 +344,7 @@ func TestProcessLLMQuery(t *testing.T) {
 
 	// Verify response
 	assert.Equal(t, http.StatusOK, rr.Code)
-	
+
 	var response models.LLMResponse
 	err := json.Unmarshal(rr.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -376,7 +376,7 @@ func TestDetectObjects(t *testing.T) {
 	imageData := []byte("mock-image-data")
 	req := httptest.NewRequest("POST", "/ai/cv/detect-objects", bytes.NewBuffer(imageData))
 	req.Header.Set("Content-Type", "image/jpeg")
-	
+
 	rr := httptest.NewRecorder()
 
 	// Execute request
@@ -384,7 +384,7 @@ func TestDetectObjects(t *testing.T) {
 
 	// Verify response
 	assert.Equal(t, http.StatusOK, rr.Code)
-	
+
 	var response models.ObjectDetection
 	err := json.Unmarshal(rr.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -412,7 +412,7 @@ func TestSpeechToText(t *testing.T) {
 	audioData := []byte("mock-audio-data")
 	req := httptest.NewRequest("POST", "/ai/voice/speech-to-text", bytes.NewBuffer(audioData))
 	req.Header.Set("Content-Type", "audio/wav")
-	
+
 	rr := httptest.NewRecorder()
 
 	// Execute request
@@ -420,7 +420,7 @@ func TestSpeechToText(t *testing.T) {
 
 	// Verify response
 	assert.Equal(t, http.StatusOK, rr.Code)
-	
+
 	var response models.SpeechRecognition
 	err := json.Unmarshal(rr.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -457,7 +457,7 @@ func TestParseIntent(t *testing.T) {
 	requestBody, _ := json.Marshal(request)
 	req := httptest.NewRequest("POST", "/ai/nlp/parse-intent", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	rr := httptest.NewRecorder()
 
 	// Execute request
@@ -465,7 +465,7 @@ func TestParseIntent(t *testing.T) {
 
 	// Verify response
 	assert.Equal(t, http.StatusOK, rr.Code)
-	
+
 	var response models.IntentAnalysis
 	err := json.Unmarshal(rr.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -477,7 +477,7 @@ func TestParseIntent(t *testing.T) {
 
 func TestRouteRegistration(t *testing.T) {
 	handler, _, _, _, _, _ := setupAIHandler()
-	
+
 	router := mux.NewRouter()
 	handler.RegisterRoutes(router)
 

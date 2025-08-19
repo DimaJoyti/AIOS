@@ -10,7 +10,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-
 // WatchCallback defines the callback interface for resource changes
 type WatchCallback interface {
 	OnResourceChanged(uri string, event WatchEvent) error
@@ -18,9 +17,9 @@ type WatchCallback interface {
 
 // WatchEvent represents a resource change event
 type WatchEvent struct {
-	Type      WatchEventType `json:"type"`
-	URI       string         `json:"uri"`
-	Timestamp time.Time      `json:"timestamp"`
+	Type      WatchEventType         `json:"type"`
+	URI       string                 `json:"uri"`
+	Timestamp time.Time              `json:"timestamp"`
 	Metadata  map[string]interface{} `json:"metadata,omitempty"`
 }
 

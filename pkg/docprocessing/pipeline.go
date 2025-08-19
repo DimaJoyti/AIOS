@@ -180,11 +180,11 @@ func (p *DefaultProcessingPipeline) ProcessDocuments(ctx context.Context, docs [
 	)
 
 	p.logger.WithFields(logrus.Fields{
-		"total_documents":    len(docs),
-		"successful":         successCount,
-		"failed":            len(results) - successCount,
-		"total_duration":    totalDuration,
-		"average_duration":  totalDuration / time.Duration(len(docs)),
+		"total_documents":  len(docs),
+		"successful":       successCount,
+		"failed":           len(results) - successCount,
+		"total_duration":   totalDuration,
+		"average_duration": totalDuration / time.Duration(len(docs)),
 	}).Info("Batch processing completed")
 
 	return results, nil
@@ -258,8 +258,8 @@ func (p *DefaultProcessingPipeline) AddStage(stage ProcessingStage) error {
 	p.stages = append(p.stages, stage)
 
 	p.logger.WithFields(logrus.Fields{
-		"stage_name": stage.GetStageName(),
-		"stage_type": stage.GetStageType(),
+		"stage_name":   stage.GetStageName(),
+		"stage_type":   stage.GetStageType(),
 		"total_stages": len(p.stages),
 	}).Info("Added processing stage")
 
@@ -343,8 +343,8 @@ func (ces *ContentExtractionStage) Process(ctx context.Context, doc *Document) (
 	if extractor == nil {
 		// No extractor found, return document as-is
 		ces.logger.WithFields(logrus.Fields{
-			"document_id":   doc.ID,
-			"content_type":  doc.ContentType,
+			"document_id":  doc.ID,
+			"content_type": doc.ContentType,
 		}).Debug("No extractor found for content type")
 		return doc, nil
 	}
@@ -449,8 +449,8 @@ func (tps *TextProcessingStage) Process(ctx context.Context, doc *Document) (*Do
 		currentMetadata = updatedMetadata
 
 		tps.logger.WithFields(logrus.Fields{
-			"document_id":    doc.ID,
-			"processor":      processor.GetProcessorType(),
+			"document_id":     doc.ID,
+			"processor":       processor.GetProcessorType(),
 			"processor_index": i,
 		}).Debug("Text processor completed")
 	}

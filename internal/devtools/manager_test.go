@@ -73,11 +73,11 @@ func TestDevToolsManager(t *testing.T) {
 			Delay:          100 * time.Millisecond,
 		},
 		LogAnalysis: LogAnalysisConfig{
-			Enabled:         true,
-			RealTime:        false,
-			ErrorDetection:  true,
+			Enabled:             true,
+			RealTime:            false,
+			ErrorDetection:      true,
 			PerformanceAnalysis: false,
-			LogSources:      []string{"/tmp/test.log"},
+			LogSources:          []string{"/tmp/test.log"},
 			AlertThresholds: map[string]float64{
 				"error_rate": 0.1,
 			},

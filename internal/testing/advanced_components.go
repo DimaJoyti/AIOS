@@ -393,7 +393,7 @@ func (ca *CoverageAnalyzer) GenerateReport(ctx context.Context) (*models.Coverag
 		FunctionCoverage: 90.3,
 		Files:            []models.FileCoverage{},
 		Packages:         []models.PackageCoverage{},
-		Thresholds:       map[string]float64{
+		Thresholds: map[string]float64{
 			"line":     80.0,
 			"branch":   75.0,
 			"function": 85.0,

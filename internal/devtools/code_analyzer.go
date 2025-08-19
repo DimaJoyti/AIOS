@@ -20,13 +20,13 @@ import (
 
 // CodeAnalyzer handles static code analysis
 type CodeAnalyzer struct {
-	logger    *logrus.Logger
-	tracer    trace.Tracer
-	config    CodeAnalysisConfig
-	analyses  map[string]*models.CodeAnalysis
-	mu        sync.RWMutex
-	running   bool
-	stopCh    chan struct{}
+	logger   *logrus.Logger
+	tracer   trace.Tracer
+	config   CodeAnalysisConfig
+	analyses map[string]*models.CodeAnalysis
+	mu       sync.RWMutex
+	running  bool
+	stopCh   chan struct{}
 }
 
 // NewCodeAnalyzer creates a new code analyzer
@@ -332,28 +332,28 @@ func (ca *CodeAnalyzer) analyzeGoFile(ctx context.Context, filePath string) ([]m
 			// Check for long functions
 			if ca.countFunctionLines(fset, x) > 50 {
 				issues = append(issues, models.CodeIssue{
-					Type:        "complexity",
-					Severity:    "warning",
-					Message:     "Function is too long (>50 lines)",
-					File:        filePath,
-					Line:        fset.Position(x.Pos()).Line,
-					Column:      fset.Position(x.Pos()).Column,
-					Rule:        "function-length",
-					Suggestion:  "Consider breaking this function into smaller functions",
+					Type:       "complexity",
+					Severity:   "warning",
+					Message:    "Function is too long (>50 lines)",
+					File:       filePath,
+					Line:       fset.Position(x.Pos()).Line,
+					Column:     fset.Position(x.Pos()).Column,
+					Rule:       "function-length",
+					Suggestion: "Consider breaking this function into smaller functions",
 				})
 			}
 
 			// Check for missing comments on exported functions
 			if x.Name.IsExported() && x.Doc == nil {
 				issues = append(issues, models.CodeIssue{
-					Type:        "documentation",
-					Severity:    "info",
-					Message:     "Exported function missing documentation",
-					File:        filePath,
-					Line:        fset.Position(x.Pos()).Line,
-					Column:      fset.Position(x.Pos()).Column,
-					Rule:        "missing-doc",
-					Suggestion:  "Add a comment starting with the function name",
+					Type:       "documentation",
+					Severity:   "info",
+					Message:    "Exported function missing documentation",
+					File:       filePath,
+					Line:       fset.Position(x.Pos()).Line,
+					Column:     fset.Position(x.Pos()).Column,
+					Rule:       "missing-doc",
+					Suggestion: "Add a comment starting with the function name",
 				})
 			}
 		}

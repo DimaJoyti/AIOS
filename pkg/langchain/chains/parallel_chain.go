@@ -66,7 +66,7 @@ func NewParallelChain(config *ParallelChainConfig, logger *logrus.Logger) (Paral
 				inputKeySet[key] = true
 			}
 		}
-		
+
 		for key := range inputKeySet {
 			inputKeys = append(inputKeys, key)
 		}
@@ -130,7 +130,7 @@ func (c *DefaultParallelChain) Run(ctx context.Context, input ChainInput) (Chain
 
 	// Create channels for results
 	resultCh := make(chan ChainResult, len(c.chains))
-	
+
 	// Create semaphore for concurrency control
 	semaphore := make(chan struct{}, c.maxConcurrency)
 
@@ -229,7 +229,7 @@ func (c *DefaultParallelChain) Run(ctx context.Context, input ChainInput) (Chain
 			outputKey := fmt.Sprintf("%s_%s", name, key)
 			finalOutput[outputKey] = value
 		}
-		
+
 		// Also add the raw output under the chain name
 		finalOutput[name] = result.Output
 	}

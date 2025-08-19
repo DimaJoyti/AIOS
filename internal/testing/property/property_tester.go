@@ -41,14 +41,14 @@ type Generator interface {
 
 // PropertyResult represents the result of property testing
 type PropertyResult struct {
-	Property     Property      `json:"property"`
-	Passed       bool          `json:"passed"`
-	TestsRun     int           `json:"tests_run"`
-	Discarded    int           `json:"discarded"`
-	Shrinks      int           `json:"shrinks"`
+	Property       Property      `json:"property"`
+	Passed         bool          `json:"passed"`
+	TestsRun       int           `json:"tests_run"`
+	Discarded      int           `json:"discarded"`
+	Shrinks        int           `json:"shrinks"`
 	CounterExample []interface{} `json:"counter_example,omitempty"`
-	Error        string        `json:"error,omitempty"`
-	Duration     time.Duration `json:"duration"`
+	Error          string        `json:"error,omitempty"`
+	Duration       time.Duration `json:"duration"`
 }
 
 // NewPropertyTester creates a new property tester
@@ -68,12 +68,12 @@ func NewPropertyTester(config PropertyConfig) *PropertyTester {
 	if config.MaxDiscarded == 0 {
 		config.MaxDiscarded = config.MaxTests * 5
 	}
-	
+
 	seed := config.Seed
 	if seed == 0 {
 		seed = time.Now().UnixNano()
 	}
-	
+
 	return &PropertyTester{
 		config: config,
 		rand:   rand.New(rand.NewSource(seed)),
@@ -83,15 +83,15 @@ func NewPropertyTester(config PropertyConfig) *PropertyTester {
 // TestProperty tests a single property
 func (pt *PropertyTester) TestProperty(t *testing.T, property Property) *PropertyResult {
 	start := time.Now()
-	
+
 	result := &PropertyResult{
 		Property: property,
 		Passed:   true,
 		Duration: 0,
 	}
-	
+
 	timeout := time.After(pt.config.Timeout)
-	
+
 	for result.TestsRun < pt.config.MaxTests && result.TestsRun-result.Discarded < pt.config.MinSuccess {
 		select {
 		case <-timeout:
@@ -101,17 +101,17 @@ func (pt *PropertyTester) TestProperty(t *testing.T, property Property) *Propert
 			return result
 		default:
 		}
-		
+
 		// Generate test arguments
 		args := make([]interface{}, len(property.Generators))
 		for i, gen := range property.Generators {
 			args[i] = gen.Generate()
 		}
-		
+
 		// Test the property
 		passed := pt.safeTestProperty(property.Test, args)
 		result.TestsRun++
-		
+
 		if !passed {
 			// Property failed, try to shrink
 			counterExample := pt.shrink(property, args)
@@ -119,16 +119,16 @@ func (pt *PropertyTester) TestProperty(t *testing.T, property Property) *Propert
 			result.CounterExample = counterExample
 			break
 		}
-		
+
 		if result.Discarded > pt.config.MaxDiscarded {
 			result.Passed = false
 			result.Error = "Too many discarded tests"
 			break
 		}
 	}
-	
+
 	result.Duration = time.Since(start)
-	
+
 	if t != nil {
 		if !result.Passed {
 			if result.CounterExample != nil {
@@ -140,7 +140,7 @@ func (pt *PropertyTester) TestProperty(t *testing.T, property Property) *Propert
 			t.Logf("Property %s passed (%d tests)", property.Name, result.TestsRun)
 		}
 	}
-	
+
 	return result
 }
 
@@ -151,7 +151,7 @@ func (pt *PropertyTester) safeTestProperty(test func(args ...interface{}) bool, 
 			passed = false
 		}
 	}()
-	
+
 	return test(args...)
 }
 
@@ -159,19 +159,19 @@ func (pt *PropertyTester) safeTestProperty(test func(args ...interface{}) bool, 
 func (pt *PropertyTester) shrink(property Property, failingArgs []interface{}) []interface{} {
 	current := make([]interface{}, len(failingArgs))
 	copy(current, failingArgs)
-	
+
 	for shrinkAttempts := 0; shrinkAttempts < pt.config.MaxShrinks; shrinkAttempts++ {
 		shrunk := false
-		
+
 		// Try to shrink each argument
 		for i, gen := range property.Generators {
 			candidates := gen.Shrink(current[i])
-			
+
 			for _, candidate := range candidates {
 				testArgs := make([]interface{}, len(current))
 				copy(testArgs, current)
 				testArgs[i] = candidate
-				
+
 				// Test if this shrunk version still fails
 				if !pt.safeTestProperty(property.Test, testArgs) {
 					current = testArgs
@@ -179,17 +179,17 @@ func (pt *PropertyTester) shrink(property Property, failingArgs []interface{}) [
 					break
 				}
 			}
-			
+
 			if shrunk {
 				break
 			}
 		}
-		
+
 		if !shrunk {
 			break
 		}
 	}
-	
+
 	return current
 }
 
@@ -220,9 +220,9 @@ func (g *IntGenerator) Shrink(value interface{}) []interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	var candidates []interface{}
-	
+
 	// Shrink towards zero
 	if v > 0 {
 		candidates = append(candidates, 0)
@@ -237,7 +237,7 @@ func (g *IntGenerator) Shrink(value interface{}) []interface{} {
 			candidates = append(candidates, v+1)
 		}
 	}
-	
+
 	return candidates
 }
 
@@ -268,12 +268,12 @@ func (g *StringGenerator) Generate() interface{} {
 	if g.MaxLength > g.MinLength {
 		length += rand.Intn(g.MaxLength - g.MinLength + 1)
 	}
-	
+
 	result := make([]byte, length)
 	for i := range result {
 		result[i] = g.Charset[rand.Intn(len(g.Charset))]
 	}
-	
+
 	return string(result)
 }
 
@@ -283,20 +283,20 @@ func (g *StringGenerator) Shrink(value interface{}) []interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	var candidates []interface{}
-	
+
 	// Empty string
 	if len(s) > 0 {
 		candidates = append(candidates, "")
 	}
-	
+
 	// Shorter strings
 	if len(s) > 1 {
 		candidates = append(candidates, s[:len(s)/2])
 		candidates = append(candidates, s[:len(s)-1])
 	}
-	
+
 	return candidates
 }
 
@@ -327,12 +327,12 @@ func (g *SliceGenerator) Generate() interface{} {
 	if g.MaxLength > g.MinLength {
 		length += rand.Intn(g.MaxLength - g.MinLength + 1)
 	}
-	
+
 	result := make([]interface{}, length)
 	for i := range result {
 		result[i] = g.ElementGenerator.Generate()
 	}
-	
+
 	return result
 }
 
@@ -342,20 +342,20 @@ func (g *SliceGenerator) Shrink(value interface{}) []interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	var candidates []interface{}
-	
+
 	// Empty slice
 	if len(slice) > 0 {
 		candidates = append(candidates, []interface{}{})
 	}
-	
+
 	// Shorter slices
 	if len(slice) > 1 {
 		candidates = append(candidates, slice[:len(slice)/2])
 		candidates = append(candidates, slice[:len(slice)-1])
 	}
-	
+
 	// Shrink individual elements
 	for i, elem := range slice {
 		shrunkElements := g.ElementGenerator.Shrink(elem)
@@ -366,7 +366,7 @@ func (g *SliceGenerator) Shrink(value interface{}) []interface{} {
 			candidates = append(candidates, newSlice)
 		}
 	}
-	
+
 	return candidates
 }
 
@@ -394,11 +394,11 @@ func (g *BoolGenerator) Shrink(value interface{}) []interface{} {
 	if !ok {
 		return nil
 	}
-	
+
 	if v {
 		return []interface{}{false}
 	}
-	
+
 	return nil
 }
 
@@ -425,7 +425,7 @@ func Exists(generators []Generator, test func(args ...interface{}) bool) Propert
 		// For now, just use the regular test
 		return test(args...)
 	}
-	
+
 	return Property{
 		Name:       "Exists",
 		Test:       existsTest,
@@ -465,32 +465,32 @@ func (pts *PropertyTestSuite) AddProperty(property Property) {
 // RunAll runs all properties in the suite
 func (pts *PropertyTestSuite) RunAll(t *testing.T) []*PropertyResult {
 	results := make([]*PropertyResult, 0, len(pts.properties))
-	
+
 	for _, property := range pts.properties {
 		result := pts.tester.TestProperty(t, property)
 		results = append(results, result)
 	}
-	
+
 	return results
 }
 
 // GenerateReport generates a report for property test results
 func (pts *PropertyTestSuite) GenerateReport(results []*PropertyResult) string {
 	var report strings.Builder
-	
+
 	report.WriteString("Property-Based Test Report\n")
 	report.WriteString("=========================\n\n")
-	
+
 	passed := 0
 	total := len(results)
-	
+
 	for _, result := range results {
 		if result.Passed {
 			passed++
-			report.WriteString(fmt.Sprintf("✓ %s - PASSED (%d tests, %v)\n", 
+			report.WriteString(fmt.Sprintf("✓ %s - PASSED (%d tests, %v)\n",
 				result.Property.Name, result.TestsRun, result.Duration))
 		} else {
-			report.WriteString(fmt.Sprintf("✗ %s - FAILED (%d tests, %v)\n", 
+			report.WriteString(fmt.Sprintf("✗ %s - FAILED (%d tests, %v)\n",
 				result.Property.Name, result.TestsRun, result.Duration))
 			if result.CounterExample != nil {
 				report.WriteString(fmt.Sprintf("  Counter-example: %v\n", result.CounterExample))
@@ -500,9 +500,9 @@ func (pts *PropertyTestSuite) GenerateReport(results []*PropertyResult) string {
 			}
 		}
 	}
-	
-	report.WriteString(fmt.Sprintf("\nSummary: %d/%d properties passed (%.1f%%)\n", 
+
+	report.WriteString(fmt.Sprintf("\nSummary: %d/%d properties passed (%.1f%%)\n",
 		passed, total, float64(passed)/float64(total)*100))
-	
+
 	return report.String()
 }

@@ -13,32 +13,32 @@ type RateLimiter struct {
 
 // TokenBucket represents a token bucket for rate limiting
 type TokenBucket struct {
-	capacity     int           // Maximum number of tokens
-	tokens       int           // Current number of tokens
-	refillRate   int           // Tokens added per second
-	lastRefill   time.Time     // Last time tokens were added
-	mu           sync.Mutex
+	capacity   int       // Maximum number of tokens
+	tokens     int       // Current number of tokens
+	refillRate int       // Tokens added per second
+	lastRefill time.Time // Last time tokens were added
+	mu         sync.Mutex
 }
 
 // RateLimitStats represents rate limiting statistics
 type RateLimitStats struct {
-	TotalRequests   int64                    `json:"total_requests"`
-	AllowedRequests int64                    `json:"allowed_requests"`
-	BlockedRequests int64                    `json:"blocked_requests"`
-	ActiveBuckets   int                      `json:"active_buckets"`
-	BucketStats     map[string]BucketStats   `json:"bucket_stats"`
+	TotalRequests   int64                  `json:"total_requests"`
+	AllowedRequests int64                  `json:"allowed_requests"`
+	BlockedRequests int64                  `json:"blocked_requests"`
+	ActiveBuckets   int                    `json:"active_buckets"`
+	BucketStats     map[string]BucketStats `json:"bucket_stats"`
 }
 
 // BucketStats represents statistics for a specific bucket
 type BucketStats struct {
-	ID             string    `json:"id"`
-	Capacity       int       `json:"capacity"`
-	CurrentTokens  int       `json:"current_tokens"`
-	RefillRate     int       `json:"refill_rate"`
-	LastRefill     time.Time `json:"last_refill"`
-	TotalRequests  int64     `json:"total_requests"`
-	AllowedRequests int64    `json:"allowed_requests"`
-	BlockedRequests int64    `json:"blocked_requests"`
+	ID              string    `json:"id"`
+	Capacity        int       `json:"capacity"`
+	CurrentTokens   int       `json:"current_tokens"`
+	RefillRate      int       `json:"refill_rate"`
+	LastRefill      time.Time `json:"last_refill"`
+	TotalRequests   int64     `json:"total_requests"`
+	AllowedRequests int64     `json:"allowed_requests"`
+	BlockedRequests int64     `json:"blocked_requests"`
 }
 
 // NewRateLimiter creates a new rate limiter
@@ -218,10 +218,10 @@ func (tb *TokenBucket) refill() {
 
 	now := time.Now()
 	elapsed := now.Sub(tb.lastRefill)
-	
+
 	// Calculate tokens to add based on elapsed time
 	tokensToAdd := int(elapsed.Seconds()) * tb.refillRate
-	
+
 	if tokensToAdd > 0 {
 		tb.tokens += tokensToAdd
 		if tb.tokens > tb.capacity {
@@ -233,8 +233,8 @@ func (tb *TokenBucket) refill() {
 
 // AdvancedRateLimiter provides more sophisticated rate limiting
 type AdvancedRateLimiter struct {
-	buckets    map[string]*AdvancedTokenBucket
-	mu         sync.RWMutex
+	buckets     map[string]*AdvancedTokenBucket
+	mu          sync.RWMutex
 	globalStats *GlobalRateLimitStats
 }
 
@@ -252,13 +252,13 @@ type AdvancedTokenBucket struct {
 
 // GlobalRateLimitStats tracks global rate limiting statistics
 type GlobalRateLimitStats struct {
-	TotalRequests     int64     `json:"total_requests"`
-	AllowedRequests   int64     `json:"allowed_requests"`
-	BlockedRequests   int64     `json:"blocked_requests"`
-	AverageLatency    float64   `json:"average_latency_ms"`
-	PeakRequestsPerSec int64    `json:"peak_requests_per_sec"`
-	LastReset         time.Time `json:"last_reset"`
-	mu                sync.RWMutex
+	TotalRequests      int64     `json:"total_requests"`
+	AllowedRequests    int64     `json:"allowed_requests"`
+	BlockedRequests    int64     `json:"blocked_requests"`
+	AverageLatency     float64   `json:"average_latency_ms"`
+	PeakRequestsPerSec int64     `json:"peak_requests_per_sec"`
+	LastReset          time.Time `json:"last_reset"`
+	mu                 sync.RWMutex
 }
 
 // NewAdvancedRateLimiter creates a new advanced rate limiter
@@ -293,7 +293,7 @@ func (arl *AdvancedRateLimiter) AllowWithBurst(identifier string, rateLimit, bur
 	arl.mu.Unlock()
 
 	allowed := bucket.consumeWithBurst()
-	
+
 	// Update global stats
 	arl.globalStats.mu.Lock()
 	arl.globalStats.TotalRequests++
@@ -316,7 +316,7 @@ func (atb *AdvancedTokenBucket) consumeWithBurst() bool {
 	defer atb.mu.Unlock()
 
 	now := time.Now()
-	
+
 	// Check sliding window rate limit
 	recentRequests := 0
 	for _, reqTime := range atb.requestHistory {
@@ -342,9 +342,9 @@ func (atb *AdvancedTokenBucket) refill() {
 
 	now := time.Now()
 	elapsed := now.Sub(atb.lastRefill)
-	
+
 	tokensToAdd := int(elapsed.Seconds()) * atb.refillRate
-	
+
 	if tokensToAdd > 0 {
 		atb.tokens += tokensToAdd
 		if atb.tokens > atb.capacity {
@@ -361,7 +361,7 @@ func (atb *AdvancedTokenBucket) cleanupHistory() {
 
 	now := time.Now()
 	cutoff := now.Add(-atb.windowSize)
-	
+
 	// Remove old entries
 	validRequests := make([]time.Time, 0, len(atb.requestHistory))
 	for _, reqTime := range atb.requestHistory {
@@ -369,7 +369,7 @@ func (atb *AdvancedTokenBucket) cleanupHistory() {
 			validRequests = append(validRequests, reqTime)
 		}
 	}
-	
+
 	atb.requestHistory = validRequests
 }
 
@@ -377,7 +377,7 @@ func (atb *AdvancedTokenBucket) cleanupHistory() {
 func (arl *AdvancedRateLimiter) GetGlobalStats() GlobalRateLimitStats {
 	arl.globalStats.mu.RLock()
 	defer arl.globalStats.mu.RUnlock()
-	
+
 	stats := *arl.globalStats
 	return stats
 }
@@ -386,7 +386,7 @@ func (arl *AdvancedRateLimiter) GetGlobalStats() GlobalRateLimitStats {
 func (arl *AdvancedRateLimiter) ResetGlobalStats() {
 	arl.globalStats.mu.Lock()
 	defer arl.globalStats.mu.Unlock()
-	
+
 	arl.globalStats.TotalRequests = 0
 	arl.globalStats.AllowedRequests = 0
 	arl.globalStats.BlockedRequests = 0

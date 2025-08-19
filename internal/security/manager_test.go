@@ -60,12 +60,12 @@ func TestSecurityManager(t *testing.T) {
 			PIIDetection:      true,
 		},
 		ThreatDetection: ThreatDetectionConfig{
-			Enabled:           true,
-			RealTime:          false,
-			MachineLearning:   false,
+			Enabled:            true,
+			RealTime:           false,
+			MachineLearning:    false,
 			BehavioralAnalysis: true,
-			NetworkMonitoring: true,
-			FileIntegrity:     true,
+			NetworkMonitoring:  true,
+			FileIntegrity:      true,
 			AlertThresholds: map[string]float64{
 				"anomaly_score": 0.8,
 			},

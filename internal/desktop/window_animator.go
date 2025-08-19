@@ -15,70 +15,70 @@ import (
 
 // WindowAnimator handles smooth window animations and transitions
 type WindowAnimator struct {
-	logger  *logrus.Logger
-	tracer  trace.Tracer
-	config  AnimatorConfig
-	mu      sync.RWMutex
-	
+	logger *logrus.Logger
+	tracer trace.Tracer
+	config AnimatorConfig
+	mu     sync.RWMutex
+
 	// Animation state
 	activeAnimations map[string]*Animation
 	animationQueue   []*Animation
 	running          bool
 	stopCh           chan struct{}
-	
+
 	// Performance tracking
-	frameRate        float64
-	lastFrameTime    time.Time
-	droppedFrames    int
-	totalFrames      int
+	frameRate     float64
+	lastFrameTime time.Time
+	droppedFrames int
+	totalFrames   int
 }
 
 // AnimatorConfig defines animation configuration
 type AnimatorConfig struct {
-	DefaultDuration   time.Duration `json:"default_duration"`
-	TargetFPS        int           `json:"target_fps"`
-	EasingFunction   string        `json:"easing_function"`
-	EnableVSync      bool          `json:"enable_vsync"`
-	ReduceMotion     bool          `json:"reduce_motion"`
-	HardwareAccel    bool          `json:"hardware_acceleration"`
-	MaxConcurrent    int           `json:"max_concurrent_animations"`
-	QualityLevel     string        `json:"quality_level"` // "low", "medium", "high"
+	DefaultDuration time.Duration `json:"default_duration"`
+	TargetFPS       int           `json:"target_fps"`
+	EasingFunction  string        `json:"easing_function"`
+	EnableVSync     bool          `json:"enable_vsync"`
+	ReduceMotion    bool          `json:"reduce_motion"`
+	HardwareAccel   bool          `json:"hardware_acceleration"`
+	MaxConcurrent   int           `json:"max_concurrent_animations"`
+	QualityLevel    string        `json:"quality_level"` // "low", "medium", "high"
 }
 
 // Animation represents a window animation
 type Animation struct {
-	ID          string                 `json:"id"`
-	WindowID    string                 `json:"window_id"`
-	Type        AnimationType          `json:"type"`
-	StartTime   time.Time              `json:"start_time"`
-	Duration    time.Duration          `json:"duration"`
-	Progress    float64                `json:"progress"`
-	StartState  WindowState            `json:"start_state"`
-	EndState    WindowState            `json:"end_state"`
-	CurrentState WindowState           `json:"current_state"`
-	EasingFunc  EasingFunction         `json:"-"`
-	OnComplete  func(*Animation)       `json:"-"`
-	OnUpdate    func(*Animation)       `json:"-"`
-	Properties  map[string]interface{} `json:"properties"`
-	Priority    int                    `json:"priority"`
-	Completed   bool                   `json:"completed"`
+	ID           string                 `json:"id"`
+	WindowID     string                 `json:"window_id"`
+	Type         AnimationType          `json:"type"`
+	StartTime    time.Time              `json:"start_time"`
+	Duration     time.Duration          `json:"duration"`
+	Progress     float64                `json:"progress"`
+	StartState   WindowState            `json:"start_state"`
+	EndState     WindowState            `json:"end_state"`
+	CurrentState WindowState            `json:"current_state"`
+	EasingFunc   EasingFunction         `json:"-"`
+	OnComplete   func(*Animation)       `json:"-"`
+	OnUpdate     func(*Animation)       `json:"-"`
+	Properties   map[string]interface{} `json:"properties"`
+	Priority     int                    `json:"priority"`
+	Completed    bool                   `json:"completed"`
 }
 
 // AnimationType defines the type of animation
 type AnimationType string
 
 const (
-	AnimationMove     AnimationType = "move"
-	AnimationResize   AnimationType = "resize"
-	AnimationFade     AnimationType = "fade"
-	AnimationSlide    AnimationType = "slide"
-	AnimationScale    AnimationType = "scale"
-	AnimationRotate   AnimationType = "rotate"
-	AnimationFlip     AnimationType = "flip"
-	AnimationBounce   AnimationType = "bounce"
-	AnimationShake    AnimationType = "shake"
-	AnimationPulse    AnimationType = "pulse"
-	AnimationCustom   AnimationType = "custom"
+	AnimationMove   AnimationType = "move"
+	AnimationResize AnimationType = "resize"
+	AnimationFade   AnimationType = "fade"
+	AnimationSlide  AnimationType = "slide"
+	AnimationScale  AnimationType = "scale"
+	AnimationRotate AnimationType = "rotate"
+	AnimationFlip   AnimationType = "flip"
+	AnimationBounce AnimationType = "bounce"
+	AnimationShake  AnimationType = "shake"
+	AnimationPulse  AnimationType = "pulse"
+	AnimationCustom AnimationType = "custom"
 )
 
 // WindowState represents the state of a window during animation
@@ -110,7 +110,7 @@ type EasingFunction func(t float64) float64
 // NewWindowAnimator creates a new window animator
 func NewWindowAnimator(logger *logrus.Logger, config AnimatorConfig) *WindowAnimator {
 	tracer := otel.Tracer("window-animator")
-	
+
 	animator := &WindowAnimator{
 		logger:           logger,
 		tracer:           tracer,
@@ -121,7 +121,7 @@ func NewWindowAnimator(logger *logrus.Logger, config AnimatorConfig) *WindowAnim
 		frameRate:        float64(config.TargetFPS),
 		lastFrameTime:    time.Now(),
 	}
-	
+
 	return animator
 }
 
@@ -129,19 +129,19 @@ func NewWindowAnimator(logger *logrus.Logger, config AnimatorConfig) *WindowAnim
 func (wa *WindowAnimator) Start(ctx context.Context) error {
 	ctx, span := wa.tracer.Start(ctx, "windowAnimator.Start")
 	defer span.End()
-	
+
 	wa.mu.Lock()
 	defer wa.mu.Unlock()
-	
+
 	if wa.running {
 		return fmt.Errorf("animator already running")
 	}
-	
+
 	wa.running = true
-	
+
 	// Start animation loop
 	go wa.animationLoop()
-	
+
 	wa.logger.Info("Window animator started")
 	return nil
 }
@@ -150,31 +150,31 @@ func (wa *WindowAnimator) Start(ctx context.Context) error {
 func (wa *WindowAnimator) Stop(ctx context.Context) error {
 	ctx, span := wa.tracer.Start(ctx, "windowAnimator.Stop")
 	defer span.End()
-	
+
 	wa.mu.Lock()
 	defer wa.mu.Unlock()
-	
+
 	if !wa.running {
 		return nil
 	}
-	
+
 	wa.running = false
 	close(wa.stopCh)
-	
+
 	// Complete all active animations immediately
 	for _, animation := range wa.activeAnimations {
 		animation.Progress = 1.0
 		animation.CurrentState = animation.EndState
 		animation.Completed = true
-		
+
 		if animation.OnComplete != nil {
 			animation.OnComplete(animation)
 		}
 	}
-	
+
 	wa.activeAnimations = make(map[string]*Animation)
 	wa.animationQueue = make([]*Animation, 0)
-	
+
 	wa.logger.Info("Window animator stopped")
 	return nil
 }
@@ -183,7 +183,7 @@ func (wa *WindowAnimator) Stop(ctx context.Context) error {
 func (wa *WindowAnimator) AnimateWindow(ctx context.Context, windowID string, animType AnimationType, startState, endState WindowState, duration time.Duration) (*Animation, error) {
 	ctx, span := wa.tracer.Start(ctx, "windowAnimator.AnimateWindow")
 	defer span.End()
-	
+
 	// Create animation
 	animation := &Animation{
 		ID:           fmt.Sprintf("anim_%s_%d", windowID, time.Now().UnixNano()),
@@ -200,7 +200,7 @@ func (wa *WindowAnimator) AnimateWindow(ctx context.Context, windowID string, an
 		Priority:     1,
 		Completed:    false,
 	}
-	
+
 	// Apply motion reduction if enabled
 	if wa.config.ReduceMotion {
 		animation.Duration = animation.Duration / 4
@@ -208,24 +208,24 @@ func (wa *WindowAnimator) AnimateWindow(ctx context.Context, windowID string, an
 			animation.Duration = 50 * time.Millisecond
 		}
 	}
-	
+
 	// Add to queue or start immediately
 	wa.mu.Lock()
 	defer wa.mu.Unlock()
-	
+
 	if len(wa.activeAnimations) < wa.config.MaxConcurrent {
 		wa.activeAnimations[animation.ID] = animation
 	} else {
 		wa.animationQueue = append(wa.animationQueue, animation)
 	}
-	
+
 	wa.logger.WithFields(logrus.Fields{
 		"animation_id": animation.ID,
 		"window_id":    windowID,
 		"type":         animType,
 		"duration":     duration,
 	}).Debug("Animation created")
-	
+
 	return animation, nil
 }
 
@@ -234,7 +234,7 @@ func (wa *WindowAnimator) animationLoop() {
 	targetFrameTime := time.Duration(1000/wa.config.TargetFPS) * time.Millisecond
 	ticker := time.NewTicker(targetFrameTime)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-wa.stopCh:
@@ -249,38 +249,38 @@ func (wa *WindowAnimator) animationLoop() {
 func (wa *WindowAnimator) updateAnimations() {
 	wa.mu.Lock()
 	defer wa.mu.Unlock()
-	
+
 	now := time.Now()
 	frameTime := now.Sub(wa.lastFrameTime)
 	wa.lastFrameTime = now
 	wa.totalFrames++
-	
+
 	// Update frame rate calculation
 	if frameTime > 0 {
 		currentFPS := 1.0 / frameTime.Seconds()
 		wa.frameRate = wa.frameRate*0.9 + currentFPS*0.1 // Smooth average
 	}
-	
+
 	// Check for dropped frames
 	expectedFrameTime := time.Duration(1000/wa.config.TargetFPS) * time.Millisecond
 	if frameTime > expectedFrameTime*2 {
 		wa.droppedFrames++
 	}
-	
+
 	// Update active animations
 	completedAnimations := make([]string, 0)
-	
+
 	for id, animation := range wa.activeAnimations {
 		if wa.updateAnimation(animation, now) {
 			completedAnimations = append(completedAnimations, id)
 		}
 	}
-	
+
 	// Remove completed animations
 	for _, id := range completedAnimations {
 		delete(wa.activeAnimations, id)
 	}
-	
+
 	// Start queued animations if slots available
 	wa.startQueuedAnimations()
 }
@@ -290,7 +290,7 @@ func (wa *WindowAnimator) updateAnimation(animation *Animation, now time.Time) b
 	if animation.Completed {
 		return true
 	}
-	
+
 	// Calculate progress
 	elapsed := now.Sub(animation.StartTime)
 	if elapsed >= animation.Duration {
@@ -299,23 +299,23 @@ func (wa *WindowAnimator) updateAnimation(animation *Animation, now time.Time) b
 	} else {
 		animation.Progress = float64(elapsed) / float64(animation.Duration)
 	}
-	
+
 	// Apply easing function
 	easedProgress := animation.EasingFunc(animation.Progress)
-	
+
 	// Interpolate current state
 	animation.CurrentState = wa.interpolateState(animation.StartState, animation.EndState, easedProgress)
-	
+
 	// Call update callback
 	if animation.OnUpdate != nil {
 		animation.OnUpdate(animation)
 	}
-	
+
 	// Call completion callback if finished
 	if animation.Completed && animation.OnComplete != nil {
 		animation.OnComplete(animation)
 	}
-	
+
 	return animation.Completed
 }
 
@@ -355,11 +355,11 @@ func (wa *WindowAnimator) lerp(start, end, progress float64) float64 {
 // startQueuedAnimations starts animations from the queue
 func (wa *WindowAnimator) startQueuedAnimations() {
 	availableSlots := wa.config.MaxConcurrent - len(wa.activeAnimations)
-	
+
 	if availableSlots > 0 && len(wa.animationQueue) > 0 {
 		// Sort queue by priority
 		wa.sortAnimationQueue()
-		
+
 		// Start highest priority animations
 		toStart := min(availableSlots, len(wa.animationQueue))
 		for i := 0; i < toStart; i++ {
@@ -367,7 +367,7 @@ func (wa *WindowAnimator) startQueuedAnimations() {
 			animation.StartTime = time.Now() // Reset start time
 			wa.activeAnimations[animation.ID] = animation
 		}
-		
+
 		// Remove started animations from queue
 		wa.animationQueue = wa.animationQueue[toStart:]
 	}
@@ -445,17 +445,17 @@ func (wa *WindowAnimator) ScaleIn(ctx context.Context, windowID string, duration
 func (wa *WindowAnimator) GetPerformanceMetrics() map[string]interface{} {
 	wa.mu.RLock()
 	defer wa.mu.RUnlock()
-	
+
 	dropRate := 0.0
 	if wa.totalFrames > 0 {
 		dropRate = float64(wa.droppedFrames) / float64(wa.totalFrames) * 100
 	}
-	
+
 	return map[string]interface{}{
-		"frame_rate":       wa.frameRate,
-		"dropped_frames":   wa.droppedFrames,
-		"total_frames":     wa.totalFrames,
-		"drop_rate":        dropRate,
+		"frame_rate":        wa.frameRate,
+		"dropped_frames":    wa.droppedFrames,
+		"total_frames":      wa.totalFrames,
+		"drop_rate":         dropRate,
 		"active_animations": len(wa.activeAnimations),
 		"queued_animations": len(wa.animationQueue),
 	}
@@ -520,4 +520,3 @@ func EaseOutElastic(t float64) float64 {
 	}
 	return math.Pow(2, -10*t)*math.Sin((t-0.1)*2*math.Pi/0.4) + 1
 }
-

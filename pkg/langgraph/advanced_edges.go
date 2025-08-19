@@ -29,13 +29,13 @@ func NewConditionalEdge(from, to string, condition Condition, weight float64, lo
 	}
 }
 
-func (e *ConditionalEdge) GetFrom() string { return e.from }
-func (e *ConditionalEdge) GetTo() string { return e.to }
-func (e *ConditionalEdge) GetCondition() Condition { return e.condition }
-func (e *ConditionalEdge) GetWeight() float64 { return e.weight }
-func (e *ConditionalEdge) SetCondition(condition Condition) { e.condition = condition }
-func (e *ConditionalEdge) SetWeight(weight float64) { e.weight = weight }
-func (e *ConditionalEdge) GetMetadata() map[string]interface{} { return e.metadata }
+func (e *ConditionalEdge) GetFrom() string                           { return e.from }
+func (e *ConditionalEdge) GetTo() string                             { return e.to }
+func (e *ConditionalEdge) GetCondition() Condition                   { return e.condition }
+func (e *ConditionalEdge) GetWeight() float64                        { return e.weight }
+func (e *ConditionalEdge) SetCondition(condition Condition)          { e.condition = condition }
+func (e *ConditionalEdge) SetWeight(weight float64)                  { e.weight = weight }
+func (e *ConditionalEdge) GetMetadata() map[string]interface{}       { return e.metadata }
 func (e *ConditionalEdge) SetMetadata(key string, value interface{}) { e.metadata[key] = value }
 
 // WeightedEdge represents an edge with weight for routing decisions
@@ -52,35 +52,35 @@ type WeightedEdge struct {
 // NewWeightedEdge creates a new weighted edge
 func NewWeightedEdge(from, to string, weight float64, priority int, logger *logrus.Logger) *WeightedEdge {
 	return &WeightedEdge{
-		from:      from,
-		to:        to,
-		weight:    weight,
-		priority:  priority,
-		metadata:  make(map[string]interface{}),
-		logger:    logger,
+		from:     from,
+		to:       to,
+		weight:   weight,
+		priority: priority,
+		metadata: make(map[string]interface{}),
+		logger:   logger,
 	}
 }
 
-func (e *WeightedEdge) GetFrom() string { return e.from }
-func (e *WeightedEdge) GetTo() string { return e.to }
-func (e *WeightedEdge) GetCondition() Condition { return e.condition }
-func (e *WeightedEdge) GetWeight() float64 { return e.weight }
-func (e *WeightedEdge) SetCondition(condition Condition) { e.condition = condition }
-func (e *WeightedEdge) SetWeight(weight float64) { e.weight = weight }
-func (e *WeightedEdge) GetMetadata() map[string]interface{} { return e.metadata }
+func (e *WeightedEdge) GetFrom() string                           { return e.from }
+func (e *WeightedEdge) GetTo() string                             { return e.to }
+func (e *WeightedEdge) GetCondition() Condition                   { return e.condition }
+func (e *WeightedEdge) GetWeight() float64                        { return e.weight }
+func (e *WeightedEdge) SetCondition(condition Condition)          { e.condition = condition }
+func (e *WeightedEdge) SetWeight(weight float64)                  { e.weight = weight }
+func (e *WeightedEdge) GetMetadata() map[string]interface{}       { return e.metadata }
 func (e *WeightedEdge) SetMetadata(key string, value interface{}) { e.metadata[key] = value }
-func (e *WeightedEdge) GetPriority() int { return e.priority }
-func (e *WeightedEdge) SetPriority(priority int) { e.priority = priority }
+func (e *WeightedEdge) GetPriority() int                          { return e.priority }
+func (e *WeightedEdge) SetPriority(priority int)                  { e.priority = priority }
 
 // ParallelEdge represents an edge for parallel execution
 type ParallelEdge struct {
-	from      string
-	to        string
-	condition Condition
-	weight    float64
+	from           string
+	to             string
+	condition      Condition
+	weight         float64
 	maxConcurrency int
-	metadata  map[string]interface{}
-	logger    *logrus.Logger
+	metadata       map[string]interface{}
+	logger         *logrus.Logger
 }
 
 // NewParallelEdge creates a new parallel edge
@@ -95,26 +95,26 @@ func NewParallelEdge(from, to string, maxConcurrency int, logger *logrus.Logger)
 	}
 }
 
-func (e *ParallelEdge) GetFrom() string { return e.from }
-func (e *ParallelEdge) GetTo() string { return e.to }
-func (e *ParallelEdge) GetCondition() Condition { return e.condition }
-func (e *ParallelEdge) GetWeight() float64 { return e.weight }
-func (e *ParallelEdge) SetCondition(condition Condition) { e.condition = condition }
-func (e *ParallelEdge) SetWeight(weight float64) { e.weight = weight }
-func (e *ParallelEdge) GetMetadata() map[string]interface{} { return e.metadata }
+func (e *ParallelEdge) GetFrom() string                           { return e.from }
+func (e *ParallelEdge) GetTo() string                             { return e.to }
+func (e *ParallelEdge) GetCondition() Condition                   { return e.condition }
+func (e *ParallelEdge) GetWeight() float64                        { return e.weight }
+func (e *ParallelEdge) SetCondition(condition Condition)          { e.condition = condition }
+func (e *ParallelEdge) SetWeight(weight float64)                  { e.weight = weight }
+func (e *ParallelEdge) GetMetadata() map[string]interface{}       { return e.metadata }
 func (e *ParallelEdge) SetMetadata(key string, value interface{}) { e.metadata[key] = value }
-func (e *ParallelEdge) GetMaxConcurrency() int { return e.maxConcurrency }
-func (e *ParallelEdge) SetMaxConcurrency(maxConcurrency int) { e.maxConcurrency = maxConcurrency }
+func (e *ParallelEdge) GetMaxConcurrency() int                    { return e.maxConcurrency }
+func (e *ParallelEdge) SetMaxConcurrency(maxConcurrency int)      { e.maxConcurrency = maxConcurrency }
 
 // LoopEdge represents an edge for loop constructs
 type LoopEdge struct {
-	from      string
-	to        string
-	condition Condition
-	weight    float64
+	from          string
+	to            string
+	condition     Condition
+	weight        float64
 	maxIterations int
-	metadata  map[string]interface{}
-	logger    *logrus.Logger
+	metadata      map[string]interface{}
+	logger        *logrus.Logger
 }
 
 // NewLoopEdge creates a new loop edge
@@ -130,16 +130,16 @@ func NewLoopEdge(from, to string, condition Condition, maxIterations int, logger
 	}
 }
 
-func (e *LoopEdge) GetFrom() string { return e.from }
-func (e *LoopEdge) GetTo() string { return e.to }
-func (e *LoopEdge) GetCondition() Condition { return e.condition }
-func (e *LoopEdge) GetWeight() float64 { return e.weight }
-func (e *LoopEdge) SetCondition(condition Condition) { e.condition = condition }
-func (e *LoopEdge) SetWeight(weight float64) { e.weight = weight }
-func (e *LoopEdge) GetMetadata() map[string]interface{} { return e.metadata }
+func (e *LoopEdge) GetFrom() string                           { return e.from }
+func (e *LoopEdge) GetTo() string                             { return e.to }
+func (e *LoopEdge) GetCondition() Condition                   { return e.condition }
+func (e *LoopEdge) GetWeight() float64                        { return e.weight }
+func (e *LoopEdge) SetCondition(condition Condition)          { e.condition = condition }
+func (e *LoopEdge) SetWeight(weight float64)                  { e.weight = weight }
+func (e *LoopEdge) GetMetadata() map[string]interface{}       { return e.metadata }
 func (e *LoopEdge) SetMetadata(key string, value interface{}) { e.metadata[key] = value }
-func (e *LoopEdge) GetMaxIterations() int { return e.maxIterations }
-func (e *LoopEdge) SetMaxIterations(maxIterations int) { e.maxIterations = maxIterations }
+func (e *LoopEdge) GetMaxIterations() int                     { return e.maxIterations }
+func (e *LoopEdge) SetMaxIterations(maxIterations int)        { e.maxIterations = maxIterations }
 
 // TimeoutEdge represents an edge with timeout conditions
 type TimeoutEdge struct {
@@ -155,35 +155,35 @@ type TimeoutEdge struct {
 // NewTimeoutEdge creates a new timeout edge
 func NewTimeoutEdge(from, to string, timeout time.Duration, logger *logrus.Logger) *TimeoutEdge {
 	return &TimeoutEdge{
-		from:      from,
-		to:        to,
-		weight:    1.0,
-		timeout:   timeout,
-		metadata:  make(map[string]interface{}),
-		logger:    logger,
+		from:     from,
+		to:       to,
+		weight:   1.0,
+		timeout:  timeout,
+		metadata: make(map[string]interface{}),
+		logger:   logger,
 	}
 }
 
-func (e *TimeoutEdge) GetFrom() string { return e.from }
-func (e *TimeoutEdge) GetTo() string { return e.to }
-func (e *TimeoutEdge) GetCondition() Condition { return e.condition }
-func (e *TimeoutEdge) GetWeight() float64 { return e.weight }
-func (e *TimeoutEdge) SetCondition(condition Condition) { e.condition = condition }
-func (e *TimeoutEdge) SetWeight(weight float64) { e.weight = weight }
-func (e *TimeoutEdge) GetMetadata() map[string]interface{} { return e.metadata }
+func (e *TimeoutEdge) GetFrom() string                           { return e.from }
+func (e *TimeoutEdge) GetTo() string                             { return e.to }
+func (e *TimeoutEdge) GetCondition() Condition                   { return e.condition }
+func (e *TimeoutEdge) GetWeight() float64                        { return e.weight }
+func (e *TimeoutEdge) SetCondition(condition Condition)          { e.condition = condition }
+func (e *TimeoutEdge) SetWeight(weight float64)                  { e.weight = weight }
+func (e *TimeoutEdge) GetMetadata() map[string]interface{}       { return e.metadata }
 func (e *TimeoutEdge) SetMetadata(key string, value interface{}) { e.metadata[key] = value }
-func (e *TimeoutEdge) GetTimeout() time.Duration { return e.timeout }
-func (e *TimeoutEdge) SetTimeout(timeout time.Duration) { e.timeout = timeout }
+func (e *TimeoutEdge) GetTimeout() time.Duration                 { return e.timeout }
+func (e *TimeoutEdge) SetTimeout(timeout time.Duration)          { e.timeout = timeout }
 
 // ErrorEdge represents an edge for error handling
 type ErrorEdge struct {
-	from      string
-	to        string
-	condition Condition
-	weight    float64
+	from       string
+	to         string
+	condition  Condition
+	weight     float64
 	errorTypes []string
-	metadata  map[string]interface{}
-	logger    *logrus.Logger
+	metadata   map[string]interface{}
+	logger     *logrus.Logger
 }
 
 // NewErrorEdge creates a new error edge
@@ -198,16 +198,16 @@ func NewErrorEdge(from, to string, errorTypes []string, logger *logrus.Logger) *
 	}
 }
 
-func (e *ErrorEdge) GetFrom() string { return e.from }
-func (e *ErrorEdge) GetTo() string { return e.to }
-func (e *ErrorEdge) GetCondition() Condition { return e.condition }
-func (e *ErrorEdge) GetWeight() float64 { return e.weight }
-func (e *ErrorEdge) SetCondition(condition Condition) { e.condition = condition }
-func (e *ErrorEdge) SetWeight(weight float64) { e.weight = weight }
-func (e *ErrorEdge) GetMetadata() map[string]interface{} { return e.metadata }
+func (e *ErrorEdge) GetFrom() string                           { return e.from }
+func (e *ErrorEdge) GetTo() string                             { return e.to }
+func (e *ErrorEdge) GetCondition() Condition                   { return e.condition }
+func (e *ErrorEdge) GetWeight() float64                        { return e.weight }
+func (e *ErrorEdge) SetCondition(condition Condition)          { e.condition = condition }
+func (e *ErrorEdge) SetWeight(weight float64)                  { e.weight = weight }
+func (e *ErrorEdge) GetMetadata() map[string]interface{}       { return e.metadata }
 func (e *ErrorEdge) SetMetadata(key string, value interface{}) { e.metadata[key] = value }
-func (e *ErrorEdge) GetErrorTypes() []string { return e.errorTypes }
-func (e *ErrorEdge) SetErrorTypes(errorTypes []string) { e.errorTypes = errorTypes }
+func (e *ErrorEdge) GetErrorTypes() []string                   { return e.errorTypes }
+func (e *ErrorEdge) SetErrorTypes(errorTypes []string)         { e.errorTypes = errorTypes }
 
 // EdgeBuilder provides a fluent interface for building edges
 type EdgeBuilder struct {

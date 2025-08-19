@@ -15,18 +15,18 @@ type IntegrationEngine interface {
 	UpdateIntegration(integration *Integration) (*Integration, error)
 	DeleteIntegration(integrationID string) error
 	ListIntegrations(filter *IntegrationFilter) ([]*Integration, error)
-	
+
 	// Integration Operations
 	EnableIntegration(integrationID string) error
 	DisableIntegration(integrationID string) error
 	TestIntegration(integrationID string) (*IntegrationTestResult, error)
 	RefreshIntegration(integrationID string) error
-	
+
 	// Adapter Management
 	RegisterAdapter(adapter IntegrationAdapter) error
 	GetAdapter(adapterType string) (IntegrationAdapter, error)
 	ListAdapters() []string
-	
+
 	// Webhook Management
 	CreateWebhook(webhook *Webhook) (*Webhook, error)
 	GetWebhook(webhookID string) (*Webhook, error)
@@ -34,17 +34,17 @@ type IntegrationEngine interface {
 	DeleteWebhook(webhookID string) error
 	ListWebhooks(filter *WebhookFilter) ([]*Webhook, error)
 	ProcessWebhook(webhookID string, payload []byte, headers map[string]string) error
-	
+
 	// Event Management
 	PublishEvent(event *IntegrationEvent) error
 	SubscribeToEvents(eventType string, handler EventHandler) error
 	UnsubscribeFromEvents(eventType string, handler EventHandler) error
-	
+
 	// Configuration Management
 	GetConfiguration(integrationID string) (*IntegrationConfig, error)
 	UpdateConfiguration(integrationID string, config *IntegrationConfig) error
 	ValidateConfiguration(config *IntegrationConfig) error
-	
+
 	// Monitoring and Analytics
 	GetIntegrationMetrics(integrationID string, timeRange *TimeRange) (*IntegrationMetrics, error)
 	GetIntegrationHealth(integrationID string) (*IntegrationHealth, error)
@@ -59,25 +59,25 @@ type IntegrationAdapter interface {
 	GetDescription() string
 	GetVersion() string
 	GetSupportedOperations() []string
-	
+
 	// Configuration
 	GetConfigSchema() *ConfigSchema
 	ValidateConfig(config map[string]interface{}) error
-	
+
 	// Connection Management
 	Connect(ctx context.Context, config map[string]interface{}) error
 	Disconnect(ctx context.Context) error
 	IsConnected() bool
 	TestConnection(ctx context.Context) error
-	
+
 	// Operations
 	Execute(ctx context.Context, operation string, params map[string]interface{}) (*OperationResult, error)
-	
+
 	// Event Handling
 	SupportsWebhooks() bool
 	GetWebhookConfig() *WebhookConfig
 	ProcessWebhookPayload(payload []byte, headers map[string]string) (*IntegrationEvent, error)
-	
+
 	// Health and Monitoring
 	GetHealth() *AdapterHealth
 	GetMetrics() *AdapterMetrics
@@ -93,31 +93,31 @@ type EventHandler interface {
 
 // Integration represents an integration configuration
 type Integration struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Type        string                 `json:"type"`
-	Provider    string                 `json:"provider"`
-	Status      IntegrationStatus      `json:"status"`
-	Config      *IntegrationConfig     `json:"config"`
+	ID          string                  `json:"id"`
+	Name        string                  `json:"name"`
+	Description string                  `json:"description"`
+	Type        string                  `json:"type"`
+	Provider    string                  `json:"provider"`
+	Status      IntegrationStatus       `json:"status"`
+	Config      *IntegrationConfig      `json:"config"`
 	Credentials *IntegrationCredentials `json:"credentials,omitempty"`
-	Settings    *IntegrationSettings   `json:"settings"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	CreatedBy   string                 `json:"created_by"`
-	CreatedAt   time.Time              `json:"created_at"`
-	UpdatedAt   time.Time              `json:"updated_at"`
-	LastSyncAt  *time.Time             `json:"last_sync_at,omitempty"`
+	Settings    *IntegrationSettings    `json:"settings"`
+	Metadata    map[string]interface{}  `json:"metadata,omitempty"`
+	CreatedBy   string                  `json:"created_by"`
+	CreatedAt   time.Time               `json:"created_at"`
+	UpdatedAt   time.Time               `json:"updated_at"`
+	LastSyncAt  *time.Time              `json:"last_sync_at,omitempty"`
 }
 
 // IntegrationStatus defines the status of an integration
 type IntegrationStatus string
 
 const (
-	IntegrationStatusActive     IntegrationStatus = "active"
-	IntegrationStatusInactive   IntegrationStatus = "inactive"
-	IntegrationStatusError      IntegrationStatus = "error"
+	IntegrationStatusActive      IntegrationStatus = "active"
+	IntegrationStatusInactive    IntegrationStatus = "inactive"
+	IntegrationStatusError       IntegrationStatus = "error"
 	IntegrationStatusConfiguring IntegrationStatus = "configuring"
-	IntegrationStatusTesting    IntegrationStatus = "testing"
+	IntegrationStatusTesting     IntegrationStatus = "testing"
 )
 
 // IntegrationConfig contains integration configuration
@@ -148,11 +148,11 @@ type IntegrationCredentials struct {
 type CredentialType string
 
 const (
-	CredentialTypeAPIKey    CredentialType = "api_key"
-	CredentialTypeBearer    CredentialType = "bearer"
-	CredentialTypeBasic     CredentialType = "basic"
-	CredentialTypeOAuth2    CredentialType = "oauth2"
-	CredentialTypeCustom    CredentialType = "custom"
+	CredentialTypeAPIKey CredentialType = "api_key"
+	CredentialTypeBearer CredentialType = "bearer"
+	CredentialTypeBasic  CredentialType = "basic"
+	CredentialTypeOAuth2 CredentialType = "oauth2"
+	CredentialTypeCustom CredentialType = "custom"
 )
 
 // OAuthCredentials contains OAuth-specific credentials
@@ -168,14 +168,14 @@ type OAuthCredentials struct {
 
 // IntegrationSettings contains integration behavior settings
 type IntegrationSettings struct {
-	AutoSync         bool                   `json:"auto_sync"`
-	SyncInterval     time.Duration          `json:"sync_interval"`
-	EnableWebhooks   bool                   `json:"enable_webhooks"`
-	EnableEvents     bool                   `json:"enable_events"`
-	LogLevel         string                 `json:"log_level"`
-	NotifyOnError    bool                   `json:"notify_on_error"`
-	ErrorRecipients  []string               `json:"error_recipients,omitempty"`
-	CustomSettings   map[string]interface{} `json:"custom_settings,omitempty"`
+	AutoSync        bool                   `json:"auto_sync"`
+	SyncInterval    time.Duration          `json:"sync_interval"`
+	EnableWebhooks  bool                   `json:"enable_webhooks"`
+	EnableEvents    bool                   `json:"enable_events"`
+	LogLevel        string                 `json:"log_level"`
+	NotifyOnError   bool                   `json:"notify_on_error"`
+	ErrorRecipients []string               `json:"error_recipients,omitempty"`
+	CustomSettings  map[string]interface{} `json:"custom_settings,omitempty"`
 }
 
 // RetryPolicy defines retry behavior
@@ -348,12 +348,12 @@ type AdapterHealth struct {
 
 // AdapterMetrics contains adapter performance metrics
 type AdapterMetrics struct {
-	OperationCount   map[string]int64       `json:"operation_count"`
+	OperationCount   map[string]int64         `json:"operation_count"`
 	AverageLatency   map[string]time.Duration `json:"average_latency"`
-	ErrorCount       map[string]int64       `json:"error_count"`
-	LastOperation    time.Time              `json:"last_operation"`
-	ConnectionUptime time.Duration          `json:"connection_uptime"`
-	Metadata         map[string]interface{} `json:"metadata,omitempty"`
+	ErrorCount       map[string]int64         `json:"error_count"`
+	LastOperation    time.Time                `json:"last_operation"`
+	ConnectionUptime time.Duration            `json:"connection_uptime"`
+	Metadata         map[string]interface{}   `json:"metadata,omitempty"`
 }
 
 // Logging Types

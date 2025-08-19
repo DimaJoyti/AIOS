@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS knowledge.documents (
     parent_id UUID REFERENCES knowledge.documents(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    processed_at TIMESTAMP WITH TIME ZONE,
+    processed_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Document chunks table for RAG

@@ -242,16 +242,16 @@ func TestAIServicePerformance(t *testing.T) {
 // TestAIServiceConcurrency tests concurrent access to AI services
 func TestAIServiceConcurrency(t *testing.T) {
 	config := AIServiceConfig{
-		OllamaHost:          "localhost",
-		OllamaPort:          11434,
-		OllamaTimeout:       30 * time.Second,
-		ModelsPath:          "/tmp/test-models",
-		DefaultModel:        "test-model",
-		MaxTokens:           50,
-		Temperature:         0.7,
-		CVEnabled:           true,
-		VoiceEnabled:        true,
-		NLPEnabled:          true,
+		OllamaHost:    "localhost",
+		OllamaPort:    11434,
+		OllamaTimeout: 30 * time.Second,
+		ModelsPath:    "/tmp/test-models",
+		DefaultModel:  "test-model",
+		MaxTokens:     50,
+		Temperature:   0.7,
+		CVEnabled:     true,
+		VoiceEnabled:  true,
+		NLPEnabled:    true,
 	}
 
 	logger := logrus.New()
@@ -260,7 +260,7 @@ func TestAIServiceConcurrency(t *testing.T) {
 
 	t.Run("Concurrent LLM Queries", func(t *testing.T) {
 		llmService := NewLLMService(config, logger)
-		
+
 		const numGoroutines = 5
 		results := make(chan error, numGoroutines)
 
@@ -281,7 +281,7 @@ func TestAIServiceConcurrency(t *testing.T) {
 	t.Run("Concurrent CV Operations", func(t *testing.T) {
 		cvService := NewCVService(config, logger)
 		mockImageData := make([]byte, 1024)
-		
+
 		const numGoroutines = 3
 		results := make(chan error, numGoroutines)
 
@@ -303,7 +303,7 @@ func TestAIServiceConcurrency(t *testing.T) {
 		llmService := NewLLMService(config, logger)
 		cvService := NewCVService(config, logger)
 		nlpService := NewNLPService(config, logger)
-		
+
 		const numGoroutines = 6
 		results := make(chan error, numGoroutines)
 

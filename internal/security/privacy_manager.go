@@ -16,13 +16,13 @@ import (
 
 // PrivacyManager handles privacy protection and data anonymization
 type PrivacyManager struct {
-	logger    *logrus.Logger
-	tracer    trace.Tracer
-	config    PrivacyConfig
+	logger      *logrus.Logger
+	tracer      trace.Tracer
+	config      PrivacyConfig
 	piiPatterns []*regexp.Regexp
-	mu        sync.RWMutex
-	running   bool
-	stopCh    chan struct{}
+	mu          sync.RWMutex
+	running     bool
+	stopCh      chan struct{}
 }
 
 // NewPrivacyManager creates a new privacy manager

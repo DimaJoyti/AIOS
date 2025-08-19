@@ -19,17 +19,17 @@ type User struct {
 
 // UserPreferences represents user preferences
 type UserPreferences struct {
-	UserID                string            `json:"user_id"`
-	Theme                 string            `json:"theme"`
-	Language              string            `json:"language"`
-	Notifications         bool              `json:"notifications"`
-	AutoSave              bool              `json:"auto_save"`
-	PreferredAIModel      string            `json:"preferred_ai_model"`
+	UserID                string                 `json:"user_id"`
+	Theme                 string                 `json:"theme"`
+	Language              string                 `json:"language"`
+	Notifications         bool                   `json:"notifications"`
+	AutoSave              bool                   `json:"auto_save"`
+	PreferredAIModel      string                 `json:"preferred_ai_model"`
 	VoiceSettings         map[string]interface{} `json:"voice_settings"`
 	DesktopLayout         map[string]interface{} `json:"desktop_layout"`
 	AccessibilitySettings map[string]interface{} `json:"accessibility_settings"`
-	CreatedAt             time.Time         `json:"created_at"`
-	UpdatedAt             time.Time         `json:"updated_at"`
+	CreatedAt             time.Time              `json:"created_at"`
+	UpdatedAt             time.Time              `json:"updated_at"`
 }
 
 // SystemStatus represents the overall system status
@@ -1272,7 +1272,7 @@ type AIModel struct {
 	Size         int64                  `json:"size"`
 	Description  string                 `json:"description"`
 	Capabilities []string               `json:"capabilities"`
-	Status       string                 `json:"status"` // available, loaded, loading, error
+	Status       string                 `json:"status"`   // available, loaded, loading, error
 	Provider     string                 `json:"provider"` // ollama, openai, etc.
 	IsActive     bool                   `json:"is_active"`
 	IsDefault    bool                   `json:"is_default"`

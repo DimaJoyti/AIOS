@@ -281,12 +281,12 @@ func (al *ApplicationLauncher) RemoveFromFavorites(ctx context.Context, id strin
 	for i, fav := range al.favoriteApps {
 		if fav.ID == id {
 			al.favoriteApps = append(al.favoriteApps[:i], al.favoriteApps[i+1:]...)
-			
+
 			al.logger.WithFields(logrus.Fields{
 				"app_id":   id,
 				"app_name": fav.Name,
 			}).Info("Application removed from favorites")
-			
+
 			return nil
 		}
 	}
@@ -300,48 +300,48 @@ func (al *ApplicationLauncher) discoverApplications() error {
 	// Create mock applications for demonstration
 	al.applications = map[string]*models.Application{
 		"firefox": {
-			ID:          "firefox",
-			Name:        "firefox",
-			DisplayName: "Firefox",
-			Description: "Web browser",
-			Icon:        "/usr/share/icons/firefox.png",
-			Category:    "Network",
-			Executable:  "firefox",
-			Keywords:    []string{"web", "browser", "internet"},
-			MimeTypes:   []string{"text/html", "application/xhtml+xml"},
-			Running:     false,
-			Windows:     []string{},
-			LaunchCount: 0,
+			ID:           "firefox",
+			Name:         "firefox",
+			DisplayName:  "Firefox",
+			Description:  "Web browser",
+			Icon:         "/usr/share/icons/firefox.png",
+			Category:     "Network",
+			Executable:   "firefox",
+			Keywords:     []string{"web", "browser", "internet"},
+			MimeTypes:    []string{"text/html", "application/xhtml+xml"},
+			Running:      false,
+			Windows:      []string{},
+			LaunchCount:  0,
 			LastLaunched: time.Time{},
 		},
 		"terminal": {
-			ID:          "terminal",
-			Name:        "gnome-terminal",
-			DisplayName: "Terminal",
-			Description: "Terminal emulator",
-			Icon:        "/usr/share/icons/terminal.png",
-			Category:    "System",
-			Executable:  "gnome-terminal",
-			Keywords:    []string{"terminal", "shell", "command"},
-			MimeTypes:   []string{},
-			Running:     false,
-			Windows:     []string{},
-			LaunchCount: 0,
+			ID:           "terminal",
+			Name:         "gnome-terminal",
+			DisplayName:  "Terminal",
+			Description:  "Terminal emulator",
+			Icon:         "/usr/share/icons/terminal.png",
+			Category:     "System",
+			Executable:   "gnome-terminal",
+			Keywords:     []string{"terminal", "shell", "command"},
+			MimeTypes:    []string{},
+			Running:      false,
+			Windows:      []string{},
+			LaunchCount:  0,
 			LastLaunched: time.Time{},
 		},
 		"code": {
-			ID:          "code",
-			Name:        "code",
-			DisplayName: "Visual Studio Code",
-			Description: "Code editor",
-			Icon:        "/usr/share/icons/vscode.png",
-			Category:    "Development",
-			Executable:  "code",
-			Keywords:    []string{"editor", "code", "development", "programming"},
-			MimeTypes:   []string{"text/plain", "application/json"},
-			Running:     false,
-			Windows:     []string{},
-			LaunchCount: 0,
+			ID:           "code",
+			Name:         "code",
+			DisplayName:  "Visual Studio Code",
+			Description:  "Code editor",
+			Icon:         "/usr/share/icons/vscode.png",
+			Category:     "Development",
+			Executable:   "code",
+			Keywords:     []string{"editor", "code", "development", "programming"},
+			MimeTypes:    []string{"text/plain", "application/json"},
+			Running:      false,
+			Windows:      []string{},
+			LaunchCount:  0,
 			LastLaunched: time.Time{},
 		},
 	}
@@ -380,7 +380,7 @@ func (al *ApplicationLauncher) rankSearchResults(ctx context.Context, query stri
 	// - User preferences and usage patterns
 	// - Semantic similarity to query
 	// - Context awareness (time of day, current workspace, etc.)
-	
+
 	// For now, sort by launch count
 	for i := 0; i < len(results)-1; i++ {
 		for j := i + 1; j < len(results); j++ {

@@ -133,10 +133,10 @@ type PromptAnalysis struct {
 
 // PromptComparison represents the comparison of multiple prompts
 type PromptComparison struct {
-	Prompts []PromptValue `json:"prompts"`
-	Scores  []float64     `json:"scores"`
-	Best    int           `json:"best"`
-	Worst   int           `json:"worst"`
+	Prompts []PromptValue          `json:"prompts"`
+	Scores  []float64              `json:"scores"`
+	Best    int                    `json:"best"`
+	Worst   int                    `json:"worst"`
 	Metrics map[string]interface{} `json:"metrics"`
 }
 

@@ -15,13 +15,13 @@ import (
 
 // EnhancedToolRegistry manages enhanced MCP tools with agent integration
 type EnhancedToolRegistry struct {
-	tools           map[string]*EnhancedTool
-	sessionManager  *SessionManager
-	knowledgeAgent  *knowledge.DocumentAgent
-	ragAgent        *knowledge.RAGAgent
+	tools            map[string]*EnhancedTool
+	sessionManager   *SessionManager
+	knowledgeAgent   *knowledge.DocumentAgent
+	ragAgent         *knowledge.RAGAgent
 	knowledgeService *knowledgeService.Service
-	logger          *logrus.Logger
-	tracer          trace.Tracer
+	logger           *logrus.Logger
+	tracer           trace.Tracer
 }
 
 // EnhancedTool represents an enhanced MCP tool with advanced capabilities
@@ -53,9 +53,9 @@ type ToolResult struct {
 
 // StreamingResponse represents a streaming response
 type StreamingResponse struct {
-	Type      string      `json:"type"` // data, progress, complete, error
-	Data      interface{} `json:"data"`
-	Timestamp time.Time   `json:"timestamp"`
+	Type      string                 `json:"type"` // data, progress, complete, error
+	Data      interface{}            `json:"data"`
+	Timestamp time.Time              `json:"timestamp"`
 	Metadata  map[string]interface{} `json:"metadata,omitempty"`
 }
 
@@ -89,10 +89,10 @@ func (etr *EnhancedToolRegistry) registerEnhancedTools() {
 		Name:        "enhanced_knowledge_search",
 		Description: "Advanced knowledge search with context awareness and streaming results",
 		Parameters: map[string]interface{}{
-			"query":         map[string]interface{}{"type": "string", "required": true},
-			"max_results":   map[string]interface{}{"type": "integer", "default": 10},
-			"use_context":   map[string]interface{}{"type": "boolean", "default": true},
-			"stream":        map[string]interface{}{"type": "boolean", "default": false},
+			"query":          map[string]interface{}{"type": "string", "required": true},
+			"max_results":    map[string]interface{}{"type": "integer", "default": 10},
+			"use_context":    map[string]interface{}{"type": "boolean", "default": true},
+			"stream":         map[string]interface{}{"type": "boolean", "default": false},
 			"knowledge_base": map[string]interface{}{"type": "string", "required": false},
 		},
 		Handler:      etr.handleEnhancedKnowledgeSearch,
@@ -123,9 +123,9 @@ func (etr *EnhancedToolRegistry) registerEnhancedTools() {
 		Name:        "enhanced_document_analysis",
 		Description: "Advanced document analysis using knowledge agents",
 		Parameters: map[string]interface{}{
-			"document_id": map[string]interface{}{"type": "string", "required": true},
+			"document_id":   map[string]interface{}{"type": "string", "required": true},
 			"analysis_type": map[string]interface{}{"type": "string", "enum": []string{"summary", "entities", "topics", "sentiment"}},
-			"depth":       map[string]interface{}{"type": "string", "enum": []string{"shallow", "medium", "deep"}, "default": "medium"},
+			"depth":         map[string]interface{}{"type": "string", "enum": []string{"shallow", "medium", "deep"}, "default": "medium"},
 		},
 		Handler:      etr.handleEnhancedDocumentAnalysis,
 		Capabilities: []string{"analysis", "agents", "nlp"},
@@ -220,9 +220,9 @@ func (etr *EnhancedToolRegistry) ExecuteTool(ctx context.Context, sessionID, too
 	// Add to session memory if successful
 	if result.Success {
 		memoryItem := MemoryItem{
-			ID:        uuid.New().String(),
-			Type:      "tool_result",
-			Content:   fmt.Sprintf("Tool %s executed successfully", toolName),
+			ID:      uuid.New().String(),
+			Type:    "tool_result",
+			Content: fmt.Sprintf("Tool %s executed successfully", toolName),
 			Metadata: map[string]interface{}{
 				"tool_name":  toolName,
 				"parameters": params,
@@ -501,8 +501,8 @@ func (etr *EnhancedToolRegistry) handleWorkflowOrchestration(ctx context.Context
 		Success: true,
 		Data:    results,
 		Metadata: map[string]interface{}{
-			"workflow_id":   workflowID,
-			"workflow_type": workflowType,
+			"workflow_id":     workflowID,
+			"workflow_type":   workflowType,
 			"steps_completed": len(results),
 		},
 	}, nil

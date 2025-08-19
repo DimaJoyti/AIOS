@@ -16,22 +16,22 @@ import (
 
 // FileOrganizationEngine provides intelligent file organization
 type FileOrganizationEngine struct {
-	logger  *logrus.Logger
-	tracer  trace.Tracer
-	config  OrganizationConfig
-	mu      sync.RWMutex
-	
+	logger *logrus.Logger
+	tracer trace.Tracer
+	config OrganizationConfig
+	mu     sync.RWMutex
+
 	// AI integration
 	aiOrchestrator *ai.Orchestrator
-	
+
 	// Organization strategies
 	strategies map[string]OrganizationStrategy
-	
+
 	// Learning data
 	organizationHistory []OrganizationEvent
 	userPreferences     *OrganizationPreferences
 	categoryRules       []CategoryRule
-	
+
 	// Performance metrics
 	successRate        float64
 	totalOrganizations int
@@ -40,14 +40,14 @@ type FileOrganizationEngine struct {
 
 // OrganizationConfig defines organization engine configuration
 type OrganizationConfig struct {
-	DefaultStrategy    string                 `json:"default_strategy"`
-	AutoOrganize       bool                   `json:"auto_organize"`
-	BackupBeforeMove   bool                   `json:"backup_before_move"`
-	ConflictResolution string                 `json:"conflict_resolution"` // "skip", "rename", "overwrite"
-	CategoryThreshold  float64                `json:"category_threshold"`
-	LearningEnabled    bool                   `json:"learning_enabled"`
-	CustomRules        []CategoryRule         `json:"custom_rules"`
-	AIAssisted         bool                   `json:"ai_assisted"`
+	DefaultStrategy    string         `json:"default_strategy"`
+	AutoOrganize       bool           `json:"auto_organize"`
+	BackupBeforeMove   bool           `json:"backup_before_move"`
+	ConflictResolution string         `json:"conflict_resolution"` // "skip", "rename", "overwrite"
+	CategoryThreshold  float64        `json:"category_threshold"`
+	LearningEnabled    bool           `json:"learning_enabled"`
+	CustomRules        []CategoryRule `json:"custom_rules"`
+	AIAssisted         bool           `json:"ai_assisted"`
 }
 
 // OrganizationStrategy interface for different organization approaches
@@ -60,40 +60,40 @@ type OrganizationStrategy interface {
 
 // OrganizationPlan represents a file organization plan
 type OrganizationPlan struct {
-	ID          string                 `json:"id"`
-	Strategy    string                 `json:"strategy"`
-	SourceDir   string                 `json:"source_dir"`
-	TargetDir   string                 `json:"target_dir"`
-	Operations  []FileOperation        `json:"operations"`
-	Confidence  float64                `json:"confidence"`
-	Reasoning   string                 `json:"reasoning"`
-	CreatedAt   time.Time              `json:"created_at"`
-	EstimatedTime time.Duration        `json:"estimated_time"`
-	RiskLevel   string                 `json:"risk_level"` // "low", "medium", "high"
+	ID            string          `json:"id"`
+	Strategy      string          `json:"strategy"`
+	SourceDir     string          `json:"source_dir"`
+	TargetDir     string          `json:"target_dir"`
+	Operations    []FileOperation `json:"operations"`
+	Confidence    float64         `json:"confidence"`
+	Reasoning     string          `json:"reasoning"`
+	CreatedAt     time.Time       `json:"created_at"`
+	EstimatedTime time.Duration   `json:"estimated_time"`
+	RiskLevel     string          `json:"risk_level"` // "low", "medium", "high"
 }
 
 // FileOperation represents a single file operation
 type FileOperation struct {
-	Type        string                 `json:"type"` // "move", "copy", "rename", "delete", "create_dir"
-	SourcePath  string                 `json:"source_path"`
-	TargetPath  string                 `json:"target_path"`
-	Confidence  float64                `json:"confidence"`
-	Reasoning   string                 `json:"reasoning"`
-	Dependencies []string              `json:"dependencies"`
-	Metadata    map[string]interface{} `json:"metadata"`
+	Type         string                 `json:"type"` // "move", "copy", "rename", "delete", "create_dir"
+	SourcePath   string                 `json:"source_path"`
+	TargetPath   string                 `json:"target_path"`
+	Confidence   float64                `json:"confidence"`
+	Reasoning    string                 `json:"reasoning"`
+	Dependencies []string               `json:"dependencies"`
+	Metadata     map[string]interface{} `json:"metadata"`
 }
 
 // OrganizationEvent represents an organization event
 type OrganizationEvent struct {
-	PlanID      string                 `json:"plan_id"`
-	Strategy    string                 `json:"strategy"`
-	Timestamp   time.Time              `json:"timestamp"`
-	Duration    time.Duration          `json:"duration"`
-	FilesCount  int                    `json:"files_count"`
-	Success     bool                   `json:"success"`
-	Error       string                 `json:"error,omitempty"`
-	UserFeedback string                `json:"user_feedback,omitempty"`
-	Context     map[string]interface{} `json:"context"`
+	PlanID       string                 `json:"plan_id"`
+	Strategy     string                 `json:"strategy"`
+	Timestamp    time.Time              `json:"timestamp"`
+	Duration     time.Duration          `json:"duration"`
+	FilesCount   int                    `json:"files_count"`
+	Success      bool                   `json:"success"`
+	Error        string                 `json:"error,omitempty"`
+	UserFeedback string                 `json:"user_feedback,omitempty"`
+	Context      map[string]interface{} `json:"context"`
 }
 
 // OrganizationPreferences stores user organization preferences
@@ -108,15 +108,15 @@ type OrganizationPreferences struct {
 
 // CategoryRule defines how files should be categorized
 type CategoryRule struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Conditions  []RuleCondition        `json:"conditions"`
-	Actions     []RuleAction           `json:"actions"`
-	Priority    int                    `json:"priority"`
-	Enabled     bool                   `json:"enabled"`
-	CreatedAt   time.Time              `json:"created_at"`
-	UsageCount  int                    `json:"usage_count"`
+	ID          string          `json:"id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Conditions  []RuleCondition `json:"conditions"`
+	Actions     []RuleAction    `json:"actions"`
+	Priority    int             `json:"priority"`
+	Enabled     bool            `json:"enabled"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UsageCount  int             `json:"usage_count"`
 }
 
 // RuleCondition defines when a rule should apply
@@ -135,36 +135,36 @@ type RuleAction struct {
 
 // AutoRule defines automatic organization rules
 type AutoRule struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Trigger     string                 `json:"trigger"` // "file_created", "file_modified", "periodic"
-	Conditions  []RuleCondition        `json:"conditions"`
-	Actions     []RuleAction           `json:"actions"`
-	Enabled     bool                   `json:"enabled"`
-	LastRun     time.Time              `json:"last_run"`
-	RunCount    int                    `json:"run_count"`
+	ID         string          `json:"id"`
+	Name       string          `json:"name"`
+	Trigger    string          `json:"trigger"` // "file_created", "file_modified", "periodic"
+	Conditions []RuleCondition `json:"conditions"`
+	Actions    []RuleAction    `json:"actions"`
+	Enabled    bool            `json:"enabled"`
+	LastRun    time.Time       `json:"last_run"`
+	RunCount   int             `json:"run_count"`
 }
 
 // FileInfo represents file information for organization
 type FileInfo struct {
-	Path         string                 `json:"path"`
-	Name         string                 `json:"name"`
-	Extension    string                 `json:"extension"`
-	Size         int64                  `json:"size"`
-	ModTime      time.Time              `json:"mod_time"`
-	AccessTime   time.Time              `json:"access_time"`
-	MimeType     string                 `json:"mime_type"`
-	Category     string                 `json:"category"`
-	Tags         []string               `json:"tags"`
-	Importance   float64                `json:"importance"`
-	Relationships []string              `json:"relationships"`
-	Metadata     map[string]interface{} `json:"metadata"`
+	Path          string                 `json:"path"`
+	Name          string                 `json:"name"`
+	Extension     string                 `json:"extension"`
+	Size          int64                  `json:"size"`
+	ModTime       time.Time              `json:"mod_time"`
+	AccessTime    time.Time              `json:"access_time"`
+	MimeType      string                 `json:"mime_type"`
+	Category      string                 `json:"category"`
+	Tags          []string               `json:"tags"`
+	Importance    float64                `json:"importance"`
+	Relationships []string               `json:"relationships"`
+	Metadata      map[string]interface{} `json:"metadata"`
 }
 
 // NewFileOrganizationEngine creates a new file organization engine
 func NewFileOrganizationEngine(logger *logrus.Logger, config OrganizationConfig, aiOrchestrator *ai.Orchestrator) *FileOrganizationEngine {
 	tracer := otel.Tracer("file-organization-engine")
-	
+
 	engine := &FileOrganizationEngine{
 		logger:              logger,
 		tracer:              tracer,
@@ -182,13 +182,13 @@ func NewFileOrganizationEngine(logger *logrus.Logger, config OrganizationConfig,
 		},
 		categoryRules: make([]CategoryRule, 0),
 	}
-	
+
 	// Initialize organization strategies
 	engine.initializeStrategies()
-	
+
 	// Load default category rules
 	engine.loadDefaultCategoryRules()
-	
+
 	return engine
 }
 
@@ -200,7 +200,7 @@ func (foe *FileOrganizationEngine) initializeStrategies() {
 	// foe.strategies["by_project"] = NewProjectBasedStrategy()
 	// foe.strategies["by_size"] = NewSizeBasedStrategy()
 	// foe.strategies["semantic"] = NewSemanticStrategy()
-	
+
 	// if foe.aiOrchestrator != nil {
 	//	foe.strategies["ai_smart"] = NewAISmartStrategy(foe.aiOrchestrator)
 	// }
@@ -330,7 +330,7 @@ func (foe *FileOrganizationEngine) loadDefaultCategoryRules() {
 			CreatedAt: time.Now(),
 		},
 	}
-	
+
 	foe.categoryRules = append(foe.categoryRules, defaultRules...)
 }
 
@@ -338,46 +338,46 @@ func (foe *FileOrganizationEngine) loadDefaultCategoryRules() {
 func (foe *FileOrganizationEngine) CreateOrganizationPlan(ctx context.Context, sourceDir string, files []FileInfo, strategy string) (*OrganizationPlan, error) {
 	ctx, span := foe.tracer.Start(ctx, "fileOrganizationEngine.CreateOrganizationPlan")
 	defer span.End()
-	
+
 	foe.mu.RLock()
 	defer foe.mu.RUnlock()
-	
+
 	// Select strategy
 	if strategy == "" {
 		strategy = foe.config.DefaultStrategy
 	}
-	
+
 	orgStrategy, exists := foe.strategies[strategy]
 	if !exists {
 		return nil, fmt.Errorf("unknown organization strategy: %s", strategy)
 	}
-	
+
 	// Categorize files first
 	categorizedFiles := foe.categorizeFiles(files)
-	
+
 	// Create organization plan
 	plan, err := orgStrategy.Organize(categorizedFiles, sourceDir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create organization plan: %w", err)
 	}
-	
+
 	// Enhance plan with AI insights if available
 	if foe.config.AIAssisted && foe.aiOrchestrator != nil {
 		plan = foe.enhancePlanWithAI(ctx, plan, categorizedFiles)
 	}
-	
+
 	// Validate plan
 	if err := foe.validatePlan(plan); err != nil {
 		return nil, fmt.Errorf("invalid organization plan: %w", err)
 	}
-	
+
 	foe.logger.WithFields(logrus.Fields{
-		"plan_id":        plan.ID,
-		"strategy":       strategy,
-		"operations":     len(plan.Operations),
-		"confidence":     plan.Confidence,
+		"plan_id":    plan.ID,
+		"strategy":   strategy,
+		"operations": len(plan.Operations),
+		"confidence": plan.Confidence,
 	}).Debug("Organization plan created")
-	
+
 	return plan, nil
 }
 
@@ -385,12 +385,12 @@ func (foe *FileOrganizationEngine) CreateOrganizationPlan(ctx context.Context, s
 func (foe *FileOrganizationEngine) categorizeFiles(files []FileInfo) []FileInfo {
 	categorizedFiles := make([]FileInfo, len(files))
 	copy(categorizedFiles, files)
-	
+
 	for i := range categorizedFiles {
 		category := foe.determineFileCategory(&categorizedFiles[i])
 		categorizedFiles[i].Category = category
 	}
-	
+
 	return categorizedFiles
 }
 
@@ -398,19 +398,19 @@ func (foe *FileOrganizationEngine) categorizeFiles(files []FileInfo) []FileInfo 
 func (foe *FileOrganizationEngine) determineFileCategory(file *FileInfo) string {
 	bestCategory := "uncategorized"
 	bestScore := 0.0
-	
+
 	for _, rule := range foe.categoryRules {
 		if !rule.Enabled {
 			continue
 		}
-		
+
 		score := foe.evaluateRule(&rule, file)
 		if score > bestScore && score >= foe.config.CategoryThreshold {
 			bestScore = score
 			bestCategory = rule.Name
 		}
 	}
-	
+
 	return bestCategory
 }
 
@@ -418,23 +418,23 @@ func (foe *FileOrganizationEngine) determineFileCategory(file *FileInfo) string 
 func (foe *FileOrganizationEngine) evaluateRule(rule *CategoryRule, file *FileInfo) float64 {
 	totalWeight := 0.0
 	matchedWeight := 0.0
-	
+
 	for _, condition := range rule.Conditions {
 		weight := condition.Weight
 		if weight == 0 {
 			weight = 1.0
 		}
 		totalWeight += weight
-		
+
 		if foe.evaluateCondition(&condition, file) {
 			matchedWeight += weight
 		}
 	}
-	
+
 	if totalWeight == 0 {
 		return 0
 	}
-	
+
 	return matchedWeight / totalWeight
 }
 
@@ -519,8 +519,8 @@ func (foe *FileOrganizationEngine) evaluateContentCondition(condition *RuleCondi
 func (foe *FileOrganizationEngine) enhancePlanWithAI(ctx context.Context, plan *OrganizationPlan, files []FileInfo) *OrganizationPlan {
 	// Create AI request for plan enhancement
 	aiRequest := &models.AIRequest{
-		ID:   fmt.Sprintf("org-enhance-%s", plan.ID),
-		Type: "enhancement",
+		ID:    fmt.Sprintf("org-enhance-%s", plan.ID),
+		Type:  "enhancement",
 		Input: fmt.Sprintf("Enhance file organization plan with %d operations", len(plan.Operations)),
 		Parameters: map[string]interface{}{
 			"task":  "organization_enhancement",
@@ -530,13 +530,13 @@ func (foe *FileOrganizationEngine) enhancePlanWithAI(ctx context.Context, plan *
 		Timeout:   5 * time.Second,
 		Timestamp: time.Now(),
 	}
-	
+
 	_, err := foe.aiOrchestrator.ProcessRequest(ctx, aiRequest)
 	if err != nil {
 		foe.logger.WithError(err).Debug("Failed to enhance plan with AI")
 		return plan
 	}
-	
+
 	// Parse AI response and enhance plan
 	// This would involve more sophisticated AI integration
 	return plan
@@ -547,11 +547,11 @@ func (foe *FileOrganizationEngine) validatePlan(plan *OrganizationPlan) error {
 	if plan == nil {
 		return fmt.Errorf("plan is nil")
 	}
-	
+
 	if len(plan.Operations) == 0 {
 		return fmt.Errorf("plan has no operations")
 	}
-	
+
 	// Check for conflicts
 	targetPaths := make(map[string]bool)
 	for _, op := range plan.Operations {
@@ -562,7 +562,7 @@ func (foe *FileOrganizationEngine) validatePlan(plan *OrganizationPlan) error {
 			targetPaths[op.TargetPath] = true
 		}
 	}
-	
+
 	return nil
 }
 
@@ -570,9 +570,9 @@ func (foe *FileOrganizationEngine) validatePlan(plan *OrganizationPlan) error {
 func (foe *FileOrganizationEngine) ExecutePlan(ctx context.Context, plan *OrganizationPlan, dryRun bool) (*OrganizationEvent, error) {
 	ctx, span := foe.tracer.Start(ctx, "fileOrganizationEngine.ExecutePlan")
 	defer span.End()
-	
+
 	start := time.Now()
-	
+
 	event := &OrganizationEvent{
 		PlanID:     plan.ID,
 		Strategy:   plan.Strategy,
@@ -583,13 +583,13 @@ func (foe *FileOrganizationEngine) ExecutePlan(ctx context.Context, plan *Organi
 			"dry_run": dryRun,
 		},
 	}
-	
+
 	if dryRun {
 		foe.logger.Info("Dry run mode - no files will be moved")
 		event.Duration = time.Since(start)
 		return event, nil
 	}
-	
+
 	// Execute operations
 	for _, operation := range plan.Operations {
 		if err := foe.executeOperation(&operation); err != nil {
@@ -598,18 +598,18 @@ func (foe *FileOrganizationEngine) ExecutePlan(ctx context.Context, plan *Organi
 			break
 		}
 	}
-	
+
 	event.Duration = time.Since(start)
-	
+
 	// Record event
 	foe.recordOrganizationEvent(*event)
-	
+
 	foe.logger.WithFields(logrus.Fields{
 		"plan_id":  plan.ID,
 		"success":  event.Success,
 		"duration": event.Duration,
 	}).Info("Organization plan executed")
-	
+
 	return event, nil
 }
 
@@ -668,17 +668,17 @@ func (foe *FileOrganizationEngine) createDirectory(path string) error {
 func (foe *FileOrganizationEngine) recordOrganizationEvent(event OrganizationEvent) {
 	foe.mu.Lock()
 	defer foe.mu.Unlock()
-	
+
 	foe.organizationHistory = append(foe.organizationHistory, event)
 	foe.totalOrganizations++
-	
+
 	if event.Success {
 		foe.successfulOrgs++
 	}
-	
+
 	// Update success rate
 	foe.successRate = float64(foe.successfulOrgs) / float64(foe.totalOrganizations)
-	
+
 	// Maintain history size
 	if len(foe.organizationHistory) > 1000 {
 		foe.organizationHistory = foe.organizationHistory[100:]
@@ -689,7 +689,7 @@ func (foe *FileOrganizationEngine) recordOrganizationEvent(event OrganizationEve
 func (foe *FileOrganizationEngine) GetOrganizationMetrics() map[string]interface{} {
 	foe.mu.RLock()
 	defer foe.mu.RUnlock()
-	
+
 	return map[string]interface{}{
 		"total_organizations": foe.totalOrganizations,
 		"success_rate":        foe.successRate,

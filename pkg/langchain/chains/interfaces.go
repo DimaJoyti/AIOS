@@ -126,14 +126,14 @@ type ChainExecutor interface {
 
 // ExecutionOptions represents options for chain execution
 type ExecutionOptions struct {
-	Timeout        time.Duration `json:"timeout,omitempty"`
-	RetryCount     int           `json:"retry_count,omitempty"`
-	RetryDelay     time.Duration `json:"retry_delay,omitempty"`
-	MaxRetryDelay  time.Duration `json:"max_retry_delay,omitempty"`
-	BackoffFactor  float64       `json:"backoff_factor,omitempty"`
-	FailFast       bool          `json:"fail_fast,omitempty"`
-	ContinueOnError bool         `json:"continue_on_error,omitempty"`
-	Metadata       map[string]interface{} `json:"metadata,omitempty"`
+	Timeout         time.Duration          `json:"timeout,omitempty"`
+	RetryCount      int                    `json:"retry_count,omitempty"`
+	RetryDelay      time.Duration          `json:"retry_delay,omitempty"`
+	MaxRetryDelay   time.Duration          `json:"max_retry_delay,omitempty"`
+	BackoffFactor   float64                `json:"backoff_factor,omitempty"`
+	FailFast        bool                   `json:"fail_fast,omitempty"`
+	ContinueOnError bool                   `json:"continue_on_error,omitempty"`
+	Metadata        map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // ChainCallback defines callbacks for chain execution events
@@ -153,29 +153,29 @@ type ChainCallback interface {
 
 // ExecutionRecord represents a record of chain execution
 type ExecutionRecord struct {
-	ID          string                 `json:"id"`
-	ChainType   string                 `json:"chain_type"`
-	Input       ChainInput             `json:"input"`
-	Output      ChainOutput            `json:"output,omitempty"`
-	Error       string                 `json:"error,omitempty"`
-	StartTime   time.Time              `json:"start_time"`
-	EndTime     time.Time              `json:"end_time"`
-	Duration    time.Duration          `json:"duration"`
-	RetryCount  int                    `json:"retry_count"`
-	Success     bool                   `json:"success"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	ID         string                 `json:"id"`
+	ChainType  string                 `json:"chain_type"`
+	Input      ChainInput             `json:"input"`
+	Output     ChainOutput            `json:"output,omitempty"`
+	Error      string                 `json:"error,omitempty"`
+	StartTime  time.Time              `json:"start_time"`
+	EndTime    time.Time              `json:"end_time"`
+	Duration   time.Duration          `json:"duration"`
+	RetryCount int                    `json:"retry_count"`
+	Success    bool                   `json:"success"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // ExecutionMetrics represents metrics for chain execution
 type ExecutionMetrics struct {
-	TotalExecutions   int64         `json:"total_executions"`
-	SuccessfulExecutions int64      `json:"successful_executions"`
-	FailedExecutions  int64         `json:"failed_executions"`
-	AverageDuration   time.Duration `json:"average_duration"`
-	TotalDuration     time.Duration `json:"total_duration"`
-	RetryRate         float64       `json:"retry_rate"`
-	ErrorRate         float64       `json:"error_rate"`
-	ChainTypeMetrics  map[string]ExecutionMetrics `json:"chain_type_metrics,omitempty"`
+	TotalExecutions      int64                       `json:"total_executions"`
+	SuccessfulExecutions int64                       `json:"successful_executions"`
+	FailedExecutions     int64                       `json:"failed_executions"`
+	AverageDuration      time.Duration               `json:"average_duration"`
+	TotalDuration        time.Duration               `json:"total_duration"`
+	RetryRate            float64                     `json:"retry_rate"`
+	ErrorRate            float64                     `json:"error_rate"`
+	ChainTypeMetrics     map[string]ExecutionMetrics `json:"chain_type_metrics,omitempty"`
 }
 
 // ChainBuilder provides a fluent interface for building chains
@@ -255,24 +255,24 @@ type ChainComposer interface {
 
 // ChainConfig represents configuration for chain composition
 type ChainConfig struct {
-	Type        string                 `json:"type"`
-	Name        string                 `json:"name"`
-	LLM         string                 `json:"llm,omitempty"`
-	Prompt      string                 `json:"prompt,omitempty"`
-	InputKeys   []string               `json:"input_keys,omitempty"`
-	OutputKeys  []string               `json:"output_keys,omitempty"`
-	Chains      []ChainConfig          `json:"chains,omitempty"`
-	Conditions  []ConditionConfig      `json:"conditions,omitempty"`
-	Options     *ExecutionOptions      `json:"options,omitempty"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	Type       string                 `json:"type"`
+	Name       string                 `json:"name"`
+	LLM        string                 `json:"llm,omitempty"`
+	Prompt     string                 `json:"prompt,omitempty"`
+	InputKeys  []string               `json:"input_keys,omitempty"`
+	OutputKeys []string               `json:"output_keys,omitempty"`
+	Chains     []ChainConfig          `json:"chains,omitempty"`
+	Conditions []ConditionConfig      `json:"conditions,omitempty"`
+	Options    *ExecutionOptions      `json:"options,omitempty"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // ConditionConfig represents configuration for a condition
 type ConditionConfig struct {
-	Type        string                 `json:"type"`
-	Expression  string                 `json:"expression"`
-	Chain       ChainConfig            `json:"chain"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	Type       string                 `json:"type"`
+	Expression string                 `json:"expression"`
+	Chain      ChainConfig            `json:"chain"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // ChainOptimizer optimizes chain execution
@@ -289,26 +289,26 @@ type ChainOptimizer interface {
 
 // ChainAnalysis represents the analysis of a chain
 type ChainAnalysis struct {
-	ChainType       string                 `json:"chain_type"`
-	Complexity      float64                `json:"complexity"`
-	EstimatedCost   float64                `json:"estimated_cost"`
-	Bottlenecks     []string               `json:"bottlenecks"`
-	Suggestions     []string               `json:"suggestions"`
-	OptimizedChain  Chain                  `json:"optimized_chain,omitempty"`
-	Metadata        map[string]interface{} `json:"metadata,omitempty"`
+	ChainType      string                 `json:"chain_type"`
+	Complexity     float64                `json:"complexity"`
+	EstimatedCost  float64                `json:"estimated_cost"`
+	Bottlenecks    []string               `json:"bottlenecks"`
+	Suggestions    []string               `json:"suggestions"`
+	OptimizedChain Chain                  `json:"optimized_chain,omitempty"`
+	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // ChainBenchmark represents benchmark results for a chain
 type ChainBenchmark struct {
-	ChainType       string                 `json:"chain_type"`
-	TotalRuns       int                    `json:"total_runs"`
-	SuccessfulRuns  int                    `json:"successful_runs"`
-	FailedRuns      int                    `json:"failed_runs"`
-	AverageDuration time.Duration          `json:"average_duration"`
-	MinDuration     time.Duration          `json:"min_duration"`
-	MaxDuration     time.Duration          `json:"max_duration"`
+	ChainType       string                   `json:"chain_type"`
+	TotalRuns       int                      `json:"total_runs"`
+	SuccessfulRuns  int                      `json:"successful_runs"`
+	FailedRuns      int                      `json:"failed_runs"`
+	AverageDuration time.Duration            `json:"average_duration"`
+	MinDuration     time.Duration            `json:"min_duration"`
+	MaxDuration     time.Duration            `json:"max_duration"`
 	Percentiles     map[string]time.Duration `json:"percentiles"`
-	ThroughputRPS   float64                `json:"throughput_rps"`
-	ErrorRate       float64                `json:"error_rate"`
-	Metadata        map[string]interface{} `json:"metadata,omitempty"`
+	ThroughputRPS   float64                  `json:"throughput_rps"`
+	ErrorRate       float64                  `json:"error_rate"`
+	Metadata        map[string]interface{}   `json:"metadata,omitempty"`
 }

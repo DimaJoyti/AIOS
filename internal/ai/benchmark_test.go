@@ -120,9 +120,9 @@ func BenchmarkAIServices(b *testing.B) {
 		cvService := NewCVService(config, logger)
 
 		// Create test image data of different sizes
-		smallImage := make([]byte, 1024)    // 1KB
-		mediumImage := make([]byte, 10240)  // 10KB
-		largeImage := make([]byte, 102400)  // 100KB
+		smallImage := make([]byte, 1024)   // 1KB
+		mediumImage := make([]byte, 10240) // 10KB
+		largeImage := make([]byte, 102400) // 100KB
 
 		b.Run("DetectObjects", func(b *testing.B) {
 			images := [][]byte{smallImage, mediumImage, largeImage}
@@ -186,9 +186,9 @@ func BenchmarkAIServices(b *testing.B) {
 		voiceService := NewVoiceService(config, logger)
 
 		// Create test audio data of different durations
-		shortAudio := make([]byte, 16000)   // 1 second at 16kHz
-		mediumAudio := make([]byte, 48000)  // 3 seconds at 16kHz
-		longAudio := make([]byte, 160000)   // 10 seconds at 16kHz
+		shortAudio := make([]byte, 16000)  // 1 second at 16kHz
+		mediumAudio := make([]byte, 48000) // 3 seconds at 16kHz
+		longAudio := make([]byte, 160000)  // 10 seconds at 16kHz
 
 		b.Run("SpeechToText", func(b *testing.B) {
 			audios := [][]byte{shortAudio, mediumAudio, longAudio}
@@ -332,18 +332,18 @@ func BenchmarkAIServices(b *testing.B) {
 		b.Run("ProcessRequest", func(b *testing.B) {
 			requests := []*models.AIRequest{
 				{
-					ID:   "bench-1",
-					Type: "llm_query",
+					ID:    "bench-1",
+					Type:  "llm_query",
 					Input: map[string]interface{}{"query": "Hello world"},
 				},
 				{
-					ID:   "bench-2",
-					Type: "nlp_intent",
+					ID:    "bench-2",
+					Type:  "nlp_intent",
 					Input: map[string]interface{}{"text": "Open terminal"},
 				},
 				{
-					ID:   "bench-3",
-					Type: "cv_analyze",
+					ID:    "bench-3",
+					Type:  "cv_analyze",
 					Input: map[string]interface{}{"image": make([]byte, 1024)},
 				},
 			}
@@ -366,9 +366,9 @@ func BenchmarkAIServices(b *testing.B) {
 				i := 0
 				for pb.Next() {
 					request := &models.AIRequest{
-						ID:   fmt.Sprintf("concurrent-bench-%d", i),
-						Type: "llm_query",
-						Input: map[string]interface{}{"query": "Concurrent test"},
+						ID:        fmt.Sprintf("concurrent-bench-%d", i),
+						Type:      "llm_query",
+						Input:     map[string]interface{}{"query": "Concurrent test"},
 						Timestamp: time.Now(),
 					}
 

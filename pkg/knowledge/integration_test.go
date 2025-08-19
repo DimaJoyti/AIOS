@@ -315,13 +315,13 @@ func TestKnowledgeManagementIntegration(t *testing.T) {
 
 		// Create knowledge base
 		kbConfig := &KnowledgeBaseConfig{
-			EmbeddingModel:    "text-embedding-ada-002",
-			ChunkingStrategy:  ChunkingStrategyRecursive,
-			ChunkSize:         300,
-			ChunkOverlap:      50,
-			IndexingEnabled:   true,
-			GraphEnabled:      true,
-			SecurityLevel:     SecurityLevelInternal,
+			EmbeddingModel:   "text-embedding-ada-002",
+			ChunkingStrategy: ChunkingStrategyRecursive,
+			ChunkSize:        300,
+			ChunkOverlap:     50,
+			IndexingEnabled:  true,
+			GraphEnabled:     true,
+			SecurityLevel:    SecurityLevelInternal,
 		}
 
 		kb, err := manager.CreateKnowledgeBase(ctx, kbConfig)

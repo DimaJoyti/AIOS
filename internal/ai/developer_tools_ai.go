@@ -14,45 +14,45 @@ import (
 
 // DeveloperToolsAI provides AI-powered development assistance
 type DeveloperToolsAI struct {
-	logger  *logrus.Logger
-	tracer  trace.Tracer
-	config  DeveloperToolsConfig
-	mu      sync.RWMutex
-	
+	logger *logrus.Logger
+	tracer trace.Tracer
+	config DeveloperToolsConfig
+	mu     sync.RWMutex
+
 	// AI integration
 	aiOrchestrator *Orchestrator
-	
+
 	// Development tools
-	codeAnalyzer      *CodeAnalyzer
+	codeAnalyzer       *CodeAnalyzer
 	debuggingAssistant *DebuggingAssistant
-	testGenerator     *TestGenerator
-	codeOptimizer     *CodeOptimizer
-	workflowAutomator *WorkflowAutomator
-	documentationAI   *DocumentationAI
-	
+	testGenerator      *TestGenerator
+	codeOptimizer      *CodeOptimizer
+	workflowAutomator  *WorkflowAutomator
+	documentationAI    *DocumentationAI
+
 	// State management
 	projectContext    *ProjectContext
 	analysisHistory   []AnalysisEvent
 	suggestionHistory []SuggestionEvent
-	
+
 	// Performance metrics
-	accuracy          float64
-	totalSuggestions  int
+	accuracy            float64
+	totalSuggestions    int
 	acceptedSuggestions int
 }
 
 // DeveloperToolsConfig defines developer tools configuration
 type DeveloperToolsConfig struct {
-	LanguageSupport     []string          `json:"language_support"`
-	AnalysisDepth       string            `json:"analysis_depth"` // "basic", "detailed", "comprehensive"
-	AutoSuggestions     bool              `json:"auto_suggestions"`
-	RealTimeAnalysis    bool              `json:"real_time_analysis"`
-	TestGeneration      bool              `json:"test_generation"`
-	DocumentationGen    bool              `json:"documentation_generation"`
-	WorkflowAutomation  bool              `json:"workflow_automation"`
-	SecurityAnalysis    bool              `json:"security_analysis"`
-	PerformanceAnalysis bool              `json:"performance_analysis"`
-	AIAssisted          bool              `json:"ai_assisted"`
+	LanguageSupport     []string `json:"language_support"`
+	AnalysisDepth       string   `json:"analysis_depth"` // "basic", "detailed", "comprehensive"
+	AutoSuggestions     bool     `json:"auto_suggestions"`
+	RealTimeAnalysis    bool     `json:"real_time_analysis"`
+	TestGeneration      bool     `json:"test_generation"`
+	DocumentationGen    bool     `json:"documentation_generation"`
+	WorkflowAutomation  bool     `json:"workflow_automation"`
+	SecurityAnalysis    bool     `json:"security_analysis"`
+	PerformanceAnalysis bool     `json:"performance_analysis"`
+	AIAssisted          bool     `json:"ai_assisted"`
 }
 
 // CodeAnalyzer provides intelligent code analysis
@@ -60,18 +60,18 @@ type CodeAnalyzer struct {
 	logger         *logrus.Logger
 	aiOrchestrator *Orchestrator
 	mu             sync.RWMutex
-	
+
 	// Analysis engines
-	syntaxAnalyzer     *SyntaxAnalyzer
-	semanticAnalyzer   *SemanticAnalyzer
-	qualityAnalyzer    *QualityAnalyzer
-	securityAnalyzer   *SecurityAnalyzer
+	syntaxAnalyzer      *SyntaxAnalyzer
+	semanticAnalyzer    *SemanticAnalyzer
+	qualityAnalyzer     *QualityAnalyzer
+	securityAnalyzer    *SecurityAnalyzer
 	performanceAnalyzer *PerformanceAnalyzer
-	
+
 	// Analysis state
-	analysisCache      map[string]*AnalysisResult
-	patterns           []CodePattern
-	metrics            *CodeMetrics
+	analysisCache map[string]*AnalysisResult
+	patterns      []CodePattern
+	metrics       *CodeMetrics
 }
 
 // DebuggingAssistant provides AI-powered debugging assistance
@@ -79,17 +79,17 @@ type DebuggingAssistant struct {
 	logger         *logrus.Logger
 	aiOrchestrator *Orchestrator
 	mu             sync.RWMutex
-	
+
 	// Debugging tools
 	errorAnalyzer      *ErrorAnalyzer
 	stackTraceAnalyzer *StackTraceAnalyzer
 	logAnalyzer        *LogAnalyzer
 	suggestionEngine   *DebuggingSuggestionEngine
-	
+
 	// Debugging state
-	debugSessions      map[string]*DebugSession
-	errorPatterns      []ErrorPattern
-	solutionDatabase   map[string][]Solution
+	debugSessions    map[string]*DebugSession
+	errorPatterns    []ErrorPattern
+	solutionDatabase map[string][]Solution
 }
 
 // TestGenerator generates intelligent tests
@@ -97,17 +97,17 @@ type TestGenerator struct {
 	logger         *logrus.Logger
 	aiOrchestrator *Orchestrator
 	mu             sync.RWMutex
-	
+
 	// Test generation
 	unitTestGenerator        *UnitTestGenerator
 	integrationTestGenerator *IntegrationTestGenerator
 	e2eTestGenerator         *E2ETestGenerator
 	testDataGenerator        *TestDataGenerator
-	
+
 	// Test state
-	testSuites         map[string]*TestSuite
-	coverageAnalysis   *CoverageAnalysis
-	testMetrics        *TestMetrics
+	testSuites       map[string]*TestSuite
+	coverageAnalysis *CoverageAnalysis
+	testMetrics      *TestMetrics
 }
 
 // CodeOptimizer provides code optimization suggestions
@@ -115,17 +115,17 @@ type CodeOptimizer struct {
 	logger         *logrus.Logger
 	aiOrchestrator *Orchestrator
 	mu             sync.RWMutex
-	
+
 	// Optimization engines
 	performanceOptimizer *PerformanceOptimizer
 	memoryOptimizer      *MemoryOptimizer
 	algorithmOptimizer   *AlgorithmOptimizer
 	refactoringEngine    *RefactoringEngine
-	
+
 	// Optimization state
-	optimizations      []OptimizationSuggestion
-	refactorings       []RefactoringSuggestion
-	metrics            *OptimizationMetrics
+	optimizations []OptimizationSuggestion
+	refactorings  []RefactoringSuggestion
+	metrics       *OptimizationMetrics
 }
 
 // WorkflowAutomator automates development workflows
@@ -133,16 +133,16 @@ type WorkflowAutomator struct {
 	logger         *logrus.Logger
 	aiOrchestrator *Orchestrator
 	mu             sync.RWMutex
-	
+
 	// Automation engines
-	cicdAutomator      *CICDAutomator
+	cicdAutomator       *CICDAutomator
 	deploymentAutomator *DeploymentAutomator
-	taskAutomator      *TaskAutomator
-	
+	taskAutomator       *TaskAutomator
+
 	// Workflow state
-	workflows          map[string]*Workflow
-	automationRules    []AutomationRule
-	executionHistory   []WorkflowExecution
+	workflows        map[string]*Workflow
+	automationRules  []AutomationRule
+	executionHistory []WorkflowExecution
 }
 
 // DocumentationAI generates and maintains documentation
@@ -150,35 +150,35 @@ type DocumentationAI struct {
 	logger         *logrus.Logger
 	aiOrchestrator *Orchestrator
 	mu             sync.RWMutex
-	
+
 	// Documentation tools
-	apiDocGenerator    *APIDocGenerator
-	codeDocGenerator   *CodeDocGenerator
-	readmeGenerator    *ReadmeGenerator
-	tutorialGenerator  *TutorialGenerator
-	
+	apiDocGenerator   *APIDocGenerator
+	codeDocGenerator  *CodeDocGenerator
+	readmeGenerator   *ReadmeGenerator
+	tutorialGenerator *TutorialGenerator
+
 	// Documentation state
-	documentationMap   map[string]*Documentation
-	templates          map[string]*DocTemplate
-	generationHistory  []DocGenerationEvent
+	documentationMap  map[string]*Documentation
+	templates         map[string]*DocTemplate
+	generationHistory []DocGenerationEvent
 }
 
 // Data structures
 
 // ProjectContext represents the current project context
 type ProjectContext struct {
-	ProjectPath       string                 `json:"project_path"`
-	Language          string                 `json:"language"`
-	Framework         string                 `json:"framework"`
-	Dependencies      []string               `json:"dependencies"`
-	BuildSystem       string                 `json:"build_system"`
-	TestFramework     string                 `json:"test_framework"`
-	GitRepository     string                 `json:"git_repository"`
-	CurrentBranch     string                 `json:"current_branch"`
-	RecentFiles       []string               `json:"recent_files"`
-	ActiveFeatures    []string               `json:"active_features"`
-	ProjectMetadata   map[string]interface{} `json:"project_metadata"`
-	LastUpdated       time.Time              `json:"last_updated"`
+	ProjectPath     string                 `json:"project_path"`
+	Language        string                 `json:"language"`
+	Framework       string                 `json:"framework"`
+	Dependencies    []string               `json:"dependencies"`
+	BuildSystem     string                 `json:"build_system"`
+	TestFramework   string                 `json:"test_framework"`
+	GitRepository   string                 `json:"git_repository"`
+	CurrentBranch   string                 `json:"current_branch"`
+	RecentFiles     []string               `json:"recent_files"`
+	ActiveFeatures  []string               `json:"active_features"`
+	ProjectMetadata map[string]interface{} `json:"project_metadata"`
+	LastUpdated     time.Time              `json:"last_updated"`
 }
 
 // AnalysisEvent represents a code analysis event
@@ -193,40 +193,40 @@ type AnalysisEvent struct {
 
 // SuggestionEvent represents a suggestion event
 type SuggestionEvent struct {
-	Timestamp    time.Time              `json:"timestamp"`
-	Type         string                 `json:"type"`
-	Suggestion   *Suggestion            `json:"suggestion"`
-	Accepted     bool                   `json:"accepted"`
-	Feedback     string                 `json:"feedback"`
-	Context      map[string]interface{} `json:"context"`
+	Timestamp  time.Time              `json:"timestamp"`
+	Type       string                 `json:"type"`
+	Suggestion *Suggestion            `json:"suggestion"`
+	Accepted   bool                   `json:"accepted"`
+	Feedback   string                 `json:"feedback"`
+	Context    map[string]interface{} `json:"context"`
 }
 
 // AnalysisResult represents code analysis results
 type AnalysisResult struct {
-	FilePath     string                 `json:"file_path"`
-	Language     string                 `json:"language"`
-	Issues       []CodeIssue            `json:"issues"`
-	Suggestions  []Suggestion           `json:"suggestions"`
-	Metrics      *CodeMetrics           `json:"metrics"`
-	Quality      *QualityScore          `json:"quality"`
-	Security     *SecurityAnalysis      `json:"security"`
-	Performance  *PerformanceAnalysis   `json:"performance"`
-	Timestamp    time.Time              `json:"timestamp"`
-	AnalysisTime time.Duration          `json:"analysis_time"`
+	FilePath     string               `json:"file_path"`
+	Language     string               `json:"language"`
+	Issues       []CodeIssue          `json:"issues"`
+	Suggestions  []Suggestion         `json:"suggestions"`
+	Metrics      *CodeMetrics         `json:"metrics"`
+	Quality      *QualityScore        `json:"quality"`
+	Security     *SecurityAnalysis    `json:"security"`
+	Performance  *PerformanceAnalysis `json:"performance"`
+	Timestamp    time.Time            `json:"timestamp"`
+	AnalysisTime time.Duration        `json:"analysis_time"`
 }
 
 // CodeIssue represents a code issue
 type CodeIssue struct {
-	ID          string                 `json:"id"`
-	Type        string                 `json:"type"` // "error", "warning", "info", "suggestion"
-	Severity    string                 `json:"severity"`
-	Message     string                 `json:"message"`
-	Line        int                    `json:"line"`
-	Column      int                    `json:"column"`
-	Rule        string                 `json:"rule"`
-	Category    string                 `json:"category"`
-	Suggestion  *Suggestion            `json:"suggestion,omitempty"`
-	Context     map[string]interface{} `json:"context"`
+	ID         string                 `json:"id"`
+	Type       string                 `json:"type"` // "error", "warning", "info", "suggestion"
+	Severity   string                 `json:"severity"`
+	Message    string                 `json:"message"`
+	Line       int                    `json:"line"`
+	Column     int                    `json:"column"`
+	Rule       string                 `json:"rule"`
+	Category   string                 `json:"category"`
+	Suggestion *Suggestion            `json:"suggestion,omitempty"`
+	Context    map[string]interface{} `json:"context"`
 }
 
 // Suggestion represents a code suggestion
@@ -246,34 +246,34 @@ type Suggestion struct {
 
 // CodeMetrics represents code metrics
 type CodeMetrics struct {
-	LinesOfCode       int                    `json:"lines_of_code"`
-	CyclomaticComplexity int                 `json:"cyclomatic_complexity"`
-	CognitiveComplexity  int                 `json:"cognitive_complexity"`
-	Maintainability   float64                `json:"maintainability"`
-	Readability       float64                `json:"readability"`
-	TestCoverage      float64                `json:"test_coverage"`
-	Duplication       float64                `json:"duplication"`
-	Dependencies      int                    `json:"dependencies"`
-	TechnicalDebt     time.Duration          `json:"technical_debt"`
-	CustomMetrics     map[string]interface{} `json:"custom_metrics"`
+	LinesOfCode          int                    `json:"lines_of_code"`
+	CyclomaticComplexity int                    `json:"cyclomatic_complexity"`
+	CognitiveComplexity  int                    `json:"cognitive_complexity"`
+	Maintainability      float64                `json:"maintainability"`
+	Readability          float64                `json:"readability"`
+	TestCoverage         float64                `json:"test_coverage"`
+	Duplication          float64                `json:"duplication"`
+	Dependencies         int                    `json:"dependencies"`
+	TechnicalDebt        time.Duration          `json:"technical_debt"`
+	CustomMetrics        map[string]interface{} `json:"custom_metrics"`
 }
 
 // QualityScore represents code quality score
 type QualityScore struct {
-	Overall       float64                `json:"overall"`
-	Maintainability float64              `json:"maintainability"`
-	Reliability   float64                `json:"reliability"`
-	Security      float64                `json:"security"`
-	Performance   float64                `json:"performance"`
-	Testability   float64                `json:"testability"`
-	Breakdown     map[string]float64     `json:"breakdown"`
+	Overall         float64            `json:"overall"`
+	Maintainability float64            `json:"maintainability"`
+	Reliability     float64            `json:"reliability"`
+	Security        float64            `json:"security"`
+	Performance     float64            `json:"performance"`
+	Testability     float64            `json:"testability"`
+	Breakdown       map[string]float64 `json:"breakdown"`
 }
 
 // SecurityAnalysis represents security analysis results
 type SecurityAnalysis struct {
-	Vulnerabilities []SecurityVulnerability `json:"vulnerabilities"`
-	RiskLevel       string                  `json:"risk_level"`
-	Score           float64                 `json:"score"`
+	Vulnerabilities []SecurityVulnerability  `json:"vulnerabilities"`
+	RiskLevel       string                   `json:"risk_level"`
+	Score           float64                  `json:"score"`
 	Recommendations []SecurityRecommendation `json:"recommendations"`
 }
 
@@ -292,26 +292,26 @@ type SecurityVulnerability struct {
 
 // SecurityFix represents a security fix
 type SecurityFix struct {
-	Description string `json:"description"`
-	Code        string `json:"code"`
+	Description string  `json:"description"`
+	Code        string  `json:"code"`
 	Confidence  float64 `json:"confidence"`
 }
 
 // SecurityRecommendation represents a security recommendation
 type SecurityRecommendation struct {
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Priority    string  `json:"priority"`
-	Effort      string  `json:"effort"`
-	Impact      string  `json:"impact"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Priority    string `json:"priority"`
+	Effort      string `json:"effort"`
+	Impact      string `json:"impact"`
 }
 
 // PerformanceAnalysis represents performance analysis results
 type PerformanceAnalysis struct {
-	Bottlenecks     []PerformanceBottleneck `json:"bottlenecks"`
-	Optimizations   []PerformanceOptimization `json:"optimizations"`
-	Score           float64                 `json:"score"`
-	EstimatedGain   float64                 `json:"estimated_gain"`
+	Bottlenecks   []PerformanceBottleneck   `json:"bottlenecks"`
+	Optimizations []PerformanceOptimization `json:"optimizations"`
+	Score         float64                   `json:"score"`
+	EstimatedGain float64                   `json:"estimated_gain"`
 }
 
 // PerformanceBottleneck represents a performance bottleneck
@@ -327,82 +327,82 @@ type PerformanceBottleneck struct {
 
 // PerformanceOptimization represents a performance optimization
 type PerformanceOptimization struct {
-	ID          string                 `json:"id"`
-	Type        string                 `json:"type"`
-	Description string                 `json:"description"`
-	Code        string                 `json:"code"`
-	EstimatedGain float64              `json:"estimated_gain"`
-	Confidence  float64                `json:"confidence"`
-	Context     map[string]interface{} `json:"context"`
+	ID            string                 `json:"id"`
+	Type          string                 `json:"type"`
+	Description   string                 `json:"description"`
+	Code          string                 `json:"code"`
+	EstimatedGain float64                `json:"estimated_gain"`
+	Confidence    float64                `json:"confidence"`
+	Context       map[string]interface{} `json:"context"`
 }
 
 // DebugSession represents a debugging session
 type DebugSession struct {
-	ID          string                 `json:"id"`
-	StartTime   time.Time              `json:"start_time"`
-	EndTime     *time.Time             `json:"end_time,omitempty"`
-	Error       *ErrorInfo             `json:"error"`
-	StackTrace  []StackFrame           `json:"stack_trace"`
-	Logs        []LogEntry             `json:"logs"`
-	Suggestions []DebuggingSuggestion  `json:"suggestions"`
-	Status      string                 `json:"status"`
-	Resolution  *DebugResolution       `json:"resolution,omitempty"`
+	ID          string                `json:"id"`
+	StartTime   time.Time             `json:"start_time"`
+	EndTime     *time.Time            `json:"end_time,omitempty"`
+	Error       *ErrorInfo            `json:"error"`
+	StackTrace  []StackFrame          `json:"stack_trace"`
+	Logs        []LogEntry            `json:"logs"`
+	Suggestions []DebuggingSuggestion `json:"suggestions"`
+	Status      string                `json:"status"`
+	Resolution  *DebugResolution      `json:"resolution,omitempty"`
 }
 
 // ErrorInfo represents error information
 type ErrorInfo struct {
-	Type        string                 `json:"type"`
-	Message     string                 `json:"message"`
-	Code        string                 `json:"code"`
-	File        string                 `json:"file"`
-	Line        int                    `json:"line"`
-	Severity    string                 `json:"severity"`
-	Context     map[string]interface{} `json:"context"`
+	Type     string                 `json:"type"`
+	Message  string                 `json:"message"`
+	Code     string                 `json:"code"`
+	File     string                 `json:"file"`
+	Line     int                    `json:"line"`
+	Severity string                 `json:"severity"`
+	Context  map[string]interface{} `json:"context"`
 }
 
 // StackFrame represents a stack frame
 type StackFrame struct {
-	Function    string                 `json:"function"`
-	File        string                 `json:"file"`
-	Line        int                    `json:"line"`
-	Code        string                 `json:"code"`
-	Variables   map[string]interface{} `json:"variables"`
+	Function  string                 `json:"function"`
+	File      string                 `json:"file"`
+	Line      int                    `json:"line"`
+	Code      string                 `json:"code"`
+	Variables map[string]interface{} `json:"variables"`
 }
 
 // LogEntry represents a log entry
 type LogEntry struct {
-	Timestamp   time.Time              `json:"timestamp"`
-	Level       string                 `json:"level"`
-	Message     string                 `json:"message"`
-	Source      string                 `json:"source"`
-	Context     map[string]interface{} `json:"context"`
+	Timestamp time.Time              `json:"timestamp"`
+	Level     string                 `json:"level"`
+	Message   string                 `json:"message"`
+	Source    string                 `json:"source"`
+	Context   map[string]interface{} `json:"context"`
 }
 
 // DebuggingSuggestion represents a debugging suggestion
 type DebuggingSuggestion struct {
-	ID          string                 `json:"id"`
-	Type        string                 `json:"type"`
-	Title       string                 `json:"title"`
-	Description string                 `json:"description"`
-	Steps       []string               `json:"steps"`
-	Code        string                 `json:"code,omitempty"`
-	Confidence  float64                `json:"confidence"`
-	Priority    string                 `json:"priority"`
+	ID          string   `json:"id"`
+	Type        string   `json:"type"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Steps       []string `json:"steps"`
+	Code        string   `json:"code,omitempty"`
+	Confidence  float64  `json:"confidence"`
+	Priority    string   `json:"priority"`
 }
 
 // DebugResolution represents a debug resolution
 type DebugResolution struct {
-	Type        string                 `json:"type"`
-	Description string                 `json:"description"`
-	Fix         string                 `json:"fix"`
-	Verified    bool                   `json:"verified"`
-	Timestamp   time.Time              `json:"timestamp"`
+	Type        string    `json:"type"`
+	Description string    `json:"description"`
+	Fix         string    `json:"fix"`
+	Verified    bool      `json:"verified"`
+	Timestamp   time.Time `json:"timestamp"`
 }
 
 // NewDeveloperToolsAI creates a new developer tools AI
 func NewDeveloperToolsAI(logger *logrus.Logger, config DeveloperToolsConfig, aiOrchestrator *Orchestrator) *DeveloperToolsAI {
 	tracer := otel.Tracer("developer-tools-ai")
-	
+
 	ai := &DeveloperToolsAI{
 		logger:            logger,
 		tracer:            tracer,
@@ -418,7 +418,7 @@ func NewDeveloperToolsAI(logger *logrus.Logger, config DeveloperToolsConfig, aiO
 			LastUpdated:     time.Now(),
 		},
 	}
-	
+
 	// Initialize components
 	ai.codeAnalyzer = NewCodeAnalyzer(logger, aiOrchestrator)
 	ai.debuggingAssistant = NewDebuggingAssistant(logger, aiOrchestrator)
@@ -426,7 +426,7 @@ func NewDeveloperToolsAI(logger *logrus.Logger, config DeveloperToolsConfig, aiO
 	ai.codeOptimizer = NewCodeOptimizer(logger, aiOrchestrator)
 	ai.workflowAutomator = NewWorkflowAutomator(logger, aiOrchestrator)
 	ai.documentationAI = NewDocumentationAI(logger, aiOrchestrator)
-	
+
 	return ai
 }
 
@@ -434,23 +434,23 @@ func NewDeveloperToolsAI(logger *logrus.Logger, config DeveloperToolsConfig, aiO
 func (dt *DeveloperToolsAI) AnalyzeCode(ctx context.Context, filePath string, code string, options map[string]interface{}) (*AnalysisResult, error) {
 	ctx, span := dt.tracer.Start(ctx, "developerToolsAI.AnalyzeCode")
 	defer span.End()
-	
+
 	start := time.Now()
-	
+
 	// Determine language
 	language := dt.detectLanguage(filePath, code)
-	
+
 	// Check if language is supported
 	if !dt.isLanguageSupported(language) {
 		return nil, fmt.Errorf("language %s is not supported", language)
 	}
-	
+
 	// Perform analysis
 	result, err := dt.codeAnalyzer.AnalyzeCode(ctx, filePath, code, language, options)
 	if err != nil {
 		return nil, fmt.Errorf("code analysis failed: %w", err)
 	}
-	
+
 	// Record analysis event
 	event := AnalysisEvent{
 		Timestamp:    start,
@@ -460,17 +460,17 @@ func (dt *DeveloperToolsAI) AnalyzeCode(ctx context.Context, filePath string, co
 		Duration:     time.Since(start),
 		Context:      options,
 	}
-	
+
 	dt.recordAnalysisEvent(event)
-	
+
 	dt.logger.WithFields(logrus.Fields{
-		"file_path": filePath,
-		"language":  language,
-		"issues":    len(result.Issues),
+		"file_path":   filePath,
+		"language":    language,
+		"issues":      len(result.Issues),
 		"suggestions": len(result.Suggestions),
-		"duration":  event.Duration,
+		"duration":    event.Duration,
 	}).Debug("Code analysis completed")
-	
+
 	return result, nil
 }
 
@@ -478,18 +478,18 @@ func (dt *DeveloperToolsAI) AnalyzeCode(ctx context.Context, filePath string, co
 func (dt *DeveloperToolsAI) StartDebugSession(ctx context.Context, errorInfo *ErrorInfo, stackTrace []StackFrame, logs []LogEntry) (*DebugSession, error) {
 	ctx, span := dt.tracer.Start(ctx, "developerToolsAI.StartDebugSession")
 	defer span.End()
-	
+
 	session, err := dt.debuggingAssistant.StartSession(ctx, errorInfo, stackTrace, logs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start debug session: %w", err)
 	}
-	
+
 	dt.logger.WithFields(logrus.Fields{
-		"session_id":   session.ID,
-		"error_type":   errorInfo.Type,
-		"suggestions":  len(session.Suggestions),
+		"session_id":  session.ID,
+		"error_type":  errorInfo.Type,
+		"suggestions": len(session.Suggestions),
 	}).Debug("Debug session started")
-	
+
 	return session, nil
 }
 
@@ -497,24 +497,24 @@ func (dt *DeveloperToolsAI) StartDebugSession(ctx context.Context, errorInfo *Er
 func (dt *DeveloperToolsAI) GenerateTests(ctx context.Context, filePath string, code string, testType string) (*TestSuite, error) {
 	ctx, span := dt.tracer.Start(ctx, "developerToolsAI.GenerateTests")
 	defer span.End()
-	
+
 	if !dt.config.TestGeneration {
 		return nil, fmt.Errorf("test generation is disabled")
 	}
-	
+
 	language := dt.detectLanguage(filePath, code)
-	
+
 	testSuite, err := dt.testGenerator.GenerateTests(ctx, filePath, code, language, testType)
 	if err != nil {
 		return nil, fmt.Errorf("test generation failed: %w", err)
 	}
-	
+
 	dt.logger.WithFields(logrus.Fields{
 		"file_path":  filePath,
 		"test_type":  testType,
 		"test_count": len(testSuite.Tests),
 	}).Debug("Tests generated")
-	
+
 	return testSuite, nil
 }
 
@@ -522,20 +522,20 @@ func (dt *DeveloperToolsAI) GenerateTests(ctx context.Context, filePath string, 
 func (dt *DeveloperToolsAI) OptimizeCode(ctx context.Context, filePath string, code string, optimizationType string) ([]OptimizationSuggestion, error) {
 	ctx, span := dt.tracer.Start(ctx, "developerToolsAI.OptimizeCode")
 	defer span.End()
-	
+
 	language := dt.detectLanguage(filePath, code)
-	
+
 	optimizations, err := dt.codeOptimizer.OptimizeCode(ctx, filePath, code, language, optimizationType)
 	if err != nil {
 		return nil, fmt.Errorf("code optimization failed: %w", err)
 	}
-	
+
 	dt.logger.WithFields(logrus.Fields{
-		"file_path":        filePath,
+		"file_path":         filePath,
 		"optimization_type": optimizationType,
-		"suggestions":      len(optimizations),
+		"suggestions":       len(optimizations),
 	}).Debug("Code optimization completed")
-	
+
 	return optimizations, nil
 }
 
@@ -543,24 +543,24 @@ func (dt *DeveloperToolsAI) OptimizeCode(ctx context.Context, filePath string, c
 func (dt *DeveloperToolsAI) GenerateDocumentation(ctx context.Context, filePath string, code string, docType string) (*Documentation, error) {
 	ctx, span := dt.tracer.Start(ctx, "developerToolsAI.GenerateDocumentation")
 	defer span.End()
-	
+
 	if !dt.config.DocumentationGen {
 		return nil, fmt.Errorf("documentation generation is disabled")
 	}
-	
+
 	language := dt.detectLanguage(filePath, code)
-	
+
 	documentation, err := dt.documentationAI.GenerateDocumentation(ctx, filePath, code, language, docType)
 	if err != nil {
 		return nil, fmt.Errorf("documentation generation failed: %w", err)
 	}
-	
+
 	dt.logger.WithFields(logrus.Fields{
 		"file_path": filePath,
 		"doc_type":  docType,
 		"sections":  len(documentation.Sections),
 	}).Debug("Documentation generated")
-	
+
 	return documentation, nil
 }
 
@@ -581,7 +581,7 @@ func (dt *DeveloperToolsAI) detectLanguage(filePath string, code string) string 
 	} else if strings.HasSuffix(filePath, ".rs") {
 		return "rust"
 	}
-	
+
 	return "unknown"
 }
 
@@ -597,9 +597,9 @@ func (dt *DeveloperToolsAI) isLanguageSupported(language string) bool {
 func (dt *DeveloperToolsAI) recordAnalysisEvent(event AnalysisEvent) {
 	dt.mu.Lock()
 	defer dt.mu.Unlock()
-	
+
 	dt.analysisHistory = append(dt.analysisHistory, event)
-	
+
 	// Maintain history size
 	if len(dt.analysisHistory) > 1000 {
 		dt.analysisHistory = dt.analysisHistory[100:]
@@ -610,7 +610,7 @@ func (dt *DeveloperToolsAI) recordAnalysisEvent(event AnalysisEvent) {
 func (dt *DeveloperToolsAI) GetDeveloperMetrics() map[string]interface{} {
 	dt.mu.RLock()
 	defer dt.mu.RUnlock()
-	
+
 	return map[string]interface{}{
 		"total_suggestions":    dt.totalSuggestions,
 		"accepted_suggestions": dt.acceptedSuggestions,
@@ -644,11 +644,11 @@ func NewDebuggingAssistant(logger *logrus.Logger, aiOrchestrator *Orchestrator) 
 
 func NewTestGenerator(logger *logrus.Logger, aiOrchestrator *Orchestrator) *TestGenerator {
 	return &TestGenerator{
-		logger:         logger,
-		aiOrchestrator: aiOrchestrator,
-		testSuites:     make(map[string]*TestSuite),
+		logger:           logger,
+		aiOrchestrator:   aiOrchestrator,
+		testSuites:       make(map[string]*TestSuite),
 		coverageAnalysis: &CoverageAnalysis{},
-		testMetrics:    &TestMetrics{},
+		testMetrics:      &TestMetrics{},
 	}
 }
 

@@ -202,13 +202,13 @@ func (sm *SecretsManager) decrypt(ciphertext string) (string, error) {
 // LoadSecretsFromEnv loads secrets from environment variables
 func LoadSecretsFromEnv(prefix string) map[string]string {
 	secrets := make(map[string]string)
-	
+
 	for _, env := range os.Environ() {
 		pair := strings.SplitN(env, "=", 2)
 		if len(pair) != 2 {
 			continue
 		}
-		
+
 		key, value := pair[0], pair[1]
 		if strings.HasPrefix(key, prefix) {
 			secretName := strings.TrimPrefix(key, prefix)
@@ -216,7 +216,7 @@ func LoadSecretsFromEnv(prefix string) map[string]string {
 			secrets[secretName] = value
 		}
 	}
-	
+
 	return secrets
 }
 
@@ -283,13 +283,13 @@ func (esp *EnvironmentSecretProvider) DeleteSecret(name string) error {
 func (esp *EnvironmentSecretProvider) ListSecrets() ([]string, error) {
 	var secrets []string
 	prefix := esp.prefix + "_"
-	
+
 	for _, env := range os.Environ() {
 		pair := strings.SplitN(env, "=", 2)
 		if len(pair) != 2 {
 			continue
 		}
-		
+
 		key := pair[0]
 		if strings.HasPrefix(key, prefix) {
 			secretName := strings.TrimPrefix(key, prefix)
@@ -297,7 +297,7 @@ func (esp *EnvironmentSecretProvider) ListSecrets() ([]string, error) {
 			secrets = append(secrets, secretName)
 		}
 	}
-	
+
 	return secrets, nil
 }
 
@@ -312,7 +312,7 @@ func NewFileSecretProvider(encryptionKey, secretsPath string) (*FileSecretProvid
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &FileSecretProvider{
 		manager: manager,
 	}, nil

@@ -95,7 +95,7 @@ func (s *Server) Start() error {
 
 	// Initialize HTTP router
 	router := mux.NewRouter()
-	
+
 	// Add middleware
 	router.Use(utils.LoggingMiddleware(s.logger))
 	router.Use(utils.CORSMiddleware())
@@ -117,7 +117,7 @@ func (s *Server) Start() error {
 	// Create metrics server
 	metricsRouter := mux.NewRouter()
 	metricsRouter.Handle("/metrics", promhttp.Handler())
-	
+
 	s.metricsServer = &http.Server{
 		Addr:    viper.GetString("metrics-addr"),
 		Handler: metricsRouter,
@@ -201,7 +201,7 @@ func initConfig() {
 
 func initLogger() *logrus.Logger {
 	logger := logrus.New()
-	
+
 	level, err := logrus.ParseLevel(viper.GetString("log-level"))
 	if err != nil {
 		level = logrus.InfoLevel

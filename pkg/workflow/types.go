@@ -95,13 +95,13 @@ type Condition struct {
 
 // Schedule represents a workflow schedule
 type Schedule struct {
-	Type       ScheduleType `json:"type"`
-	CronExpr   string       `json:"cron_expr,omitempty"`
-	Interval   time.Duration `json:"interval,omitempty"`
-	StartTime  *time.Time   `json:"start_time,omitempty"`
-	EndTime    *time.Time   `json:"end_time,omitempty"`
-	Timezone   string       `json:"timezone,omitempty"`
-	Enabled    bool         `json:"enabled"`
+	Type      ScheduleType  `json:"type"`
+	CronExpr  string        `json:"cron_expr,omitempty"`
+	Interval  time.Duration `json:"interval,omitempty"`
+	StartTime *time.Time    `json:"start_time,omitempty"`
+	EndTime   *time.Time    `json:"end_time,omitempty"`
+	Timezone  string        `json:"timezone,omitempty"`
+	Enabled   bool          `json:"enabled"`
 }
 
 // RetryPolicy represents retry configuration
@@ -247,19 +247,19 @@ type JobExecution struct {
 
 // Step represents a pipeline step
 type Step struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Type        StepType               `json:"type"`
-	Command     string                 `json:"command,omitempty"`
-	Script      string                 `json:"script,omitempty"`
-	Action      string                 `json:"action,omitempty"`
-	With        map[string]interface{} `json:"with,omitempty"`
-	Environment map[string]string      `json:"environment,omitempty"`
-	WorkingDir  string                 `json:"working_dir,omitempty"`
-	Timeout     time.Duration          `json:"timeout,omitempty"`
-	ContinueOnError bool               `json:"continue_on_error"`
-	Conditions  []*Condition           `json:"conditions,omitempty"`
-	Enabled     bool                   `json:"enabled"`
+	ID              string                 `json:"id"`
+	Name            string                 `json:"name"`
+	Type            StepType               `json:"type"`
+	Command         string                 `json:"command,omitempty"`
+	Script          string                 `json:"script,omitempty"`
+	Action          string                 `json:"action,omitempty"`
+	With            map[string]interface{} `json:"with,omitempty"`
+	Environment     map[string]string      `json:"environment,omitempty"`
+	WorkingDir      string                 `json:"working_dir,omitempty"`
+	Timeout         time.Duration          `json:"timeout,omitempty"`
+	ContinueOnError bool                   `json:"continue_on_error"`
+	Conditions      []*Condition           `json:"conditions,omitempty"`
+	Enabled         bool                   `json:"enabled"`
 }
 
 // StepExecution represents step execution
@@ -303,15 +303,15 @@ type Repository struct {
 
 // Artifact represents a build artifact
 type Artifact struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Type        string    `json:"type"`
-	Path        string    `json:"path"`
-	Size        int64     `json:"size"`
-	Checksum    string    `json:"checksum,omitempty"`
-	DownloadURL string    `json:"download_url,omitempty"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Type        string     `json:"type"`
+	Path        string     `json:"path"`
+	Size        int64      `json:"size"`
+	Checksum    string     `json:"checksum,omitempty"`
+	DownloadURL string     `json:"download_url,omitempty"`
 	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt   time.Time  `json:"created_at"`
 }
 
 // Enums
@@ -350,14 +350,14 @@ const (
 type TriggerType string
 
 const (
-	TriggerTypeManual    TriggerType = "manual"
-	TriggerTypeSchedule  TriggerType = "schedule"
-	TriggerTypeWebhook   TriggerType = "webhook"
-	TriggerTypeEvent     TriggerType = "event"
-	TriggerTypePush      TriggerType = "push"
-	TriggerTypePR        TriggerType = "pull_request"
-	TriggerTypeTag       TriggerType = "tag"
-	TriggerTypeRelease   TriggerType = "release"
+	TriggerTypeManual   TriggerType = "manual"
+	TriggerTypeSchedule TriggerType = "schedule"
+	TriggerTypeWebhook  TriggerType = "webhook"
+	TriggerTypeEvent    TriggerType = "event"
+	TriggerTypePush     TriggerType = "push"
+	TriggerTypePR       TriggerType = "pull_request"
+	TriggerTypeTag      TriggerType = "tag"
+	TriggerTypeRelease  TriggerType = "release"
 )
 
 type ActionType string
@@ -377,16 +377,16 @@ const (
 type Operator string
 
 const (
-	OperatorEquals       Operator = "equals"
-	OperatorNotEquals    Operator = "not_equals"
-	OperatorGreaterThan  Operator = "greater_than"
-	OperatorLessThan     Operator = "less_than"
-	OperatorContains     Operator = "contains"
-	OperatorStartsWith   Operator = "starts_with"
-	OperatorEndsWith     Operator = "ends_with"
-	OperatorRegex        Operator = "regex"
-	OperatorIn           Operator = "in"
-	OperatorNotIn        Operator = "not_in"
+	OperatorEquals      Operator = "equals"
+	OperatorNotEquals   Operator = "not_equals"
+	OperatorGreaterThan Operator = "greater_than"
+	OperatorLessThan    Operator = "less_than"
+	OperatorContains    Operator = "contains"
+	OperatorStartsWith  Operator = "starts_with"
+	OperatorEndsWith    Operator = "ends_with"
+	OperatorRegex       Operator = "regex"
+	OperatorIn          Operator = "in"
+	OperatorNotIn       Operator = "not_in"
 )
 
 type ValueType string

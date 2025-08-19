@@ -471,7 +471,7 @@ func (ce *DefaultCollaborationEngine) logActivity(activity *Activity) {
 
 	ce.mu.Lock()
 	ce.activities = append(ce.activities, activity)
-	
+
 	// Keep only recent activities (simple cleanup)
 	if len(ce.activities) > 10000 {
 		ce.activities = ce.activities[1000:]

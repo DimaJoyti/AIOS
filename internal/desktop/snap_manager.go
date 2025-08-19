@@ -18,33 +18,33 @@ import (
 
 // SnapManager handles intelligent window snapping
 type SnapManager struct {
-	logger  *logrus.Logger
-	tracer  trace.Tracer
-	config  SnapConfig
-	mu      sync.RWMutex
-	
+	logger *logrus.Logger
+	tracer trace.Tracer
+	config SnapConfig
+	mu     sync.RWMutex
+
 	// AI integration
 	aiOrchestrator *ai.Orchestrator
-	
+
 	// Snap zones and targets
-	snapZones      []SnapZone
-	snapTargets    []SnapTarget
-	customZones    []CustomSnapZone
-	
+	snapZones   []SnapZone
+	snapTargets []SnapTarget
+	customZones []CustomSnapZone
+
 	// State tracking
-	activeSnaps    map[string]*ActiveSnap
-	snapHistory    []SnapEvent
-	preferences    *SnapPreferences
-	
+	activeSnaps map[string]*ActiveSnap
+	snapHistory []SnapEvent
+	preferences *SnapPreferences
+
 	// Performance
-	lastUpdate    time.Time
-	snapCount     int
-	successRate   float64
+	lastUpdate  time.Time
+	snapCount   int
+	successRate float64
 }
 
 // SnapConfig defines snap manager configuration
 type SnapConfig struct {
-	SnapThreshold      int           `json:"snap_threshold"`      // pixels
+	SnapThreshold      int           `json:"snap_threshold"` // pixels
 	SnapDelay          time.Duration `json:"snap_delay"`
 	ShowSnapPreview    bool          `json:"show_snap_preview"`
 	EnableMagneticSnap bool          `json:"enable_magnetic_snap"`
@@ -58,55 +58,55 @@ type SnapConfig struct {
 
 // SnapZone represents a snapping zone
 type SnapZone struct {
-	ID          string              `json:"id"`
-	Name        string              `json:"name"`
-	Type        SnapZoneType        `json:"type"`
-	Area        models.Rectangle    `json:"area"`
-	Monitor     string              `json:"monitor"`
-	Priority    int                 `json:"priority"`
-	Enabled     bool                `json:"enabled"`
-	Magnetic    bool                `json:"magnetic"`
-	Conditions  []SnapCondition     `json:"conditions"`
-	Actions     []SnapAction        `json:"actions"`
-	Metadata    map[string]interface{} `json:"metadata"`
+	ID         string                 `json:"id"`
+	Name       string                 `json:"name"`
+	Type       SnapZoneType           `json:"type"`
+	Area       models.Rectangle       `json:"area"`
+	Monitor    string                 `json:"monitor"`
+	Priority   int                    `json:"priority"`
+	Enabled    bool                   `json:"enabled"`
+	Magnetic   bool                   `json:"magnetic"`
+	Conditions []SnapCondition        `json:"conditions"`
+	Actions    []SnapAction           `json:"actions"`
+	Metadata   map[string]interface{} `json:"metadata"`
 }
 
 // SnapZoneType defines the type of snap zone
 type SnapZoneType string
 
 const (
-	SnapZoneEdge     SnapZoneType = "edge"
-	SnapZoneCorner   SnapZoneType = "corner"
-	SnapZoneCenter   SnapZoneType = "center"
-	SnapZoneQuarter  SnapZoneType = "quarter"
-	SnapZoneThird    SnapZoneType = "third"
-	SnapZoneCustom   SnapZoneType = "custom"
-	SnapZoneAI       SnapZoneType = "ai_suggested"
+	SnapZoneEdge    SnapZoneType = "edge"
+	SnapZoneCorner  SnapZoneType = "corner"
+	SnapZoneCenter  SnapZoneType = "center"
+	SnapZoneQuarter SnapZoneType = "quarter"
+	SnapZoneThird   SnapZoneType = "third"
+	SnapZoneCustom  SnapZoneType = "custom"
+	SnapZoneAI      SnapZoneType = "ai_suggested"
 )
 
 // SnapTarget represents a potential snap target
 type SnapTarget struct {
-	Zone        SnapZone         `json:"zone"`
-	Position    models.Position  `json:"position"`
-	Size        models.Size      `json:"size"`
-	Confidence  float64          `json:"confidence"`
-	Distance    float64          `json:"distance"`
-	Reasoning   string           `json:"reasoning"`
-	WindowID    string           `json:"window_id"`
-	Timestamp   time.Time        `json:"timestamp"`
+	Zone       SnapZone        `json:"zone"`
+	Position   models.Position `json:"position"`
+	Size       models.Size     `json:"size"`
+	Confidence float64         `json:"confidence"`
+	Distance   float64         `json:"distance"`
+	Reasoning  string          `json:"reasoning"`
+	WindowID   string          `json:"window_id"`
+	Timestamp  time.Time       `json:"timestamp"`
 }
 
 // CustomSnapZone represents a user-defined snap zone
 type CustomSnapZone struct {
-	ID          string              `json:"id"`
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	Area        models.Rectangle    `json:"area"`
-	Monitor     string              `json:"monitor"`
-	Hotkey      string              `json:"hotkey"`
-	Conditions  []SnapCondition     `json:"conditions"`
-	CreatedAt   time.Time           `json:"created_at"`
-	UsageCount  int                 `json:"usage_count"`
+	ID          string           `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	Area        models.Rectangle `json:"area"`
+	Monitor     string           `json:"monitor"`
+	Hotkey      string           `json:"hotkey"`
+	Conditions  []SnapCondition  `json:"conditions"`
+	CreatedAt   time.Time        `json:"created_at"`
+	UsageCount  int              `json:"usage_count"`
 }
 
 // SnapCondition defines when a snap zone should be active
@@ -125,40 +125,40 @@ type SnapAction struct {
 
 // ActiveSnap represents an active snapping operation
 type ActiveSnap struct {
-	WindowID    string       `json:"window_id"`
-	TargetZone  SnapZone     `json:"target_zone"`
-	StartTime   time.Time    `json:"start_time"`
-	Progress    float64      `json:"progress"`
-	Status      string       `json:"status"` // "detecting", "previewing", "snapping", "completed"
+	WindowID   string    `json:"window_id"`
+	TargetZone SnapZone  `json:"target_zone"`
+	StartTime  time.Time `json:"start_time"`
+	Progress   float64   `json:"progress"`
+	Status     string    `json:"status"` // "detecting", "previewing", "snapping", "completed"
 }
 
 // SnapEvent represents a snapping event
 type SnapEvent struct {
-	WindowID    string                 `json:"window_id"`
-	ZoneID      string                 `json:"zone_id"`
-	ZoneType    SnapZoneType           `json:"zone_type"`
-	Timestamp   time.Time              `json:"timestamp"`
-	Duration    time.Duration          `json:"duration"`
-	Success     bool                   `json:"success"`
-	Method      string                 `json:"method"` // "drag", "hotkey", "ai_suggestion"
-	Context     map[string]interface{} `json:"context"`
+	WindowID  string                 `json:"window_id"`
+	ZoneID    string                 `json:"zone_id"`
+	ZoneType  SnapZoneType           `json:"zone_type"`
+	Timestamp time.Time              `json:"timestamp"`
+	Duration  time.Duration          `json:"duration"`
+	Success   bool                   `json:"success"`
+	Method    string                 `json:"method"` // "drag", "hotkey", "ai_suggestion"
+	Context   map[string]interface{} `json:"context"`
 }
 
 // SnapPreferences stores user snapping preferences
 type SnapPreferences struct {
-	PreferredZones     []string               `json:"preferred_zones"`
-	ZoneWeights        map[string]float64     `json:"zone_weights"`
-	ApplicationRules   map[string]string      `json:"application_rules"`
-	DisabledZones      []string               `json:"disabled_zones"`
-	CustomHotkeys      map[string]string      `json:"custom_hotkeys"`
-	AdaptationEnabled  bool                   `json:"adaptation_enabled"`
-	LastUpdated        time.Time              `json:"last_updated"`
+	PreferredZones    []string           `json:"preferred_zones"`
+	ZoneWeights       map[string]float64 `json:"zone_weights"`
+	ApplicationRules  map[string]string  `json:"application_rules"`
+	DisabledZones     []string           `json:"disabled_zones"`
+	CustomHotkeys     map[string]string  `json:"custom_hotkeys"`
+	AdaptationEnabled bool               `json:"adaptation_enabled"`
+	LastUpdated       time.Time          `json:"last_updated"`
 }
 
 // NewSnapManager creates a new snap manager
 func NewSnapManager(logger *logrus.Logger, config SnapConfig, aiOrchestrator *ai.Orchestrator) *SnapManager {
 	tracer := otel.Tracer("snap-manager")
-	
+
 	manager := &SnapManager{
 		logger:         logger,
 		tracer:         tracer,
@@ -180,10 +180,10 @@ func NewSnapManager(logger *logrus.Logger, config SnapConfig, aiOrchestrator *ai
 		},
 		lastUpdate: time.Now(),
 	}
-	
+
 	// Initialize default snap zones
 	manager.initializeDefaultZones()
-	
+
 	return manager
 }
 
@@ -237,7 +237,7 @@ func (sm *SnapManager) initializeDefaultZones() {
 			Magnetic: false,
 		},
 	}
-	
+
 	// Corner zones
 	corners := []SnapZone{
 		{
@@ -277,10 +277,10 @@ func (sm *SnapManager) initializeDefaultZones() {
 			Magnetic: true,
 		},
 	}
-	
+
 	sm.snapZones = append(sm.snapZones, zones...)
 	sm.snapZones = append(sm.snapZones, corners...)
-	
+
 	// Initialize zone weights
 	for _, zone := range sm.snapZones {
 		sm.preferences.ZoneWeights[zone.ID] = 1.0
@@ -291,26 +291,26 @@ func (sm *SnapManager) initializeDefaultZones() {
 func (sm *SnapManager) DetectSnapTargets(ctx context.Context, window *models.Window, mousePos models.Position) ([]SnapTarget, error) {
 	ctx, span := sm.tracer.Start(ctx, "snapManager.DetectSnapTargets")
 	defer span.End()
-	
+
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
-	
+
 	targets := make([]SnapTarget, 0)
-	
+
 	// Check each snap zone
 	for _, zone := range sm.snapZones {
 		if !zone.Enabled {
 			continue
 		}
-		
+
 		// Check if zone conditions are met
 		if !sm.evaluateZoneConditions(&zone, window) {
 			continue
 		}
-		
+
 		// Calculate distance to zone
 		distance := sm.calculateDistanceToZone(mousePos, zone)
-		
+
 		// Check if within snap threshold
 		if distance <= float64(sm.config.SnapThreshold) {
 			target := SnapTarget{
@@ -323,17 +323,17 @@ func (sm *SnapManager) DetectSnapTargets(ctx context.Context, window *models.Win
 				WindowID:   window.ID,
 				Timestamp:  time.Now(),
 			}
-			
+
 			targets = append(targets, target)
 		}
 	}
-	
+
 	// Add AI-suggested targets if enabled
 	if sm.config.AISnapSuggestions && sm.aiOrchestrator != nil {
 		aiTargets := sm.getAISnapSuggestions(ctx, window, mousePos)
 		targets = append(targets, aiTargets...)
 	}
-	
+
 	// Sort by confidence and distance
 	sort.Slice(targets, func(i, j int) bool {
 		if targets[i].Confidence != targets[j].Confidence {
@@ -341,13 +341,13 @@ func (sm *SnapManager) DetectSnapTargets(ctx context.Context, window *models.Win
 		}
 		return targets[i].Distance < targets[j].Distance
 	})
-	
+
 	sm.logger.WithFields(logrus.Fields{
-		"window_id":     window.ID,
-		"target_count":  len(targets),
-		"mouse_pos":     mousePos,
+		"window_id":    window.ID,
+		"target_count": len(targets),
+		"mouse_pos":    mousePos,
 	}).Debug("Snap targets detected")
-	
+
 	return targets, nil
 }
 
@@ -355,9 +355,9 @@ func (sm *SnapManager) DetectSnapTargets(ctx context.Context, window *models.Win
 func (sm *SnapManager) SnapToTarget(ctx context.Context, window *models.Window, target SnapTarget) error {
 	ctx, span := sm.tracer.Start(ctx, "snapManager.SnapToTarget")
 	defer span.End()
-	
+
 	start := time.Now()
-	
+
 	// Create active snap
 	activeSnap := &ActiveSnap{
 		WindowID:   window.ID,
@@ -366,15 +366,15 @@ func (sm *SnapManager) SnapToTarget(ctx context.Context, window *models.Window, 
 		Progress:   0.0,
 		Status:     "snapping",
 	}
-	
+
 	sm.mu.Lock()
 	sm.activeSnaps[window.ID] = activeSnap
 	sm.mu.Unlock()
-	
+
 	// Execute snap actions
 	success := true
 	var snapError error
-	
+
 	for _, action := range target.Zone.Actions {
 		if err := sm.executeSnapAction(&action, window, target); err != nil {
 			success = false
@@ -382,14 +382,14 @@ func (sm *SnapManager) SnapToTarget(ctx context.Context, window *models.Window, 
 			break
 		}
 	}
-	
+
 	// Update active snap
 	sm.mu.Lock()
 	activeSnap.Progress = 1.0
 	activeSnap.Status = "completed"
 	delete(sm.activeSnaps, window.ID)
 	sm.mu.Unlock()
-	
+
 	// Record snap event
 	event := SnapEvent{
 		WindowID:  window.ID,
@@ -404,21 +404,21 @@ func (sm *SnapManager) SnapToTarget(ctx context.Context, window *models.Window, 
 			"distance":   target.Distance,
 		},
 	}
-	
+
 	sm.recordSnapEvent(event)
-	
+
 	// Update preferences based on success
 	if success {
 		sm.updateSnapPreferences(target.Zone.ID, true)
 	}
-	
+
 	sm.logger.WithFields(logrus.Fields{
 		"window_id": window.ID,
 		"zone_id":   target.Zone.ID,
 		"success":   success,
 		"duration":  event.Duration,
 	}).Debug("Window snapped")
-	
+
 	return snapError
 }
 
@@ -427,16 +427,16 @@ func (sm *SnapManager) calculateDistanceToZone(point models.Position, zone SnapZ
 	// Convert percentage-based zone to absolute coordinates
 	// This would need screen dimensions in a real implementation
 	screenWidth, screenHeight := 1920, 1080 // Placeholder
-	
+
 	zoneX := (zone.Area.X * screenWidth) / 100
 	zoneY := (zone.Area.Y * screenHeight) / 100
 	zoneW := (zone.Area.Width * screenWidth) / 100
 	zoneH := (zone.Area.Height * screenHeight) / 100
-	
+
 	// Calculate distance to zone edges
 	dx := math.Max(0, math.Max(float64(zoneX-point.X), float64(point.X-(zoneX+zoneW))))
 	dy := math.Max(0, math.Max(float64(zoneY-point.Y), float64(point.Y-(zoneY+zoneH))))
-	
+
 	return math.Sqrt(dx*dx + dy*dy)
 }
 
@@ -444,10 +444,10 @@ func (sm *SnapManager) calculateDistanceToZone(point models.Position, zone SnapZ
 func (sm *SnapManager) calculateSnapPosition(window *models.Window, zone SnapZone) models.Position {
 	// Convert percentage-based zone to absolute coordinates
 	screenWidth, screenHeight := 1920, 1080 // Placeholder
-	
+
 	x := (zone.Area.X * screenWidth) / 100
 	y := (zone.Area.Y * screenHeight) / 100
-	
+
 	return models.Position{X: x, Y: y}
 }
 
@@ -455,10 +455,10 @@ func (sm *SnapManager) calculateSnapPosition(window *models.Window, zone SnapZon
 func (sm *SnapManager) calculateSnapSize(window *models.Window, zone SnapZone) models.Size {
 	// Convert percentage-based zone to absolute coordinates
 	screenWidth, screenHeight := 1920, 1080 // Placeholder
-	
+
 	width := (zone.Area.Width * screenWidth) / 100
 	height := (zone.Area.Height * screenHeight) / 100
-	
+
 	return models.Size{Width: width, Height: height}
 }
 
@@ -466,16 +466,16 @@ func (sm *SnapManager) calculateSnapSize(window *models.Window, zone SnapZone) m
 func (sm *SnapManager) calculateSnapConfidence(window *models.Window, zone SnapZone, distance float64) float64 {
 	// Base confidence from distance
 	distanceConfidence := 1.0 - (distance / float64(sm.config.SnapThreshold))
-	
+
 	// Zone priority factor
 	priorityFactor := 1.0 / float64(zone.Priority)
-	
+
 	// User preference factor
 	preferenceWeight := sm.preferences.ZoneWeights[zone.ID]
-	
+
 	// Combine factors
 	confidence := distanceConfidence * priorityFactor * preferenceWeight
-	
+
 	// Clamp to [0, 1]
 	if confidence < 0 {
 		confidence = 0
@@ -483,7 +483,7 @@ func (sm *SnapManager) calculateSnapConfidence(window *models.Window, zone SnapZ
 	if confidence > 1 {
 		confidence = 1
 	}
-	
+
 	return confidence
 }
 
@@ -492,13 +492,13 @@ func (sm *SnapManager) evaluateZoneConditions(zone *SnapZone, window *models.Win
 	if len(zone.Conditions) == 0 {
 		return true
 	}
-	
+
 	for _, condition := range zone.Conditions {
 		if !sm.evaluateSnapCondition(&condition, window) {
 			return false
 		}
 	}
-	
+
 	return true
 }
 
@@ -525,7 +525,7 @@ func (sm *SnapManager) evaluateApplicationCondition(condition *SnapCondition, ap
 	if !ok {
 		return false
 	}
-	
+
 	switch condition.Operator {
 	case "equals":
 		return application == conditionValue
@@ -548,7 +548,7 @@ func (sm *SnapManager) evaluateWorkspaceCondition(condition *SnapCondition, work
 	if !ok {
 		return false
 	}
-	
+
 	switch condition.Operator {
 	case "equals":
 		return workspace == int(conditionValue)
@@ -578,24 +578,24 @@ func (sm *SnapManager) executeSnapAction(action *SnapAction, window *models.Wind
 func (sm *SnapManager) getAISnapSuggestions(ctx context.Context, window *models.Window, mousePos models.Position) []SnapTarget {
 	// Create AI request for snap suggestions
 	aiRequest := &models.AIRequest{
-		ID:   fmt.Sprintf("snap-suggestion-%s-%d", window.ID, time.Now().Unix()),
-		Type: "suggestion",
+		ID:    fmt.Sprintf("snap-suggestion-%s-%d", window.ID, time.Now().Unix()),
+		Type:  "suggestion",
 		Input: fmt.Sprintf("Suggest optimal snap zones for window %s at position %+v", window.Application, mousePos),
 		Parameters: map[string]interface{}{
-			"task":       "snap_suggestion",
-			"window":     window,
-			"mouse_pos":  mousePos,
-			"history":    sm.getRecentSnapHistory(10),
+			"task":      "snap_suggestion",
+			"window":    window,
+			"mouse_pos": mousePos,
+			"history":   sm.getRecentSnapHistory(10),
 		},
 		Timeout:   1 * time.Second,
 		Timestamp: time.Now(),
 	}
-	
+
 	response, err := sm.aiOrchestrator.ProcessRequest(ctx, aiRequest)
 	if err != nil {
 		return []SnapTarget{}
 	}
-	
+
 	// Parse AI response into snap targets
 	return sm.parseAISnapResponse(response, window)
 }
@@ -611,15 +611,15 @@ func (sm *SnapManager) parseAISnapResponse(response *models.AIResponse, window *
 func (sm *SnapManager) recordSnapEvent(event SnapEvent) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
-	
+
 	sm.snapHistory = append(sm.snapHistory, event)
 	sm.snapCount++
-	
+
 	// Maintain history size
 	if len(sm.snapHistory) > 1000 {
 		sm.snapHistory = sm.snapHistory[100:]
 	}
-	
+
 	// Update success rate
 	successCount := 0
 	for _, e := range sm.snapHistory {
@@ -633,32 +633,32 @@ func (sm *SnapManager) recordSnapEvent(event SnapEvent) {
 func (sm *SnapManager) updateSnapPreferences(zoneID string, success bool) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
-	
+
 	if success {
 		sm.preferences.ZoneWeights[zoneID] *= 1.1
 	} else {
 		sm.preferences.ZoneWeights[zoneID] *= 0.9
 	}
-	
+
 	// Normalize weights
 	total := 0.0
 	for _, weight := range sm.preferences.ZoneWeights {
 		total += weight
 	}
-	
+
 	if total > 0 {
 		for zoneID := range sm.preferences.ZoneWeights {
 			sm.preferences.ZoneWeights[zoneID] /= total
 		}
 	}
-	
+
 	sm.preferences.LastUpdated = time.Now()
 }
 
 func (sm *SnapManager) getRecentSnapHistory(count int) []SnapEvent {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
-	
+
 	if len(sm.snapHistory) <= count {
 		return sm.snapHistory
 	}
@@ -682,12 +682,12 @@ func (sm *SnapManager) GetSnapPreferences() *SnapPreferences {
 func (sm *SnapManager) GetSnapMetrics() map[string]interface{} {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
-	
+
 	return map[string]interface{}{
-		"total_snaps":   sm.snapCount,
-		"success_rate":  sm.successRate,
-		"active_snaps":  len(sm.activeSnaps),
-		"zone_count":    len(sm.snapZones),
-		"custom_zones":  len(sm.customZones),
+		"total_snaps":  sm.snapCount,
+		"success_rate": sm.successRate,
+		"active_snaps": len(sm.activeSnaps),
+		"zone_count":   len(sm.snapZones),
+		"custom_zones": len(sm.customZones),
 	}
 }

@@ -20,53 +20,53 @@ import (
 
 // AppIntegration provides AI-powered application management and file operations
 type AppIntegration struct {
-	logger       *logrus.Logger
-	tracer       trace.Tracer
-	nlpService   ai.NaturalLanguageService
-	llmService   ai.LanguageModelService
-	cvService    ai.ComputerVisionService
-	
+	logger     *logrus.Logger
+	tracer     trace.Tracer
+	nlpService ai.NaturalLanguageService
+	llmService ai.LanguageModelService
+	cvService  ai.ComputerVisionService
+
 	// Application management
-	installedApps    map[string]*Application
-	runningApps      map[string]*RunningApplication
-	appCategories    map[string][]string
-	mu               sync.RWMutex
-	
+	installedApps map[string]*Application
+	runningApps   map[string]*RunningApplication
+	appCategories map[string][]string
+	mu            sync.RWMutex
+
 	// File system integration
-	fileIndex        map[string]*FileInfo
-	recentFiles      []*FileInfo
-	bookmarks        []*Bookmark
-	
+	fileIndex   map[string]*FileInfo
+	recentFiles []*FileInfo
+	bookmarks   []*Bookmark
+
 	// Configuration
-	config           AppIntegrationConfig
+	config AppIntegrationConfig
 }
 
 // AppIntegrationConfig represents configuration for app integration
 type AppIntegrationConfig struct {
-	AppSearchPaths     []string      `json:"app_search_paths"`
-	FileIndexPaths     []string      `json:"file_index_paths"`
-	MaxRecentFiles     int           `json:"max_recent_files"`
-	IndexUpdateInterval time.Duration `json:"index_update_interval"`
-	EnableSmartSuggestions bool       `json:"enable_smart_suggestions"`
-	EnableContextualActions bool      `json:"enable_contextual_actions"`
+	AppSearchPaths          []string      `json:"app_search_paths"`
+	FileIndexPaths          []string      `json:"file_index_paths"`
+	MaxRecentFiles          int           `json:"max_recent_files"`
+	IndexUpdateInterval     time.Duration `json:"index_update_interval"`
+	EnableSmartSuggestions  bool          `json:"enable_smart_suggestions"`
+	EnableContextualActions bool          `json:"enable_contextual_actions"`
 }
 
 // Application represents an installed application
 type Application struct {
-	ID           string                 `json:"id"`
-	Name         string                 `json:"name"`
-	DisplayName  string                 `json:"display_name"`
-	Description  string                 `json:"description"`
-	ExecutablePath string               `json:"executable_path"`
-	IconPath     string                 `json:"icon_path"`
-	Categories   []string               `json:"categories"`
-	Keywords     []string               `json:"keywords"`
-	Version      string                 `json:"version"`
-	InstallDate  time.Time              `json:"install_date"`
-	LastUsed     *time.Time             `json:"last_used,omitempty"`
-	UsageCount   int                    `json:"usage_count"`
-	Rating       float64                `json:"rating"`
-	Metadata     map[string]interface{} `json:"metadata,omitempty"`
+	ID             string                 `json:"id"`
+	Name           string                 `json:"name"`
+	DisplayName    string                 `json:"display_name"`
+	Description    string                 `json:"description"`
+	ExecutablePath string                 `json:"executable_path"`
+	IconPath       string                 `json:"icon_path"`
+	Categories     []string               `json:"categories"`
+	Keywords       []string               `json:"keywords"`
+	Version        string                 `json:"version"`
+	InstallDate    time.Time              `json:"install_date"`
+	LastUsed       *time.Time             `json:"last_used,omitempty"`
+	UsageCount     int                    `json:"usage_count"`
+	Rating         float64                `json:"rating"`
+	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // RunningApplication represents a currently running application
@@ -146,7 +146,7 @@ func NewAppIntegration(
 
 	// Initialize application discovery
 	go ai.discoverApplications()
-	
+
 	// Initialize file indexing
 	if config.IndexUpdateInterval > 0 {
 		go ai.startFileIndexing()
@@ -242,7 +242,7 @@ func (ai *AppIntegration) SearchApplications(ctx context.Context, query string) 
 	}
 
 	ai.logger.WithFields(logrus.Fields{
-		"query":        query,
+		"query":         query,
 		"results_count": len(results),
 	}).Info("Application search completed")
 
@@ -306,7 +306,7 @@ func (ai *AppIntegration) GetSmartSuggestions(ctx context.Context, context map[s
 
 	// Analyze current context
 	contextPrompt := ai.buildContextPrompt(context)
-	
+
 	// Generate suggestions using LLM
 	response, err := ai.llmService.ProcessQuery(ctx, fmt.Sprintf(
 		"Based on the current context: %s\nSuggest 3-5 relevant applications, files, or actions the user might want to perform. Format as JSON array with type, title, description, action, confidence fields.",
@@ -411,7 +411,7 @@ func (ai *AppIntegration) isApplicationFile(path string, info os.FileInfo) bool 
 
 func (ai *AppIntegration) createApplicationFromFile(path string, info os.FileInfo) *Application {
 	name := strings.TrimSuffix(info.Name(), filepath.Ext(info.Name()))
-	
+
 	return &Application{
 		ID:             generateAppID(path),
 		Name:           name,
@@ -586,21 +586,21 @@ func (ai *AppIntegration) scanFilePath(path string) {
 
 func (ai *AppIntegration) buildContextPrompt(context map[string]interface{}) string {
 	var prompt strings.Builder
-	
+
 	prompt.WriteString("Current context: ")
-	
+
 	if currentTime, ok := context["time"]; ok {
 		prompt.WriteString(fmt.Sprintf("Time: %v. ", currentTime))
 	}
-	
+
 	if currentDir, ok := context["current_directory"]; ok {
 		prompt.WriteString(fmt.Sprintf("Directory: %v. ", currentDir))
 	}
-	
+
 	if recentApps, ok := context["recent_applications"]; ok {
 		prompt.WriteString(fmt.Sprintf("Recent apps: %v. ", recentApps))
 	}
-	
+
 	return prompt.String()
 }
 

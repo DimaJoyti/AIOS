@@ -102,10 +102,10 @@ func (rm *ResourceManager) GetCPUInfo(ctx context.Context) (*models.CPUStatus, e
 	// TODO: Implement actual CPU monitoring
 	// For now, return mock data
 	return &models.CPUStatus{
-		Usage:       45.2,  // Mock usage percentage
+		Usage:       45.2, // Mock usage percentage
 		Cores:       numCPU,
-		Temperature: 65.0,  // Mock temperature
-		Frequency:   2400.0, // Mock frequency in MHz
+		Temperature: 65.0,                     // Mock temperature
+		Frequency:   2400.0,                   // Mock frequency in MHz
 		LoadAvg:     []float64{1.2, 1.5, 1.8}, // Mock load averages
 	}, nil
 }
@@ -191,9 +191,9 @@ func (rm *ResourceManager) GetNetworkInfo(ctx context.Context) (*models.NetworkS
 	}
 
 	connections := &models.NetworkConnections{
-		TCP:       50,  // Active TCP connections
-		UDP:       10,  // Active UDP connections
-		Listening: 5,   // Listening sockets
+		TCP:       50, // Active TCP connections
+		UDP:       10, // Active UDP connections
+		Listening: 5,  // Listening sockets
 	}
 
 	return &models.NetworkStatus{

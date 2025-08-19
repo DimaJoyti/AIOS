@@ -106,7 +106,7 @@ func (dp *DefaultDocumentProcessor) ProcessFile(ctx context.Context, filePath st
 
 	// Create file source
 	fileSource := NewFileSource(filepath.Dir(filePath), dp.logger)
-	
+
 	// Get the specific file
 	doc, err := fileSource.GetDocument(ctx, filePath)
 	if err != nil {
@@ -127,7 +127,7 @@ func (dp *DefaultDocumentProcessor) ProcessURL(ctx context.Context, url string) 
 
 	// Create URL source
 	urlSource := NewURLSource([]string{url}, dp.logger)
-	
+
 	// Get the document
 	doc, err := urlSource.GetDocument(ctx, url)
 	if err != nil {
@@ -149,7 +149,7 @@ func (dp *DefaultDocumentProcessor) ProcessReader(ctx context.Context, reader io
 	// Create reader source
 	readerSource := NewReaderSource(dp.logger)
 	id := readerSource.AddReader(reader, contentType, metadata)
-	
+
 	// Get the document
 	doc, err := readerSource.GetDocument(ctx, id)
 	if err != nil {
@@ -169,10 +169,10 @@ func (dp *DefaultDocumentProcessor) SetPipeline(pipeline ProcessingPipeline) err
 	if pipeline == nil {
 		return fmt.Errorf("pipeline cannot be nil")
 	}
-	
+
 	dp.mu.Lock()
 	defer dp.mu.Unlock()
-	
+
 	dp.pipeline = pipeline
 	return nil
 }
@@ -181,7 +181,7 @@ func (dp *DefaultDocumentProcessor) SetPipeline(pipeline ProcessingPipeline) err
 func (dp *DefaultDocumentProcessor) GetMetrics() *ProcessingMetrics {
 	dp.mu.RLock()
 	defer dp.mu.RUnlock()
-	
+
 	// Return a copy to avoid race conditions
 	metricsCopy := *dp.metrics
 	return &metricsCopy
@@ -327,8 +327,8 @@ func (pm *DefaultProcessingManager) RegisterExtractor(extractor ContentExtractor
 	}
 
 	pm.logger.WithFields(logrus.Fields{
-		"extractor_type":    fmt.Sprintf("%T", extractor),
-		"supported_types":   extractor.GetSupportedTypes(),
+		"extractor_type":  fmt.Sprintf("%T", extractor),
+		"supported_types": extractor.GetSupportedTypes(),
 	}).Info("Registered content extractor")
 
 	return nil

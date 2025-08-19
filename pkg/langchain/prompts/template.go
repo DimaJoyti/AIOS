@@ -26,7 +26,7 @@ func (p *DefaultPromptValue) ToMessages() []llm.Message {
 	if len(p.messages) > 0 {
 		return p.messages
 	}
-	
+
 	// Convert string content to a single user message
 	return []llm.Message{
 		{
@@ -92,12 +92,12 @@ func (t *DefaultPromptTemplate) Format(variables map[string]interface{}) (Prompt
 func (t *DefaultPromptTemplate) FormatPrompt(variables map[string]interface{}) (PromptValue, error) {
 	// Merge partial variables with provided variables
 	allVariables := make(map[string]interface{})
-	
+
 	// Add partial variables first
 	for k, v := range t.partialVariables {
 		allVariables[k] = v
 	}
-	
+
 	// Add provided variables (can override partial variables)
 	for k, v := range variables {
 		allVariables[k] = v
@@ -184,13 +184,13 @@ func (t *DefaultPromptTemplate) Clone() PromptTemplate {
 
 func (t *DefaultPromptTemplate) extractVariables() []string {
 	var variables []string
-	
+
 	switch t.templateFormat {
 	case "f-string":
 		// Extract variables in {variable} format
 		re := regexp.MustCompile(`\{([^}]+)\}`)
 		matches := re.FindAllStringSubmatch(t.template, -1)
-		
+
 		varSet := make(map[string]bool)
 		for _, match := range matches {
 			if len(match) > 1 {
@@ -205,7 +205,7 @@ func (t *DefaultPromptTemplate) extractVariables() []string {
 		// Extract variables in {{variable}} format
 		re := regexp.MustCompile(`\{\{([^}]+)\}\}`)
 		matches := re.FindAllStringSubmatch(t.template, -1)
-		
+
 		varSet := make(map[string]bool)
 		for _, match := range matches {
 			if len(match) > 1 {
@@ -220,13 +220,13 @@ func (t *DefaultPromptTemplate) extractVariables() []string {
 		// Default to f-string format
 		return t.extractVariables()
 	}
-	
+
 	return variables
 }
 
 func (t *DefaultPromptTemplate) formatTemplate(template string, variables map[string]interface{}) (string, error) {
 	result := template
-	
+
 	switch t.templateFormat {
 	case "f-string":
 		// Replace {variable} with values
@@ -245,7 +245,7 @@ func (t *DefaultPromptTemplate) formatTemplate(template string, variables map[st
 	default:
 		return "", fmt.Errorf("unsupported template format: %s", t.templateFormat)
 	}
-	
+
 	return result, nil
 }
 
@@ -299,11 +299,11 @@ func NewChatPromptTemplate(config *ChatPromptTemplateConfig) (ChatPromptTemplate
 func (c *DefaultChatPromptTemplate) FormatPrompt(variables map[string]interface{}) (PromptValue, error) {
 	// Merge partial variables with provided variables
 	allVariables := make(map[string]interface{})
-	
+
 	for k, v := range c.partialVariables {
 		allVariables[k] = v
 	}
-	
+
 	for k, v := range variables {
 		allVariables[k] = v
 	}
@@ -343,10 +343,10 @@ func (c *DefaultChatPromptTemplate) AddMessage(role string, template string) err
 		Role:     role,
 		Template: template,
 	})
-	
+
 	// Update input variables
 	c.inputVariables = c.extractVariablesFromMessages()
-	
+
 	return nil
 }
 
@@ -378,7 +378,7 @@ func (c *DefaultChatPromptTemplate) extractVariablesFromMessages() []string {
 		// Temporarily set template to extract variables
 		oldTemplate := c.template
 		c.template = msg.Template
-		
+
 		msgVars := c.extractVariables()
 		for _, varName := range msgVars {
 			if !varSet[varName] {
@@ -386,7 +386,7 @@ func (c *DefaultChatPromptTemplate) extractVariablesFromMessages() []string {
 				varSet[varName] = true
 			}
 		}
-		
+
 		c.template = oldTemplate
 	}
 

@@ -13,32 +13,32 @@ type KnowledgeManager interface {
 	GetDocument(ctx context.Context, id string) (*Document, error)
 	UpdateDocument(ctx context.Context, doc *Document) error
 	DeleteDocument(ctx context.Context, id string) error
-	
+
 	// Knowledge Base Operations
 	CreateKnowledgeBase(ctx context.Context, config *KnowledgeBaseConfig) (*KnowledgeBase, error)
 	GetKnowledgeBase(ctx context.Context, id string) (*KnowledgeBase, error)
 	ListKnowledgeBases(ctx context.Context) ([]*KnowledgeBase, error)
 	DeleteKnowledgeBase(ctx context.Context, id string) error
-	
+
 	// Search and Retrieval
 	Search(ctx context.Context, query *SearchQuery) (*SearchResult, error)
 	SimilaritySearch(ctx context.Context, query string, options *SearchOptions) ([]*Document, error)
 	HybridSearch(ctx context.Context, query string, options *SearchOptions) ([]*Document, error)
-	
+
 	// RAG Operations
 	RetrieveAndGenerate(ctx context.Context, query string, options *RAGOptions) (*RAGResponse, error)
 	RetrieveContext(ctx context.Context, query string, options *RetrievalOptions) (*RetrievalResult, error)
-	
+
 	// Knowledge Graph
 	ExtractEntities(ctx context.Context, text string) ([]*Entity, error)
 	ExtractRelationships(ctx context.Context, text string) ([]*Relationship, error)
 	BuildKnowledgeGraph(ctx context.Context, documents []*Document) (*KnowledgeGraph, error)
 	QueryKnowledgeGraph(ctx context.Context, query *GraphQuery) (*GraphResult, error)
-	
+
 	// Analytics and Insights
 	GetKnowledgeMetrics(ctx context.Context) (*KnowledgeMetrics, error)
 	GetSearchAnalytics(ctx context.Context, timeRange *TimeRange) (*SearchAnalytics, error)
-	
+
 	// Maintenance
 	ReindexKnowledgeBase(ctx context.Context, kbID string) error
 	OptimizeStorage(ctx context.Context) error

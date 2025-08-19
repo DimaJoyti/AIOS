@@ -238,7 +238,7 @@ func (ce *DefaultCollaborationEngine) CreateDocument(document *Document) (*Docum
 
 	ce.mu.Lock()
 	ce.documents[document.ID] = document
-	
+
 	// Create initial version
 	initialVersion := &DocumentVersion{
 		ID:         uuid.New().String(),

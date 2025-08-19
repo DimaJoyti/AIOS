@@ -273,7 +273,7 @@ func (a *ImageAnalyzer) AnalyzeImage(ctx context.Context, imageData []byte) (*mo
 
 	// Generate mock analysis based on image characteristics
 	tags := []string{"desktop", "interface", "application", "window", "ui"}
-	
+
 	// Add random additional tags
 	additionalTags := []string{"button", "menu", "text", "icon", "toolbar", "statusbar", "dialog"}
 	for _, tag := range additionalTags {
@@ -301,11 +301,11 @@ func (a *ImageAnalyzer) AnalyzeImage(ctx context.Context, imageData []byte) (*mo
 		Scene:       "desktop_environment",
 		Colors:      []string{"blue", "gray", "white"},
 		Metadata: map[string]interface{}{
-			"image_size":     len(imageData),
-			"tags_count":     len(tags),
-			"analysis_type":  "general",
-			"mock":           true,
-			"confidence":     confidence,
+			"image_size":      len(imageData),
+			"tags_count":      len(tags),
+			"analysis_type":   "general",
+			"mock":            true,
+			"confidence":      confidence,
 			"processing_time": time.Since(start),
 		},
 		Timestamp: time.Now(),
@@ -365,10 +365,10 @@ func (a *ImageAnalyzer) ClassifyImage(ctx context.Context, imageData []byte) (*m
 	topClass := classes[0]
 
 	result := &models.ImageClassification{
-		Classes:   classes,
-		TopClass:  topClass.Class,
+		Classes:    classes,
+		TopClass:   topClass.Class,
 		Confidence: topClass.Confidence,
-		Timestamp: time.Now(),
+		Timestamp:  time.Now(),
 	}
 
 	a.logger.WithFields(logrus.Fields{
@@ -386,22 +386,22 @@ func GenerateMockScreenshot(width, height int) []byte {
 	// Generate mock PNG-like data
 	size := width * height * 3 // RGB
 	data := make([]byte, size)
-	
+
 	// Fill with gradient pattern
 	for i := 0; i < size; i += 3 {
 		x := (i / 3) % width
 		y := (i / 3) / width
-		
+
 		// Create gradient effect
 		r := byte((x * 255) / width)
 		g := byte((y * 255) / height)
 		b := byte(((x + y) * 255) / (width + height))
-		
+
 		data[i] = r
 		data[i+1] = g
 		data[i+2] = b
 	}
-	
+
 	return data
 }
 
@@ -415,9 +415,9 @@ func GenerateMockUIElements(imageWidth, imageHeight int) []models.UIElement {
 			Bounds:     models.Rectangle{X: 0, Y: 0, Width: imageWidth, Height: imageHeight},
 			Confidence: 0.95,
 			Properties: map[string]interface{}{
-				"title":      "AIOS Desktop Environment",
-				"resizable":  true,
-				"maximized":  true,
+				"title":     "AIOS Desktop Environment",
+				"resizable": true,
+				"maximized": true,
 			},
 		},
 		{

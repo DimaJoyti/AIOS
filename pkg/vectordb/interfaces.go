@@ -144,13 +144,13 @@ type CollectionInfo struct {
 
 // HealthStatus represents the health status of the database
 type HealthStatus struct {
-	Status      string                 `json:"status"` // healthy, degraded, unhealthy
-	Version     string                 `json:"version"`
-	Uptime      time.Duration          `json:"uptime"`
-	Collections int                    `json:"collections"`
-	TotalVectors int64                 `json:"total_vectors"`
-	Memory      *MemoryInfo            `json:"memory,omitempty"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	Status       string                 `json:"status"` // healthy, degraded, unhealthy
+	Version      string                 `json:"version"`
+	Uptime       time.Duration          `json:"uptime"`
+	Collections  int                    `json:"collections"`
+	TotalVectors int64                  `json:"total_vectors"`
+	Memory       *MemoryInfo            `json:"memory,omitempty"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // MemoryInfo represents memory usage information
@@ -202,16 +202,16 @@ type DocumentWithScore struct {
 
 // VectorDBConfig represents configuration for vector database connection
 type VectorDBConfig struct {
-	Provider    string                 `json:"provider"` // qdrant, weaviate, pinecone, etc.
-	Host        string                 `json:"host"`
-	Port        int                    `json:"port"`
-	APIKey      string                 `json:"api_key,omitempty"`
-	Database    string                 `json:"database,omitempty"`
-	Timeout     time.Duration          `json:"timeout"`
-	MaxRetries  int                    `json:"max_retries"`
-	RetryDelay  time.Duration          `json:"retry_delay"`
-	TLS         bool                   `json:"tls"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	Provider   string                 `json:"provider"` // qdrant, weaviate, pinecone, etc.
+	Host       string                 `json:"host"`
+	Port       int                    `json:"port"`
+	APIKey     string                 `json:"api_key,omitempty"`
+	Database   string                 `json:"database,omitempty"`
+	Timeout    time.Duration          `json:"timeout"`
+	MaxRetries int                    `json:"max_retries"`
+	RetryDelay time.Duration          `json:"retry_delay"`
+	TLS        bool                   `json:"tls"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // EmbeddingConfig represents configuration for embedding provider
@@ -307,12 +307,12 @@ type OperationStats struct {
 
 // CollectionStats represents statistics for a collection
 type CollectionStats struct {
-	Name         string        `json:"name"`
-	VectorCount  int64         `json:"vector_count"`
-	SearchCount  int64         `json:"search_count"`
-	InsertCount  int64         `json:"insert_count"`
-	UpdateCount  int64         `json:"update_count"`
-	DeleteCount  int64         `json:"delete_count"`
-	LastAccessed time.Time     `json:"last_accessed"`
+	Name                 string        `json:"name"`
+	VectorCount          int64         `json:"vector_count"`
+	SearchCount          int64         `json:"search_count"`
+	InsertCount          int64         `json:"insert_count"`
+	UpdateCount          int64         `json:"update_count"`
+	DeleteCount          int64         `json:"delete_count"`
+	LastAccessed         time.Time     `json:"last_accessed"`
 	AverageSearchLatency time.Duration `json:"average_search_latency"`
 }

@@ -86,11 +86,11 @@ func (oa *OptimizationAI) GetStatus(ctx context.Context) (*models.OptimizationSt
 	}
 
 	return &models.OptimizationStatus{
-		Enabled:           true,
-		LastOptimization:  time.Now().Add(-30 * time.Minute),
-		OptimizationsRun:  15,
-		PerformanceGain:   12.5,
-		Recommendations:   recommendations,
+		Enabled:          true,
+		LastOptimization: time.Now().Add(-30 * time.Minute),
+		OptimizationsRun: 15,
+		PerformanceGain:  12.5,
+		Recommendations:  recommendations,
 	}, nil
 }
 
@@ -123,9 +123,9 @@ func (oa *OptimizationAI) RunOptimization(ctx context.Context) error {
 
 	for i, step := range steps {
 		oa.logger.WithFields(logrus.Fields{
-			"step":     i + 1,
-			"total":    len(steps),
-			"action":   step,
+			"step":   i + 1,
+			"total":  len(steps),
+			"action": step,
 		}).Info("Optimization step")
 
 		// Simulate processing time
@@ -157,8 +157,8 @@ func (oa *OptimizationAI) AnalyzePerformance(ctx context.Context) (*models.Perfo
 		CPUUsage:     45.2,
 		MemoryUsage:  68.5,
 		DiskUsage:    72.1,
-		NetworkIn:    1024 * 1024 * 50,  // 50MB
-		NetworkOut:   1024 * 1024 * 25,  // 25MB
+		NetworkIn:    1024 * 1024 * 50, // 50MB
+		NetworkOut:   1024 * 1024 * 25, // 25MB
 		ResponseTime: 150 * time.Millisecond,
 		Throughput:   125.5,
 	}
@@ -281,13 +281,13 @@ func (oa *OptimizationAI) PredictPerformance(ctx context.Context, timeframe time
 	// For now, return mock prediction
 	prediction := &models.PerformanceMetrics{
 		Timestamp:    time.Now().Add(timeframe),
-		CPUUsage:     52.3,  // Predicted increase
-		MemoryUsage:  71.2,  // Predicted increase
-		DiskUsage:    74.8,  // Predicted increase
-		NetworkIn:    1024 * 1024 * 60,  // Predicted increase
-		NetworkOut:   1024 * 1024 * 30,  // Predicted increase
+		CPUUsage:     52.3,             // Predicted increase
+		MemoryUsage:  71.2,             // Predicted increase
+		DiskUsage:    74.8,             // Predicted increase
+		NetworkIn:    1024 * 1024 * 60, // Predicted increase
+		NetworkOut:   1024 * 1024 * 30, // Predicted increase
 		ResponseTime: 180 * time.Millisecond,
-		Throughput:   115.2,  // Predicted decrease
+		Throughput:   115.2, // Predicted decrease
 	}
 
 	oa.logger.WithFields(logrus.Fields{

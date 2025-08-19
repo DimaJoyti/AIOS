@@ -266,7 +266,7 @@ func TestVectorStore(t *testing.T) {
 	// Create mock components
 	vectorDB := NewMockVectorDB()
 	embedding := NewMockEmbeddingProvider(768, "mock-model")
-	
+
 	config := &VectorStoreConfig{
 		ChunkSize: 1000,
 		Overlap:   200,
@@ -448,7 +448,7 @@ func TestBuilders(t *testing.T) {
 			WithPort(6333).
 			WithAPIKey("test-key").
 			WithTLS(true).
-			WithTimeout(60 * time.Second).
+			WithTimeout(60*time.Second).
 			WithMetadata("env", "test").
 			Build()
 
@@ -468,7 +468,7 @@ func TestBuilders(t *testing.T) {
 			WithAPIKey("test-key").
 			WithDimensions(1536).
 			WithBatchSize(50).
-			WithTimeout(30 * time.Second).
+			WithTimeout(30*time.Second).
 			WithMetadata("version", "v1").
 			Build()
 

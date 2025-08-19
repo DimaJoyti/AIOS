@@ -44,7 +44,7 @@ func (qp *DefaultQueryProcessor) ProcessQuery(ctx context.Context, query string)
 
 	// Extract keywords (simple word splitting)
 	keywords := strings.Fields(normalizedQuery)
-	
+
 	// Remove common stop words
 	stopWords := map[string]bool{
 		"the": true, "a": true, "an": true, "and": true, "or": true, "but": true,
@@ -125,14 +125,14 @@ func (qp *DefaultQueryProcessor) ExpandQuery(ctx context.Context, query string) 
 	var expandedTermsList []string
 	var synonymsList []string
 	var relatedTermsList []string
-	
+
 	expandedTermsList = append(expandedTermsList, processed.CleanedQuery)
-	
+
 	for _, synonymGroup := range synonyms {
 		synonymsList = append(synonymsList, synonymGroup...)
 		expandedTermsList = append(expandedTermsList, synonymGroup...)
 	}
-	
+
 	for _, relatedGroup := range relatedTerms {
 		relatedTermsList = append(relatedTermsList, relatedGroup...)
 		expandedTermsList = append(expandedTermsList, relatedGroup...)
@@ -167,33 +167,33 @@ func (qp *DefaultQueryProcessor) ExtractIntent(ctx context.Context, query string
 	var action string
 
 	// Question patterns
-	if strings.HasPrefix(normalizedQuery, "what is") || 
-	   strings.HasPrefix(normalizedQuery, "what are") ||
-	   strings.Contains(normalizedQuery, "explain") ||
-	   strings.Contains(normalizedQuery, "describe") {
+	if strings.HasPrefix(normalizedQuery, "what is") ||
+		strings.HasPrefix(normalizedQuery, "what are") ||
+		strings.Contains(normalizedQuery, "explain") ||
+		strings.Contains(normalizedQuery, "describe") {
 		intentType = "informational"
 		category = "question"
 		action = "explain"
 		confidence = 0.8
 	} else if strings.HasPrefix(normalizedQuery, "how to") ||
-		     strings.HasPrefix(normalizedQuery, "how do") ||
-		     strings.Contains(normalizedQuery, "tutorial") ||
-		     strings.Contains(normalizedQuery, "guide") {
+		strings.HasPrefix(normalizedQuery, "how do") ||
+		strings.Contains(normalizedQuery, "tutorial") ||
+		strings.Contains(normalizedQuery, "guide") {
 		intentType = "instructional"
 		category = "how_to"
 		action = "guide"
 		confidence = 0.8
 	} else if strings.Contains(normalizedQuery, "compare") ||
-		     strings.Contains(normalizedQuery, "vs") ||
-		     strings.Contains(normalizedQuery, "versus") ||
-		     strings.Contains(normalizedQuery, "difference") {
+		strings.Contains(normalizedQuery, "vs") ||
+		strings.Contains(normalizedQuery, "versus") ||
+		strings.Contains(normalizedQuery, "difference") {
 		intentType = "comparative"
 		category = "comparison"
 		action = "compare"
 		confidence = 0.8
 	} else if strings.Contains(normalizedQuery, "find") ||
-		     strings.Contains(normalizedQuery, "search") ||
-		     strings.Contains(normalizedQuery, "look for") {
+		strings.Contains(normalizedQuery, "search") ||
+		strings.Contains(normalizedQuery, "look for") {
 		intentType = "search"
 		category = "retrieval"
 		action = "find"
@@ -264,14 +264,14 @@ func (qp *DefaultQueryProcessor) RewriteQuery(ctx context.Context, query string,
 
 	// Simple query rewriting - in a real system this would be more sophisticated
 	rewrittenQuery := strings.TrimSpace(query)
-	
+
 	// If context has history, we could use it for context
 	if context != nil && len(context.History) > 0 {
 		// For now, just return the original query
 		// In a real system, this would analyze conversation context
 		qp.logger.WithFields(logrus.Fields{
-			"original_query":   query,
-			"history_entries":  len(context.History),
+			"original_query":  query,
+			"history_entries": len(context.History),
 		}).Debug("Rewriting query with context")
 	}
 

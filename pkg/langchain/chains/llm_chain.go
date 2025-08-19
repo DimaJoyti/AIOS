@@ -243,10 +243,10 @@ func (c *DefaultLLMChain) SetPrompt(newPrompt prompts.PromptTemplate) error {
 	}
 
 	c.prompt = newPrompt
-	
+
 	// Update input keys to match prompt variables
 	c.inputKeys = newPrompt.GetInputVariables()
-	
+
 	return c.Validate()
 }
 

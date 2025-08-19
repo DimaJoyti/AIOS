@@ -97,7 +97,7 @@ func (a *AIOS) startServices() error {
 		// Simulate MCP server running
 		ticker := time.NewTicker(30 * time.Second)
 		defer ticker.Stop()
-		
+
 		for {
 			select {
 			case <-a.ctx.Done():
@@ -115,7 +115,7 @@ func (a *AIOS) startServices() error {
 		// Simulate agent orchestrator running
 		ticker := time.NewTicker(45 * time.Second)
 		defer ticker.Stop()
-		
+
 		for {
 			select {
 			case <-a.ctx.Done():
@@ -133,7 +133,7 @@ func (a *AIOS) startServices() error {
 		// Simulate langgraph executor running
 		ticker := time.NewTicker(60 * time.Second)
 		defer ticker.Stop()
-		
+
 		for {
 			select {
 			case <-a.ctx.Done():
@@ -151,7 +151,7 @@ func (a *AIOS) startServices() error {
 		// Simulate metrics collection
 		ticker := time.NewTicker(20 * time.Second)
 		defer ticker.Stop()
-		
+
 		for {
 			select {
 			case <-a.ctx.Done():
@@ -159,10 +159,10 @@ func (a *AIOS) startServices() error {
 				return
 			case <-ticker.C:
 				a.logger.WithFields(logrus.Fields{
-					"active_agents":    3,
-					"mcp_connections":  5,
-					"memory_usage_mb":  256,
-					"cpu_usage_pct":    15.5,
+					"active_agents":   3,
+					"mcp_connections": 5,
+					"memory_usage_mb": 256,
+					"cpu_usage_pct":   15.5,
 				}).Info("System metrics collected")
 			}
 		}
@@ -216,11 +216,11 @@ func (a *AIOS) demonstrateCapabilities() {
 
 	// Simulate LangGraph workflow
 	a.logger.WithFields(logrus.Fields{
-		"component":  "LangGraph",
-		"workflow":   "multi_agent_collaboration",
-		"nodes":      7,
-		"edges":      12,
-		"duration":   "3.5s",
+		"component": "LangGraph",
+		"workflow":  "multi_agent_collaboration",
+		"nodes":     7,
+		"edges":     12,
+		"duration":  "3.5s",
 	}).Info("LangGraph workflow executed")
 }
 
@@ -243,10 +243,10 @@ func main() {
 
 	// Print system status
 	aios.logger.WithFields(logrus.Fields{
-		"version":     "1.0.0",
-		"components":  []string{"LangChain", "MCP", "Agents", "LangGraph"},
-		"status":      "running",
-		"uptime":      "0m",
+		"version":    "1.0.0",
+		"components": []string{"LangChain", "MCP", "Agents", "LangGraph"},
+		"status":     "running",
+		"uptime":     "0m",
 	}).Info("AIOS System Status")
 
 	// Wait for shutdown signal

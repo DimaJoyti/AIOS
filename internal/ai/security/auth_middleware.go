@@ -18,13 +18,13 @@ import (
 
 // AuthMiddleware provides authentication and authorization for AI services
 type AuthMiddleware struct {
-	logger       *logrus.Logger
-	tracer       trace.Tracer
-	jwtSecret    []byte
-	apiKeys      map[string]*APIKey
-	sessions     map[string]*Session
-	rateLimiter  *RateLimiter
-	mu           sync.RWMutex
+	logger      *logrus.Logger
+	tracer      trace.Tracer
+	jwtSecret   []byte
+	apiKeys     map[string]*APIKey
+	sessions    map[string]*Session
+	rateLimiter *RateLimiter
+	mu          sync.RWMutex
 }
 
 // APIKey represents an API key for service access
@@ -65,8 +65,8 @@ type AuthContext struct {
 
 // Claims represents JWT claims
 type Claims struct {
-	UserID    string   `json:"user_id"`
-	SessionID string   `json:"session_id"`
+	UserID      string   `json:"user_id"`
+	SessionID   string   `json:"session_id"`
 	Permissions []string `json:"permissions"`
 	jwt.RegisteredClaims
 }
@@ -111,10 +111,10 @@ func (am *AuthMiddleware) CreateAPIKey(name string, permissions []string, rateLi
 	am.apiKeys[keyString] = apiKey
 
 	am.logger.WithFields(logrus.Fields{
-		"api_key_id":   keyID,
-		"name":         name,
-		"permissions":  permissions,
-		"rate_limit":   rateLimit,
+		"api_key_id":  keyID,
+		"name":        name,
+		"permissions": permissions,
+		"rate_limit":  rateLimit,
 	}).Info("API key created")
 
 	return apiKey, nil
@@ -175,8 +175,8 @@ func (am *AuthMiddleware) CreateSession(userID, ipAddress, userAgent string) (*S
 
 	// Create JWT token
 	claims := &Claims{
-		UserID:    userID,
-		SessionID: sessionID,
+		UserID:      userID,
+		SessionID:   sessionID,
 		Permissions: []string{"ai:query", "ai:chat", "ai:voice", "ai:cv"}, // Default permissions
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
@@ -334,7 +334,7 @@ func (am *AuthMiddleware) CleanupExpired() {
 	defer am.mu.Unlock()
 
 	now := time.Now()
-	
+
 	// Clean up expired sessions
 	for sessionID, session := range am.sessions {
 		if now.After(session.ExpiresAt) {
@@ -381,11 +381,11 @@ func (am *AuthMiddleware) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"active_api_keys":   activeAPIKeys,
-		"expired_api_keys":  expiredAPIKeys,
-		"active_sessions":   activeSessions,
-		"expired_sessions":  expiredSessions,
-		"rate_limit_stats":  am.rateLimiter.GetStats(),
+		"active_api_keys":  activeAPIKeys,
+		"expired_api_keys": expiredAPIKeys,
+		"active_sessions":  activeSessions,
+		"expired_sessions": expiredSessions,
+		"rate_limit_stats": am.rateLimiter.GetStats(),
 	}
 }
 

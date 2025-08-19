@@ -205,21 +205,21 @@ func (n *MCPNotification) GetNotificationType() string {
 
 // Standard MCP method names
 const (
-	MethodInitialize           = "initialize"
-	MethodInitialized          = "initialized"
-	MethodPing                 = "ping"
-	MethodListResources        = "resources/list"
-	MethodReadResource         = "resources/read"
-	MethodSubscribeResource    = "resources/subscribe"
-	MethodUnsubscribeResource  = "resources/unsubscribe"
-	MethodListTools            = "tools/list"
-	MethodCallTool             = "tools/call"
-	MethodListPrompts          = "prompts/list"
-	MethodGetPrompt            = "prompts/get"
-	MethodSampling             = "sampling/createMessage"
-	MethodLogging              = "logging/setLevel"
-	MethodNotificationProgress = "notifications/progress"
-	MethodNotificationMessage  = "notifications/message"
+	MethodInitialize            = "initialize"
+	MethodInitialized           = "initialized"
+	MethodPing                  = "ping"
+	MethodListResources         = "resources/list"
+	MethodReadResource          = "resources/read"
+	MethodSubscribeResource     = "resources/subscribe"
+	MethodUnsubscribeResource   = "resources/unsubscribe"
+	MethodListTools             = "tools/list"
+	MethodCallTool              = "tools/call"
+	MethodListPrompts           = "prompts/list"
+	MethodGetPrompt             = "prompts/get"
+	MethodSampling              = "sampling/createMessage"
+	MethodLogging               = "logging/setLevel"
+	MethodNotificationProgress  = "notifications/progress"
+	MethodNotificationMessage   = "notifications/message"
 	MethodNotificationCancelled = "notifications/cancelled"
 )
 
@@ -254,8 +254,8 @@ type ListResourcesParams struct {
 
 // ListResourcesResult represents the result of listing resources
 type ListResourcesResult struct {
-	Resources []Resource `json:"resources"`
-	NextCursor string    `json:"nextCursor,omitempty"`
+	Resources  []Resource `json:"resources"`
+	NextCursor string     `json:"nextCursor,omitempty"`
 }
 
 // Resource represents an MCP resource
@@ -357,14 +357,14 @@ type GetPromptParams struct {
 
 // GetPromptResult represents the result of getting a prompt
 type GetPromptResult struct {
-	Description string         `json:"description,omitempty"`
+	Description string          `json:"description,omitempty"`
 	Messages    []PromptMessage `json:"messages"`
 }
 
 // PromptMessage represents a message in a prompt
 type PromptMessage struct {
-	Role    string                 `json:"role"`
-	Content PromptContent          `json:"content"`
+	Role     string                 `json:"role"`
+	Content  PromptContent          `json:"content"`
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
@@ -385,9 +385,9 @@ type ProgressNotificationParams struct {
 
 // MessageNotificationParams represents parameters for message notifications
 type MessageNotificationParams struct {
-	Level   string `json:"level"`
-	Logger  string `json:"logger,omitempty"`
-	Data    interface{} `json:"data"`
+	Level  string      `json:"level"`
+	Logger string      `json:"logger,omitempty"`
+	Data   interface{} `json:"data"`
 }
 
 // CancelledNotificationParams represents parameters for cancelled notifications

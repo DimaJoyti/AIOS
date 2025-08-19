@@ -49,7 +49,7 @@ func runTestingDemo(logger *logrus.Logger) error {
 
 	// Step 2: Create Test Suite
 	fmt.Println("\n2. Creating Test Suite...")
-	
+
 	testSuite := &testing.TestSuite{
 		Name:        "AIOS Core Tests",
 		Description: "Core functionality tests for AIOS",
@@ -72,12 +72,12 @@ func runTestingDemo(logger *logrus.Logger) error {
 		return fmt.Errorf("failed to create test suite: %w", err)
 	}
 
-	fmt.Printf("   ✓ Test Suite created: %s (ID: %s)\n", 
+	fmt.Printf("   ✓ Test Suite created: %s (ID: %s)\n",
 		createdSuite.Name, createdSuite.ID)
 
 	// Step 3: Create Test Case
 	fmt.Println("\n3. Creating Test Case...")
-	
+
 	testCase := &testing.TestCase{
 		Name:        "Basic Functionality Test",
 		Description: "Test basic AIOS functionality",
@@ -129,12 +129,12 @@ func runTestingDemo(logger *logrus.Logger) error {
 		return fmt.Errorf("failed to create test case: %w", err)
 	}
 
-	fmt.Printf("   ✓ Test Case created: %s (ID: %s)\n", 
+	fmt.Printf("   ✓ Test Case created: %s (ID: %s)\n",
 		createdTestCase.Name, createdTestCase.ID)
 
 	// Step 4: Create Test Data
 	fmt.Println("\n4. Creating Test Data...")
-	
+
 	testData := &testing.TestData{
 		Name:   "Demo Test Data",
 		Type:   testing.TestDataTypeStatic,
@@ -165,12 +165,12 @@ func runTestingDemo(logger *logrus.Logger) error {
 		return fmt.Errorf("failed to create test data: %w", err)
 	}
 
-	fmt.Printf("   ✓ Test Data created: %s (ID: %s)\n", 
+	fmt.Printf("   ✓ Test Data created: %s (ID: %s)\n",
 		createdTestData.Name, createdTestData.ID)
 
 	// Step 5: Create Mock Service
 	fmt.Println("\n5. Creating Mock Service...")
-	
+
 	mockService := &testing.MockService{
 		Name: "Demo Mock API",
 		Type: testing.MockServiceTypeHTTP,
@@ -208,12 +208,12 @@ func runTestingDemo(logger *logrus.Logger) error {
 		return fmt.Errorf("failed to create mock service: %w", err)
 	}
 
-	fmt.Printf("   ✓ Mock Service created: %s (ID: %s)\n", 
+	fmt.Printf("   ✓ Mock Service created: %s (ID: %s)\n",
 		createdMockService.Name, createdMockService.ID)
 
 	// Step 6: Execute Test Suite
 	fmt.Println("\n6. Executing Test Suite...")
-	
+
 	executionConfig := &testing.TestExecutionConfig{
 		Environment:     "test",
 		Parallel:        true,
@@ -255,7 +255,7 @@ func runTestingDemo(logger *logrus.Logger) error {
 
 	// Step 7: Performance Testing
 	fmt.Println("\n7. Running Performance Test...")
-	
+
 	loadTestConfig := &testing.LoadTestConfig{
 		Name:        "Demo Load Test",
 		Description: "Simple load test demonstration",
@@ -265,11 +265,11 @@ func runTestingDemo(logger *logrus.Logger) error {
 			Protocol: "http",
 			Timeout:  10 * time.Second,
 		},
-		LoadPattern:     testing.LoadPatternConstant,
-		Duration:        30 * time.Second,
-		MaxUsers:        10,
-		RequestsPerSec:  5,
-		Environment:     "test",
+		LoadPattern:    testing.LoadPatternConstant,
+		Duration:       30 * time.Second,
+		MaxUsers:       10,
+		RequestsPerSec: 5,
+		Environment:    "test",
 	}
 
 	loadTestResult, err := framework.RunLoadTest(loadTestConfig)
@@ -289,7 +289,7 @@ func runTestingDemo(logger *logrus.Logger) error {
 
 	// Step 8: Generate Test Report
 	fmt.Println("\n8. Generating Test Report...")
-	
+
 	testReport, err := framework.GenerateTestReport(execution.ID)
 	if err != nil {
 		return fmt.Errorf("failed to generate test report: %w", err)
@@ -302,7 +302,7 @@ func runTestingDemo(logger *logrus.Logger) error {
 
 	// Step 9: List Test Suites
 	fmt.Println("\n9. Listing Test Suites...")
-	
+
 	suites, err := framework.ListTestSuites(&testing.TestSuiteFilter{
 		Category: testing.TestCategoryUnit,
 		Limit:    5,
@@ -313,7 +313,7 @@ func runTestingDemo(logger *logrus.Logger) error {
 
 	fmt.Printf("   ✓ Test Suites found: %d\n", len(suites))
 	for i, suite := range suites {
-		fmt.Printf("     %d. %s (%s) - %s\n", 
+		fmt.Printf("     %d. %s (%s) - %s\n",
 			i+1, suite.Name, suite.Category, suite.Priority)
 	}
 

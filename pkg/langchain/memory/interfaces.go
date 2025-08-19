@@ -142,15 +142,15 @@ type Entity struct {
 
 // MemoryConfig represents configuration for memory systems
 type MemoryConfig struct {
-	Type           string                 `json:"type"`
-	MaxTokens      int                    `json:"max_tokens,omitempty"`
-	MaxMessages    int                    `json:"max_messages,omitempty"`
-	MaxDocuments   int                    `json:"max_documents,omitempty"`
-	MaxEntities    int                    `json:"max_entities,omitempty"`
-	RetentionDays  int                    `json:"retention_days,omitempty"`
-	VectorDimension int                   `json:"vector_dimension,omitempty"`
-	SimilarityThreshold float64           `json:"similarity_threshold,omitempty"`
-	Metadata       map[string]interface{} `json:"metadata,omitempty"`
+	Type                string                 `json:"type"`
+	MaxTokens           int                    `json:"max_tokens,omitempty"`
+	MaxMessages         int                    `json:"max_messages,omitempty"`
+	MaxDocuments        int                    `json:"max_documents,omitempty"`
+	MaxEntities         int                    `json:"max_entities,omitempty"`
+	RetentionDays       int                    `json:"retention_days,omitempty"`
+	VectorDimension     int                    `json:"vector_dimension,omitempty"`
+	SimilarityThreshold float64                `json:"similarity_threshold,omitempty"`
+	Metadata            map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // MemoryManager manages multiple memory systems

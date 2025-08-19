@@ -21,8 +21,8 @@ func NewBinarySpacePartitioning() *BinarySpacePartitioning {
 	}
 }
 
-func (bsp *BinarySpacePartitioning) Name() string { return "bsp" }
-func (bsp *BinarySpacePartitioning) Description() string { return "Binary Space Partitioning" }
+func (bsp *BinarySpacePartitioning) Name() string         { return "bsp" }
+func (bsp *BinarySpacePartitioning) Description() string  { return "Binary Space Partitioning" }
 func (bsp *BinarySpacePartitioning) SupportsResize() bool { return true }
 
 func (bsp *BinarySpacePartitioning) GetParameters() map[string]interface{} {
@@ -100,8 +100,8 @@ func NewMasterStackAlgorithm() *MasterStackAlgorithm {
 	}
 }
 
-func (ms *MasterStackAlgorithm) Name() string { return "master_stack" }
-func (ms *MasterStackAlgorithm) Description() string { return "Master-Stack Layout" }
+func (ms *MasterStackAlgorithm) Name() string         { return "master_stack" }
+func (ms *MasterStackAlgorithm) Description() string  { return "Master-Stack Layout" }
 func (ms *MasterStackAlgorithm) SupportsResize() bool { return true }
 
 func (ms *MasterStackAlgorithm) GetParameters() map[string]interface{} {
@@ -193,8 +193,8 @@ func NewGridAlgorithm() *GridAlgorithm {
 	}
 }
 
-func (g *GridAlgorithm) Name() string { return "grid" }
-func (g *GridAlgorithm) Description() string { return "Grid Layout" }
+func (g *GridAlgorithm) Name() string         { return "grid" }
+func (g *GridAlgorithm) Description() string  { return "Grid Layout" }
 func (g *GridAlgorithm) SupportsResize() bool { return true }
 
 func (g *GridAlgorithm) GetParameters() map[string]interface{} {
@@ -221,7 +221,7 @@ func (g *GridAlgorithm) Tile(windows []*models.Window, workspace models.Rectangl
 
 	// Calculate optimal grid dimensions
 	cols, rows := g.calculateGridDimensions(len(windows))
-	
+
 	cellWidth := workspace.Width / cols
 	cellHeight := workspace.Height / rows
 
@@ -266,8 +266,8 @@ func NewSpiralAlgorithm() *SpiralAlgorithm {
 	return &SpiralAlgorithm{clockwise: true}
 }
 
-func (s *SpiralAlgorithm) Name() string { return "spiral" }
-func (s *SpiralAlgorithm) Description() string { return "Spiral Layout" }
+func (s *SpiralAlgorithm) Name() string         { return "spiral" }
+func (s *SpiralAlgorithm) Description() string  { return "Spiral Layout" }
 func (s *SpiralAlgorithm) SupportsResize() bool { return false }
 
 func (s *SpiralAlgorithm) GetParameters() map[string]interface{} {
@@ -302,8 +302,8 @@ func NewFloatingAlgorithm() *FloatingAlgorithm {
 	}
 }
 
-func (f *FloatingAlgorithm) Name() string { return "floating" }
-func (f *FloatingAlgorithm) Description() string { return "Floating Windows" }
+func (f *FloatingAlgorithm) Name() string         { return "floating" }
+func (f *FloatingAlgorithm) Description() string  { return "Floating Windows" }
 func (f *FloatingAlgorithm) SupportsResize() bool { return true }
 
 func (f *FloatingAlgorithm) GetParameters() map[string]interface{} {
@@ -366,8 +366,8 @@ func NewTabletAlgorithm() *TabletAlgorithm {
 	}
 }
 
-func (t *TabletAlgorithm) Name() string { return "tablet" }
-func (t *TabletAlgorithm) Description() string { return "Tablet-Optimized Layout" }
+func (t *TabletAlgorithm) Name() string         { return "tablet" }
+func (t *TabletAlgorithm) Description() string  { return "Tablet-Optimized Layout" }
 func (t *TabletAlgorithm) SupportsResize() bool { return true }
 
 func (t *TabletAlgorithm) GetParameters() map[string]interface{} {
@@ -404,8 +404,8 @@ func NewAIOptimizedAlgorithm(aiOrchestrator *ai.Orchestrator) *AIOptimizedAlgori
 	}
 }
 
-func (ai *AIOptimizedAlgorithm) Name() string { return "ai_optimized" }
-func (ai *AIOptimizedAlgorithm) Description() string { return "AI-Optimized Layout" }
+func (ai *AIOptimizedAlgorithm) Name() string         { return "ai_optimized" }
+func (ai *AIOptimizedAlgorithm) Description() string  { return "AI-Optimized Layout" }
 func (ai *AIOptimizedAlgorithm) SupportsResize() bool { return true }
 
 func (ai *AIOptimizedAlgorithm) GetParameters() map[string]interface{} {

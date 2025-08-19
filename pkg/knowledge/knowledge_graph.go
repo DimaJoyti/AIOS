@@ -27,24 +27,24 @@ type DefaultKnowledgeGraph struct {
 
 // KnowledgeGraphConfig represents configuration for the knowledge graph
 type KnowledgeGraphConfig struct {
-	MaxEntities      int     `json:"max_entities"`
-	MaxRelationships int     `json:"max_relationships"`
-	SimilarityThreshold float32 `json:"similarity_threshold"`
-	EnableCaching    bool    `json:"enable_caching"`
-	CacheTTL         time.Duration `json:"cache_ttl"`
+	MaxEntities         int           `json:"max_entities"`
+	MaxRelationships    int           `json:"max_relationships"`
+	SimilarityThreshold float32       `json:"similarity_threshold"`
+	EnableCaching       bool          `json:"enable_caching"`
+	CacheTTL            time.Duration `json:"cache_ttl"`
 }
 
 // Path represents a path between entities
 type Path struct {
-	Entities      []*Entity      `json:"entities"`
+	Entities      []*Entity       `json:"entities"`
 	Relationships []*Relationship `json:"relationships"`
-	Length        int            `json:"length"`
-	Weight        float64        `json:"weight"`
+	Length        int             `json:"length"`
+	Weight        float64         `json:"weight"`
 }
 
 // GraphQuery represents a graph query
 type GraphQuery struct {
-	Type       string                 `json:"type"`       // "find_path", "neighbors", "subgraph"
+	Type       string                 `json:"type"` // "find_path", "neighbors", "subgraph"
 	EntityID   string                 `json:"entity_id,omitempty"`
 	FromEntity string                 `json:"from_entity,omitempty"`
 	ToEntity   string                 `json:"to_entity,omitempty"`
@@ -55,11 +55,11 @@ type GraphQuery struct {
 
 // GraphResult represents graph query results
 type GraphResult struct {
-	Entities      []*Entity       `json:"entities,omitempty"`
-	Relationships []*Relationship `json:"relationships,omitempty"`
-	Paths         []*Path         `json:"paths,omitempty"`
-	Metadata      map[string]interface{} `json:"metadata,omitempty"`
-	ProcessingTime time.Duration  `json:"processing_time"`
+	Entities       []*Entity              `json:"entities,omitempty"`
+	Relationships  []*Relationship        `json:"relationships,omitempty"`
+	Paths          []*Path                `json:"paths,omitempty"`
+	Metadata       map[string]interface{} `json:"metadata,omitempty"`
+	ProcessingTime time.Duration          `json:"processing_time"`
 }
 
 // NewDefaultKnowledgeGraph creates a new default knowledge graph
@@ -69,7 +69,7 @@ func NewDefaultKnowledgeGraph(logger *logrus.Logger) (KnowledgeGraph, error) {
 		MaxRelationships:    500000,
 		SimilarityThreshold: 0.8,
 		EnableCaching:       true,
-		CacheTTL:           24 * time.Hour,
+		CacheTTL:            24 * time.Hour,
 	}
 
 	graph := &DefaultKnowledgeGraph{
@@ -110,7 +110,7 @@ func (kg *DefaultKnowledgeGraph) AddEntity(ctx context.Context, entity *Entity) 
 		existing.Embedding = entity.Embedding
 		existing.Confidence = entity.Confidence
 		existing.UpdatedAt = time.Now()
-		
+
 		kg.logger.WithField("entity_id", entity.ID).Debug("Entity updated")
 		return nil
 	}

@@ -16,24 +16,24 @@ import (
 
 // CacheEntry represents a cached item
 type CacheEntry struct {
-	Key       string
-	Value     interface{}
-	ExpiresAt time.Time
-	CreatedAt time.Time
+	Key         string
+	Value       interface{}
+	ExpiresAt   time.Time
+	CreatedAt   time.Time
 	AccessCount int64
 	LastAccess  time.Time
 }
 
 // MemoryCacheManager implements in-memory caching
 type MemoryCacheManager struct {
-	cache     map[string]*CacheEntry
-	mu        sync.RWMutex
-	maxSize   int64
+	cache       map[string]*CacheEntry
+	mu          sync.RWMutex
+	maxSize     int64
 	currentSize int64
-	ttl       time.Duration
-	logger    *logrus.Logger
-	tracer    trace.Tracer
-	stats     *models.CacheStats
+	ttl         time.Duration
+	logger      *logrus.Logger
+	tracer      trace.Tracer
+	stats       *models.CacheStats
 }
 
 // NewMemoryCacheManager creates a new in-memory cache manager
@@ -74,7 +74,7 @@ func (c *MemoryCacheManager) Get(ctx context.Context, key string) (interface{}, 
 		c.currentSize--
 		c.mu.Unlock()
 		c.mu.RLock()
-		
+
 		c.stats.TotalMisses++
 		c.updateHitRate()
 		return nil, false, nil
@@ -83,7 +83,7 @@ func (c *MemoryCacheManager) Get(ctx context.Context, key string) (interface{}, 
 	// Update access statistics
 	entry.AccessCount++
 	entry.LastAccess = time.Now()
-	
+
 	c.stats.TotalHits++
 	c.updateHitRate()
 
@@ -130,10 +130,10 @@ func (c *MemoryCacheManager) Set(ctx context.Context, key string, value interfac
 	c.stats.Size = c.currentSize
 
 	c.logger.WithFields(logrus.Fields{
-		"key":         key,
-		"ttl":         ttl,
-		"cache_size":  c.currentSize,
-		"expires_at":  entry.ExpiresAt,
+		"key":        key,
+		"ttl":        ttl,
+		"cache_size": c.currentSize,
+		"expires_at": entry.ExpiresAt,
 	}).Debug("Cache set")
 
 	return nil
@@ -213,9 +213,9 @@ func (c *MemoryCacheManager) evictLRU() {
 		c.stats.Evictions++
 
 		c.logger.WithFields(logrus.Fields{
-			"evicted_key":  oldestKey,
-			"last_access":  oldestTime,
-			"cache_size":   c.currentSize,
+			"evicted_key": oldestKey,
+			"last_access": oldestTime,
+			"cache_size":  c.currentSize,
 		}).Debug("Cache entry evicted")
 	}
 }
@@ -269,11 +269,11 @@ func (c *MemoryCacheManager) CleanupExpired(ctx context.Context) error {
 func GenerateKey(prefix string, params ...interface{}) string {
 	hasher := sha256.New()
 	hasher.Write([]byte(prefix))
-	
+
 	for _, param := range params {
 		hasher.Write([]byte(fmt.Sprintf("%v", param)))
 	}
-	
+
 	return hex.EncodeToString(hasher.Sum(nil))[:16] // Use first 16 characters
 }
 

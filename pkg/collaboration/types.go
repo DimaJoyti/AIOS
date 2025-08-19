@@ -14,13 +14,13 @@ type CollaborationEngine interface {
 	UpdateTeam(team *Team) (*Team, error)
 	DeleteTeam(teamID string) error
 	ListTeams(filter *TeamFilter) ([]*Team, error)
-	
+
 	// Member Management
 	AddTeamMember(teamID string, member *TeamMember) error
 	RemoveTeamMember(teamID, userID string) error
 	UpdateTeamMember(teamID string, member *TeamMember) error
 	GetTeamMembers(teamID string) ([]*TeamMember, error)
-	
+
 	// Role Management
 	CreateRole(role *Role) (*Role, error)
 	GetRole(roleID string) (*Role, error)
@@ -29,34 +29,34 @@ type CollaborationEngine interface {
 	ListRoles(filter *RoleFilter) ([]*Role, error)
 	AssignRole(userID, roleID string) error
 	RevokeRole(userID, roleID string) error
-	
+
 	// Communication
 	SendMessage(message *Message) (*Message, error)
 	GetMessages(channelID string, filter *MessageFilter) ([]*Message, error)
 	CreateChannel(channel *Channel) (*Channel, error)
 	GetChannel(channelID string) (*Channel, error)
 	ListChannels(teamID string, filter *ChannelFilter) ([]*Channel, error)
-	
+
 	// Notifications
 	SendNotification(notification *Notification) error
 	GetNotifications(userID string, filter *NotificationFilter) ([]*Notification, error)
 	MarkNotificationRead(notificationID string) error
 	GetNotificationSettings(userID string) (*NotificationSettings, error)
 	UpdateNotificationSettings(userID string, settings *NotificationSettings) error
-	
+
 	// Collaborative Workflows
 	CreateCollaborativeWorkflow(workflow *CollaborativeWorkflow) (*CollaborativeWorkflow, error)
 	GetCollaborativeWorkflow(workflowID string) (*CollaborativeWorkflow, error)
 	UpdateCollaborativeWorkflow(workflow *CollaborativeWorkflow) (*CollaborativeWorkflow, error)
 	ListCollaborativeWorkflows(teamID string, filter *WorkflowFilter) ([]*CollaborativeWorkflow, error)
-	
+
 	// Document Collaboration
 	CreateDocument(document *Document) (*Document, error)
 	GetDocument(documentID string) (*Document, error)
 	UpdateDocument(document *Document) (*Document, error)
 	ShareDocument(documentID string, sharing *DocumentSharing) error
 	GetDocumentVersions(documentID string) ([]*DocumentVersion, error)
-	
+
 	// Activity Tracking
 	LogActivity(activity *Activity) error
 	GetActivities(filter *ActivityFilter) ([]*Activity, error)
@@ -88,14 +88,14 @@ type Team struct {
 type TeamType string
 
 const (
-	TeamTypeDevelopment TeamType = "development"
-	TeamTypeDesign      TeamType = "design"
-	TeamTypeQA          TeamType = "qa"
-	TeamTypeDevOps      TeamType = "devops"
-	TeamTypeProduct     TeamType = "product"
-	TeamTypeMarketing   TeamType = "marketing"
-	TeamTypeSales       TeamType = "sales"
-	TeamTypeSupport     TeamType = "support"
+	TeamTypeDevelopment     TeamType = "development"
+	TeamTypeDesign          TeamType = "design"
+	TeamTypeQA              TeamType = "qa"
+	TeamTypeDevOps          TeamType = "devops"
+	TeamTypeProduct         TeamType = "product"
+	TeamTypeMarketing       TeamType = "marketing"
+	TeamTypeSales           TeamType = "sales"
+	TeamTypeSupport         TeamType = "support"
 	TeamTypeCrossFunctional TeamType = "cross_functional"
 )
 
@@ -110,33 +110,33 @@ const (
 
 // TeamSettings contains team configuration
 type TeamSettings struct {
-	IsPublic              bool                   `json:"is_public"`
-	AllowExternalMembers  bool                   `json:"allow_external_members"`
-	RequireApproval       bool                   `json:"require_approval"`
-	DefaultRole           string                 `json:"default_role"`
-	NotificationSettings  *TeamNotificationSettings `json:"notification_settings"`
-	WorkflowSettings      *TeamWorkflowSettings  `json:"workflow_settings"`
-	IntegrationSettings   map[string]interface{} `json:"integration_settings,omitempty"`
+	IsPublic             bool                      `json:"is_public"`
+	AllowExternalMembers bool                      `json:"allow_external_members"`
+	RequireApproval      bool                      `json:"require_approval"`
+	DefaultRole          string                    `json:"default_role"`
+	NotificationSettings *TeamNotificationSettings `json:"notification_settings"`
+	WorkflowSettings     *TeamWorkflowSettings     `json:"workflow_settings"`
+	IntegrationSettings  map[string]interface{}    `json:"integration_settings,omitempty"`
 }
 
 // TeamNotificationSettings contains team notification preferences
 type TeamNotificationSettings struct {
-	EnableEmailNotifications bool     `json:"enable_email_notifications"`
-	EnableSlackIntegration    bool     `json:"enable_slack_integration"`
-	EnableWebhooks           bool     `json:"enable_webhooks"`
-	NotificationChannels     []string `json:"notification_channels"`
-	QuietHours              *QuietHours `json:"quiet_hours,omitempty"`
+	EnableEmailNotifications bool        `json:"enable_email_notifications"`
+	EnableSlackIntegration   bool        `json:"enable_slack_integration"`
+	EnableWebhooks           bool        `json:"enable_webhooks"`
+	NotificationChannels     []string    `json:"notification_channels"`
+	QuietHours               *QuietHours `json:"quiet_hours,omitempty"`
 }
 
 // TeamWorkflowSettings contains team workflow configuration
 type TeamWorkflowSettings struct {
-	DefaultWorkflow       string                 `json:"default_workflow"`
-	RequireCodeReview     bool                   `json:"require_code_review"`
-	MinimumReviewers      int                    `json:"minimum_reviewers"`
-	AutoAssignReviewers   bool                   `json:"auto_assign_reviewers"`
-	EnableAutomation      bool                   `json:"enable_automation"`
-	WorkflowTemplates     []string               `json:"workflow_templates"`
-	CustomFields          map[string]interface{} `json:"custom_fields,omitempty"`
+	DefaultWorkflow     string                 `json:"default_workflow"`
+	RequireCodeReview   bool                   `json:"require_code_review"`
+	MinimumReviewers    int                    `json:"minimum_reviewers"`
+	AutoAssignReviewers bool                   `json:"auto_assign_reviewers"`
+	EnableAutomation    bool                   `json:"enable_automation"`
+	WorkflowTemplates   []string               `json:"workflow_templates"`
+	CustomFields        map[string]interface{} `json:"custom_fields,omitempty"`
 }
 
 // QuietHours defines when notifications should be suppressed
@@ -247,20 +247,20 @@ type Channel struct {
 type ChannelType string
 
 const (
-	ChannelTypePublic    ChannelType = "public"
-	ChannelTypePrivate   ChannelType = "private"
-	ChannelTypeDirect    ChannelType = "direct"
+	ChannelTypePublic       ChannelType = "public"
+	ChannelTypePrivate      ChannelType = "private"
+	ChannelTypeDirect       ChannelType = "direct"
 	ChannelTypeAnnouncement ChannelType = "announcement"
 )
 
 // ChannelSettings contains channel configuration
 type ChannelSettings struct {
-	IsArchived        bool     `json:"is_archived"`
-	AllowThreads      bool     `json:"allow_threads"`
-	AllowFileUploads  bool     `json:"allow_file_uploads"`
-	RetentionDays     int      `json:"retention_days"`
-	MutedMembers      []string `json:"muted_members,omitempty"`
-	PinnedMessages    []string `json:"pinned_messages,omitempty"`
+	IsArchived       bool     `json:"is_archived"`
+	AllowThreads     bool     `json:"allow_threads"`
+	AllowFileUploads bool     `json:"allow_file_uploads"`
+	RetentionDays    int      `json:"retention_days"`
+	MutedMembers     []string `json:"muted_members,omitempty"`
+	PinnedMessages   []string `json:"pinned_messages,omitempty"`
 }
 
 // Message represents a chat message
@@ -286,11 +286,11 @@ type Message struct {
 type MessageType string
 
 const (
-	MessageTypeText        MessageType = "text"
-	MessageTypeFile        MessageType = "file"
-	MessageTypeImage       MessageType = "image"
-	MessageTypeCode        MessageType = "code"
-	MessageTypeSystem      MessageType = "system"
+	MessageTypeText         MessageType = "text"
+	MessageTypeFile         MessageType = "file"
+	MessageTypeImage        MessageType = "image"
+	MessageTypeCode         MessageType = "code"
+	MessageTypeSystem       MessageType = "system"
 	MessageTypeNotification MessageType = "notification"
 )
 
@@ -315,34 +315,34 @@ type MessageReaction struct {
 
 // Notification represents a user notification
 type Notification struct {
-	ID          string                 `json:"id"`
-	UserID      string                 `json:"user_id"`
-	Type        NotificationType       `json:"type"`
-	Title       string                 `json:"title"`
-	Message     string                 `json:"message"`
-	Priority    NotificationPriority   `json:"priority"`
-	Category    string                 `json:"category"`
-	Source      *NotificationSource    `json:"source"`
-	Actions     []*NotificationAction  `json:"actions,omitempty"`
-	IsRead      bool                   `json:"is_read"`
-	ReadAt      *time.Time             `json:"read_at,omitempty"`
-	ExpiresAt   *time.Time             `json:"expires_at,omitempty"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt   time.Time              `json:"created_at"`
+	ID        string                 `json:"id"`
+	UserID    string                 `json:"user_id"`
+	Type      NotificationType       `json:"type"`
+	Title     string                 `json:"title"`
+	Message   string                 `json:"message"`
+	Priority  NotificationPriority   `json:"priority"`
+	Category  string                 `json:"category"`
+	Source    *NotificationSource    `json:"source"`
+	Actions   []*NotificationAction  `json:"actions,omitempty"`
+	IsRead    bool                   `json:"is_read"`
+	ReadAt    *time.Time             `json:"read_at,omitempty"`
+	ExpiresAt *time.Time             `json:"expires_at,omitempty"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt time.Time              `json:"created_at"`
 }
 
 // NotificationType defines the type of notification
 type NotificationType string
 
 const (
-	NotificationTypeInfo     NotificationType = "info"
-	NotificationTypeWarning  NotificationType = "warning"
-	NotificationTypeError    NotificationType = "error"
-	NotificationTypeSuccess  NotificationType = "success"
-	NotificationTypeMention  NotificationType = "mention"
+	NotificationTypeInfo       NotificationType = "info"
+	NotificationTypeWarning    NotificationType = "warning"
+	NotificationTypeError      NotificationType = "error"
+	NotificationTypeSuccess    NotificationType = "success"
+	NotificationTypeMention    NotificationType = "mention"
 	NotificationTypeAssignment NotificationType = "assignment"
-	NotificationTypeDeadline NotificationType = "deadline"
-	NotificationTypeApproval NotificationType = "approval"
+	NotificationTypeDeadline   NotificationType = "deadline"
+	NotificationTypeApproval   NotificationType = "approval"
 )
 
 // NotificationPriority defines the priority of a notification
@@ -357,11 +357,11 @@ const (
 
 // NotificationSource contains information about the notification source
 type NotificationSource struct {
-	Type     string `json:"type"`
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	URL      string `json:"url,omitempty"`
-	IconURL  string `json:"icon_url,omitempty"`
+	Type    string `json:"type"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	URL     string `json:"url,omitempty"`
+	IconURL string `json:"icon_url,omitempty"`
 }
 
 // NotificationAction represents an action that can be taken on a notification
@@ -374,21 +374,21 @@ type NotificationAction struct {
 
 // NotificationSettings contains user notification preferences
 type NotificationSettings struct {
-	UserID              string                           `json:"user_id"`
-	EmailNotifications  *EmailNotificationSettings      `json:"email_notifications"`
-	PushNotifications   *PushNotificationSettings       `json:"push_notifications"`
-	InAppNotifications  *InAppNotificationSettings      `json:"in_app_notifications"`
-	CategorySettings    map[string]*CategorySettings    `json:"category_settings"`
-	QuietHours          *QuietHours                     `json:"quiet_hours,omitempty"`
-	UpdatedAt           time.Time                       `json:"updated_at"`
+	UserID             string                       `json:"user_id"`
+	EmailNotifications *EmailNotificationSettings   `json:"email_notifications"`
+	PushNotifications  *PushNotificationSettings    `json:"push_notifications"`
+	InAppNotifications *InAppNotificationSettings   `json:"in_app_notifications"`
+	CategorySettings   map[string]*CategorySettings `json:"category_settings"`
+	QuietHours         *QuietHours                  `json:"quiet_hours,omitempty"`
+	UpdatedAt          time.Time                    `json:"updated_at"`
 }
 
 // EmailNotificationSettings contains email notification preferences
 type EmailNotificationSettings struct {
-	Enabled     bool     `json:"enabled"`
-	Frequency   string   `json:"frequency"` // immediate, hourly, daily, weekly
-	Categories  []string `json:"categories"`
-	DigestTime  string   `json:"digest_time,omitempty"` // HH:MM format
+	Enabled    bool     `json:"enabled"`
+	Frequency  string   `json:"frequency"` // immediate, hourly, daily, weekly
+	Categories []string `json:"categories"`
+	DigestTime string   `json:"digest_time,omitempty"` // HH:MM format
 }
 
 // PushNotificationSettings contains push notification preferences
@@ -409,40 +409,40 @@ type InAppNotificationSettings struct {
 
 // CategorySettings contains settings for a specific notification category
 type CategorySettings struct {
-	Enabled   bool                 `json:"enabled"`
-	Priority  NotificationPriority `json:"priority"`
-	Channels  []string             `json:"channels"` // email, push, in_app
+	Enabled  bool                 `json:"enabled"`
+	Priority NotificationPriority `json:"priority"`
+	Channels []string             `json:"channels"` // email, push, in_app
 }
 
 // Collaborative Workflow Types
 
 // CollaborativeWorkflow represents a workflow that involves multiple team members
 type CollaborativeWorkflow struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	TeamID      string                 `json:"team_id"`
-	Type        WorkflowType           `json:"type"`
-	Status      WorkflowStatus         `json:"status"`
-	Steps       []*WorkflowStep        `json:"steps"`
+	ID           string                 `json:"id"`
+	Name         string                 `json:"name"`
+	Description  string                 `json:"description"`
+	TeamID       string                 `json:"team_id"`
+	Type         WorkflowType           `json:"type"`
+	Status       WorkflowStatus         `json:"status"`
+	Steps        []*WorkflowStep        `json:"steps"`
 	Participants []*WorkflowParticipant `json:"participants"`
-	Settings    *WorkflowSettings      `json:"settings"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	CreatedBy   string                 `json:"created_by"`
-	CreatedAt   time.Time              `json:"created_at"`
-	UpdatedAt   time.Time              `json:"updated_at"`
+	Settings     *WorkflowSettings      `json:"settings"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
+	CreatedBy    string                 `json:"created_by"`
+	CreatedAt    time.Time              `json:"created_at"`
+	UpdatedAt    time.Time              `json:"updated_at"`
 }
 
 // WorkflowType defines the type of collaborative workflow
 type WorkflowType string
 
 const (
-	WorkflowTypeCodeReview   WorkflowType = "code_review"
-	WorkflowTypeApproval     WorkflowType = "approval"
+	WorkflowTypeCodeReview     WorkflowType = "code_review"
+	WorkflowTypeApproval       WorkflowType = "approval"
 	WorkflowTypeDocumentReview WorkflowType = "document_review"
 	WorkflowTypeDecisionMaking WorkflowType = "decision_making"
-	WorkflowTypeOnboarding   WorkflowType = "onboarding"
-	WorkflowTypeCustom       WorkflowType = "custom"
+	WorkflowTypeOnboarding     WorkflowType = "onboarding"
+	WorkflowTypeCustom         WorkflowType = "custom"
 )
 
 // WorkflowStatus defines the status of a workflow
@@ -459,31 +459,31 @@ const (
 
 // WorkflowStep represents a step in a collaborative workflow
 type WorkflowStep struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Type        StepType               `json:"type"`
-	Order       int                    `json:"order"`
-	Assignees   []string               `json:"assignees"`
-	Dependencies []string              `json:"dependencies,omitempty"`
-	DueDate     *time.Time             `json:"due_date,omitempty"`
-	Status      StepStatus             `json:"status"`
-	Result      *StepResult            `json:"result,omitempty"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt   time.Time              `json:"created_at"`
-	UpdatedAt   time.Time              `json:"updated_at"`
+	ID           string                 `json:"id"`
+	Name         string                 `json:"name"`
+	Description  string                 `json:"description"`
+	Type         StepType               `json:"type"`
+	Order        int                    `json:"order"`
+	Assignees    []string               `json:"assignees"`
+	Dependencies []string               `json:"dependencies,omitempty"`
+	DueDate      *time.Time             `json:"due_date,omitempty"`
+	Status       StepStatus             `json:"status"`
+	Result       *StepResult            `json:"result,omitempty"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt    time.Time              `json:"created_at"`
+	UpdatedAt    time.Time              `json:"updated_at"`
 }
 
 // StepType defines the type of workflow step
 type StepType string
 
 const (
-	StepTypeReview    StepType = "review"
-	StepTypeApproval  StepType = "approval"
-	StepTypeTask      StepType = "task"
-	StepTypeDecision  StepType = "decision"
+	StepTypeReview       StepType = "review"
+	StepTypeApproval     StepType = "approval"
+	StepTypeTask         StepType = "task"
+	StepTypeDecision     StepType = "decision"
 	StepTypeNotification StepType = "notification"
-	StepTypeAutomation StepType = "automation"
+	StepTypeAutomation   StepType = "automation"
 )
 
 // StepStatus defines the status of a workflow step
@@ -499,12 +499,12 @@ const (
 
 // StepResult contains the result of a workflow step
 type StepResult struct {
-	Status    string                 `json:"status"`
-	Decision  string                 `json:"decision,omitempty"`
-	Comments  string                 `json:"comments,omitempty"`
-	Data      map[string]interface{} `json:"data,omitempty"`
-	CompletedBy string               `json:"completed_by"`
-	CompletedAt time.Time            `json:"completed_at"`
+	Status      string                 `json:"status"`
+	Decision    string                 `json:"decision,omitempty"`
+	Comments    string                 `json:"comments,omitempty"`
+	Data        map[string]interface{} `json:"data,omitempty"`
+	CompletedBy string                 `json:"completed_by"`
+	CompletedAt time.Time              `json:"completed_at"`
 }
 
 // WorkflowParticipant represents a participant in a workflow
@@ -521,19 +521,19 @@ type WorkflowParticipant struct {
 type ParticipantStatus string
 
 const (
-	ParticipantStatusActive   ParticipantStatus = "active"
-	ParticipantStatusInactive ParticipantStatus = "inactive"
+	ParticipantStatusActive    ParticipantStatus = "active"
+	ParticipantStatusInactive  ParticipantStatus = "inactive"
 	ParticipantStatusCompleted ParticipantStatus = "completed"
 )
 
 // WorkflowSettings contains workflow configuration
 type WorkflowSettings struct {
-	AutoStart           bool                   `json:"auto_start"`
-	RequireAllApprovals bool                   `json:"require_all_approvals"`
-	AllowParallelSteps  bool                   `json:"allow_parallel_steps"`
-	TimeoutDuration     *time.Duration         `json:"timeout_duration,omitempty"`
+	AutoStart            bool                          `json:"auto_start"`
+	RequireAllApprovals  bool                          `json:"require_all_approvals"`
+	AllowParallelSteps   bool                          `json:"allow_parallel_steps"`
+	TimeoutDuration      *time.Duration                `json:"timeout_duration,omitempty"`
 	NotificationSettings *WorkflowNotificationSettings `json:"notification_settings"`
-	EscalationRules     []*EscalationRule      `json:"escalation_rules,omitempty"`
+	EscalationRules      []*EscalationRule             `json:"escalation_rules,omitempty"`
 }
 
 // WorkflowNotificationSettings contains workflow notification configuration
@@ -547,45 +547,45 @@ type WorkflowNotificationSettings struct {
 
 // EscalationRule defines when and how to escalate workflow issues
 type EscalationRule struct {
-	Condition   string        `json:"condition"`
-	Delay       time.Duration `json:"delay"`
-	Action      string        `json:"action"`
-	Recipients  []string      `json:"recipients"`
-	Message     string        `json:"message,omitempty"`
+	Condition  string        `json:"condition"`
+	Delay      time.Duration `json:"delay"`
+	Action     string        `json:"action"`
+	Recipients []string      `json:"recipients"`
+	Message    string        `json:"message,omitempty"`
 }
 
 // Document Collaboration Types
 
 // Document represents a collaborative document
 type Document struct {
-	ID          string                 `json:"id"`
-	Title       string                 `json:"title"`
-	Content     string                 `json:"content"`
-	Type        DocumentType           `json:"type"`
-	Format      string                 `json:"format"`
-	TeamID      string                 `json:"team_id,omitempty"`
-	ProjectID   string                 `json:"project_id,omitempty"`
-	Status      DocumentStatus         `json:"status"`
-	Version     int                    `json:"version"`
-	Sharing     *DocumentSharing       `json:"sharing"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	CreatedBy   string                 `json:"created_by"`
-	CreatedAt   time.Time              `json:"created_at"`
-	UpdatedBy   string                 `json:"updated_by"`
-	UpdatedAt   time.Time              `json:"updated_at"`
+	ID        string                 `json:"id"`
+	Title     string                 `json:"title"`
+	Content   string                 `json:"content"`
+	Type      DocumentType           `json:"type"`
+	Format    string                 `json:"format"`
+	TeamID    string                 `json:"team_id,omitempty"`
+	ProjectID string                 `json:"project_id,omitempty"`
+	Status    DocumentStatus         `json:"status"`
+	Version   int                    `json:"version"`
+	Sharing   *DocumentSharing       `json:"sharing"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	CreatedBy string                 `json:"created_by"`
+	CreatedAt time.Time              `json:"created_at"`
+	UpdatedBy string                 `json:"updated_by"`
+	UpdatedAt time.Time              `json:"updated_at"`
 }
 
 // DocumentType defines the type of document
 type DocumentType string
 
 const (
-	DocumentTypeMarkdown     DocumentType = "markdown"
-	DocumentTypeText         DocumentType = "text"
-	DocumentTypeCode         DocumentType = "code"
+	DocumentTypeMarkdown      DocumentType = "markdown"
+	DocumentTypeText          DocumentType = "text"
+	DocumentTypeCode          DocumentType = "code"
 	DocumentTypeSpecification DocumentType = "specification"
-	DocumentTypeDesign       DocumentType = "design"
-	DocumentTypePresentation DocumentType = "presentation"
-	DocumentTypeSpreadsheet  DocumentType = "spreadsheet"
+	DocumentTypeDesign        DocumentType = "design"
+	DocumentTypePresentation  DocumentType = "presentation"
+	DocumentTypeSpreadsheet   DocumentType = "spreadsheet"
 )
 
 // DocumentStatus defines the status of a document
@@ -601,19 +601,19 @@ const (
 
 // DocumentSharing contains document sharing settings
 type DocumentSharing struct {
-	IsPublic      bool                    `json:"is_public"`
-	SharedWith    []*DocumentPermission   `json:"shared_with"`
-	LinkSharing   *LinkSharingSettings    `json:"link_sharing,omitempty"`
-	ExpiresAt     *time.Time              `json:"expires_at,omitempty"`
+	IsPublic    bool                  `json:"is_public"`
+	SharedWith  []*DocumentPermission `json:"shared_with"`
+	LinkSharing *LinkSharingSettings  `json:"link_sharing,omitempty"`
+	ExpiresAt   *time.Time            `json:"expires_at,omitempty"`
 }
 
 // DocumentPermission represents permission for a user or team on a document
 type DocumentPermission struct {
-	Type        string                 `json:"type"` // user, team, role
-	ID          string                 `json:"id"`
-	Permission  DocumentPermissionType `json:"permission"`
-	GrantedBy   string                 `json:"granted_by"`
-	GrantedAt   time.Time              `json:"granted_at"`
+	Type       string                 `json:"type"` // user, team, role
+	ID         string                 `json:"id"`
+	Permission DocumentPermissionType `json:"permission"`
+	GrantedBy  string                 `json:"granted_by"`
+	GrantedAt  time.Time              `json:"granted_at"`
 }
 
 // DocumentPermissionType defines the level of access to a document
@@ -628,22 +628,22 @@ const (
 
 // LinkSharingSettings contains settings for link-based sharing
 type LinkSharingSettings struct {
-	Enabled    bool                   `json:"enabled"`
-	Permission DocumentPermissionType `json:"permission"`
-	RequireAuth bool                  `json:"require_auth"`
-	ExpiresAt  *time.Time             `json:"expires_at,omitempty"`
+	Enabled     bool                   `json:"enabled"`
+	Permission  DocumentPermissionType `json:"permission"`
+	RequireAuth bool                   `json:"require_auth"`
+	ExpiresAt   *time.Time             `json:"expires_at,omitempty"`
 }
 
 // DocumentVersion represents a version of a document
 type DocumentVersion struct {
-	ID          string                 `json:"id"`
-	DocumentID  string                 `json:"document_id"`
-	Version     int                    `json:"version"`
-	Content     string                 `json:"content"`
-	Changes     string                 `json:"changes,omitempty"`
-	CreatedBy   string                 `json:"created_by"`
-	CreatedAt   time.Time              `json:"created_at"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	ID         string                 `json:"id"`
+	DocumentID string                 `json:"document_id"`
+	Version    int                    `json:"version"`
+	Content    string                 `json:"content"`
+	Changes    string                 `json:"changes,omitempty"`
+	CreatedBy  string                 `json:"created_by"`
+	CreatedAt  time.Time              `json:"created_at"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // Activity Tracking Types
@@ -667,12 +667,12 @@ type Activity struct {
 type ActivityType string
 
 const (
-	ActivityTypeTeam        ActivityType = "team"
-	ActivityTypeProject     ActivityType = "project"
-	ActivityTypeTask        ActivityType = "task"
-	ActivityTypeDocument    ActivityType = "document"
-	ActivityTypeWorkflow    ActivityType = "workflow"
-	ActivityTypeMessage     ActivityType = "message"
+	ActivityTypeTeam         ActivityType = "team"
+	ActivityTypeProject      ActivityType = "project"
+	ActivityTypeTask         ActivityType = "task"
+	ActivityTypeDocument     ActivityType = "document"
+	ActivityTypeWorkflow     ActivityType = "workflow"
+	ActivityTypeMessage      ActivityType = "message"
 	ActivityTypeNotification ActivityType = "notification"
 )
 
@@ -708,14 +708,14 @@ type RoleFilter struct {
 
 // MessageFilter contains filters for message queries
 type MessageFilter struct {
-	UserID    string      `json:"user_id,omitempty"`
-	Type      MessageType `json:"type,omitempty"`
-	ThreadID  string      `json:"thread_id,omitempty"`
-	Since     *time.Time  `json:"since,omitempty"`
-	Until     *time.Time  `json:"until,omitempty"`
-	Search    string      `json:"search,omitempty"`
-	Limit     int         `json:"limit,omitempty"`
-	Offset    int         `json:"offset,omitempty"`
+	UserID   string      `json:"user_id,omitempty"`
+	Type     MessageType `json:"type,omitempty"`
+	ThreadID string      `json:"thread_id,omitempty"`
+	Since    *time.Time  `json:"since,omitempty"`
+	Until    *time.Time  `json:"until,omitempty"`
+	Search   string      `json:"search,omitempty"`
+	Limit    int         `json:"limit,omitempty"`
+	Offset   int         `json:"offset,omitempty"`
 }
 
 // ChannelFilter contains filters for channel queries

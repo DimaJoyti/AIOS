@@ -14,35 +14,35 @@ import (
 
 // Manager handles developer tools and debugging capabilities
 type Manager struct {
-	logger         *logrus.Logger
-	tracer         trace.Tracer
-	config         DevToolsConfig
-	debugger       *Debugger
-	profiler       *Profiler
-	codeAnalyzer   *CodeAnalyzer
-	testRunner     *TestRunner
-	buildManager   *BuildManager
-	liveReloader   *LiveReloader
-	logAnalyzer    *LogAnalyzer
+	logger           *logrus.Logger
+	tracer           trace.Tracer
+	config           DevToolsConfig
+	debugger         *Debugger
+	profiler         *Profiler
+	codeAnalyzer     *CodeAnalyzer
+	testRunner       *TestRunner
+	buildManager     *BuildManager
+	liveReloader     *LiveReloader
+	logAnalyzer      *LogAnalyzer
 	metricsCollector *MetricsCollector
-	mu             sync.RWMutex
-	running        bool
-	stopCh         chan struct{}
+	mu               sync.RWMutex
+	running          bool
+	stopCh           chan struct{}
 }
 
 // DevToolsConfig represents developer tools configuration
 type DevToolsConfig struct {
-	Enabled         bool                    `yaml:"enabled"`
-	Debug           DebugConfig             `yaml:"debug"`
-	Profiling       ProfilingConfig         `yaml:"profiling"`
-	CodeAnalysis    CodeAnalysisConfig      `yaml:"code_analysis"`
-	Testing         TestingConfig           `yaml:"testing"`
-	Build           BuildConfig             `yaml:"build"`
-	LiveReload      LiveReloadConfig        `yaml:"live_reload"`
-	LogAnalysis     LogAnalysisConfig       `yaml:"log_analysis"`
-	Metrics         MetricsConfig           `yaml:"metrics"`
-	Environment     EnvironmentConfig       `yaml:"environment"`
-	Security        SecurityConfig          `yaml:"security"`
+	Enabled      bool               `yaml:"enabled"`
+	Debug        DebugConfig        `yaml:"debug"`
+	Profiling    ProfilingConfig    `yaml:"profiling"`
+	CodeAnalysis CodeAnalysisConfig `yaml:"code_analysis"`
+	Testing      TestingConfig      `yaml:"testing"`
+	Build        BuildConfig        `yaml:"build"`
+	LiveReload   LiveReloadConfig   `yaml:"live_reload"`
+	LogAnalysis  LogAnalysisConfig  `yaml:"log_analysis"`
+	Metrics      MetricsConfig      `yaml:"metrics"`
+	Environment  EnvironmentConfig  `yaml:"environment"`
+	Security     SecurityConfig     `yaml:"security"`
 }
 
 // DebugConfig represents debugging configuration
@@ -57,14 +57,14 @@ type DebugConfig struct {
 
 // ProfilingConfig represents profiling configuration
 type ProfilingConfig struct {
-	Enabled        bool          `yaml:"enabled"`
-	CPUProfiling   bool          `yaml:"cpu_profiling"`
-	MemoryProfiling bool         `yaml:"memory_profiling"`
-	GoroutineProfiling bool      `yaml:"goroutine_profiling"`
-	BlockProfiling bool          `yaml:"block_profiling"`
-	MutexProfiling bool          `yaml:"mutex_profiling"`
-	ProfileDuration time.Duration `yaml:"profile_duration"`
-	OutputDir      string        `yaml:"output_dir"`
+	Enabled            bool          `yaml:"enabled"`
+	CPUProfiling       bool          `yaml:"cpu_profiling"`
+	MemoryProfiling    bool          `yaml:"memory_profiling"`
+	GoroutineProfiling bool          `yaml:"goroutine_profiling"`
+	BlockProfiling     bool          `yaml:"block_profiling"`
+	MutexProfiling     bool          `yaml:"mutex_profiling"`
+	ProfileDuration    time.Duration `yaml:"profile_duration"`
+	OutputDir          string        `yaml:"output_dir"`
 }
 
 // CodeAnalysisConfig represents code analysis configuration
@@ -80,15 +80,15 @@ type CodeAnalysisConfig struct {
 
 // TestingConfig represents testing configuration
 type TestingConfig struct {
-	Enabled         bool          `yaml:"enabled"`
-	AutoRun         bool          `yaml:"auto_run"`
-	Coverage        bool          `yaml:"coverage"`
-	Benchmarks      bool          `yaml:"benchmarks"`
-	Integration     bool          `yaml:"integration"`
-	E2E             bool          `yaml:"e2e"`
-	Timeout         time.Duration `yaml:"timeout"`
-	Parallel        int           `yaml:"parallel"`
-	Verbose         bool          `yaml:"verbose"`
+	Enabled     bool          `yaml:"enabled"`
+	AutoRun     bool          `yaml:"auto_run"`
+	Coverage    bool          `yaml:"coverage"`
+	Benchmarks  bool          `yaml:"benchmarks"`
+	Integration bool          `yaml:"integration"`
+	E2E         bool          `yaml:"e2e"`
+	Timeout     time.Duration `yaml:"timeout"`
+	Parallel    int           `yaml:"parallel"`
+	Verbose     bool          `yaml:"verbose"`
 }
 
 // BuildConfig represents build configuration
@@ -105,32 +105,32 @@ type BuildConfig struct {
 
 // LiveReloadConfig represents live reload configuration
 type LiveReloadConfig struct {
-	Enabled       bool     `yaml:"enabled"`
-	Port          int      `yaml:"port"`
-	WatchPaths    []string `yaml:"watch_paths"`
-	IgnorePatterns []string `yaml:"ignore_patterns"`
-	Extensions    []string `yaml:"extensions"`
-	Delay         time.Duration `yaml:"delay"`
+	Enabled        bool          `yaml:"enabled"`
+	Port           int           `yaml:"port"`
+	WatchPaths     []string      `yaml:"watch_paths"`
+	IgnorePatterns []string      `yaml:"ignore_patterns"`
+	Extensions     []string      `yaml:"extensions"`
+	Delay          time.Duration `yaml:"delay"`
 }
 
 // LogAnalysisConfig represents log analysis configuration
 type LogAnalysisConfig struct {
-	Enabled         bool     `yaml:"enabled"`
-	RealTime        bool     `yaml:"real_time"`
-	ErrorDetection  bool     `yaml:"error_detection"`
-	PerformanceAnalysis bool `yaml:"performance_analysis"`
-	LogSources      []string `yaml:"log_sources"`
-	AlertThresholds map[string]float64 `yaml:"alert_thresholds"`
+	Enabled             bool               `yaml:"enabled"`
+	RealTime            bool               `yaml:"real_time"`
+	ErrorDetection      bool               `yaml:"error_detection"`
+	PerformanceAnalysis bool               `yaml:"performance_analysis"`
+	LogSources          []string           `yaml:"log_sources"`
+	AlertThresholds     map[string]float64 `yaml:"alert_thresholds"`
 }
 
 // MetricsConfig represents metrics configuration
 type MetricsConfig struct {
-	Enabled         bool          `yaml:"enabled"`
+	Enabled            bool          `yaml:"enabled"`
 	CollectionInterval time.Duration `yaml:"collection_interval"`
-	CustomMetrics   bool          `yaml:"custom_metrics"`
-	PerformanceMetrics bool       `yaml:"performance_metrics"`
-	BusinessMetrics bool          `yaml:"business_metrics"`
-	ExportFormat    string        `yaml:"export_format"`
+	CustomMetrics      bool          `yaml:"custom_metrics"`
+	PerformanceMetrics bool          `yaml:"performance_metrics"`
+	BusinessMetrics    bool          `yaml:"business_metrics"`
+	ExportFormat       string        `yaml:"export_format"`
 }
 
 // EnvironmentConfig represents development environment configuration
@@ -145,12 +145,12 @@ type EnvironmentConfig struct {
 
 // SecurityConfig represents security configuration for dev tools
 type SecurityConfig struct {
-	Enabled         bool     `yaml:"enabled"`
-	VulnerabilityScanning bool `yaml:"vulnerability_scanning"`
-	SecretDetection bool     `yaml:"secret_detection"`
-	AccessControl   bool     `yaml:"access_control"`
-	AuditLogging    bool     `yaml:"audit_logging"`
-	AllowedIPs      []string `yaml:"allowed_ips"`
+	Enabled               bool     `yaml:"enabled"`
+	VulnerabilityScanning bool     `yaml:"vulnerability_scanning"`
+	SecretDetection       bool     `yaml:"secret_detection"`
+	AccessControl         bool     `yaml:"access_control"`
+	AuditLogging          bool     `yaml:"audit_logging"`
+	AllowedIPs            []string `yaml:"allowed_ips"`
 }
 
 // NewManager creates a new developer tools manager

@@ -49,14 +49,14 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 
 	// Step 2: Register Integration Adapters
 	fmt.Println("\n2. Registering Integration Adapters...")
-	
+
 	// Register GitHub adapter
 	githubAdapter := adapters.NewGitHubAdapter()
 	err := integrationEngine.RegisterAdapter(githubAdapter)
 	if err != nil {
 		return fmt.Errorf("failed to register GitHub adapter: %w", err)
 	}
-	fmt.Printf("   ✓ GitHub Adapter registered: %s v%s\n", 
+	fmt.Printf("   ✓ GitHub Adapter registered: %s v%s\n",
 		githubAdapter.GetName(), githubAdapter.GetVersion())
 
 	// Register Slack adapter
@@ -65,7 +65,7 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 	if err != nil {
 		return fmt.Errorf("failed to register Slack adapter: %w", err)
 	}
-	fmt.Printf("   ✓ Slack Adapter registered: %s v%s\n", 
+	fmt.Printf("   ✓ Slack Adapter registered: %s v%s\n",
 		slackAdapter.GetName(), slackAdapter.GetVersion())
 
 	// List registered adapters
@@ -78,7 +78,7 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 
 	// Step 3: Create GitHub Integration
 	fmt.Println("\n3. Creating GitHub Integration...")
-	
+
 	githubIntegration := &integrations.Integration{
 		Name:        "AIOS GitHub Integration",
 		Description: "Integration with GitHub for repository management and CI/CD",
@@ -127,7 +127,7 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 		return fmt.Errorf("failed to create GitHub integration: %w", err)
 	}
 
-	fmt.Printf("   ✓ GitHub Integration Created: %s (ID: %s)\n", 
+	fmt.Printf("   ✓ GitHub Integration Created: %s (ID: %s)\n",
 		createdGitHubIntegration.Name, createdGitHubIntegration.ID)
 	fmt.Printf("     - Type: %s\n", createdGitHubIntegration.Type)
 	fmt.Printf("     - Provider: %s\n", createdGitHubIntegration.Provider)
@@ -137,7 +137,7 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 
 	// Step 4: Create Slack Integration
 	fmt.Println("\n4. Creating Slack Integration...")
-	
+
 	slackIntegration := &integrations.Integration{
 		Name:        "AIOS Slack Integration",
 		Description: "Integration with Slack for team notifications and communication",
@@ -179,7 +179,7 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 		return fmt.Errorf("failed to create Slack integration: %w", err)
 	}
 
-	fmt.Printf("   ✓ Slack Integration Created: %s (ID: %s)\n", 
+	fmt.Printf("   ✓ Slack Integration Created: %s (ID: %s)\n",
 		createdSlackIntegration.Name, createdSlackIntegration.ID)
 	fmt.Printf("     - Type: %s\n", createdSlackIntegration.Type)
 	fmt.Printf("     - Provider: %s\n", createdSlackIntegration.Provider)
@@ -188,7 +188,7 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 
 	// Step 5: Create Webhooks
 	fmt.Println("\n5. Creating Integration Webhooks...")
-	
+
 	// GitHub webhook
 	githubWebhook := &integrations.Webhook{
 		IntegrationID: createdGitHubIntegration.ID,
@@ -219,7 +219,7 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 		return fmt.Errorf("failed to create GitHub webhook: %w", err)
 	}
 
-	fmt.Printf("   ✓ GitHub Webhook Created: %s (ID: %s)\n", 
+	fmt.Printf("   ✓ GitHub Webhook Created: %s (ID: %s)\n",
 		createdGitHubWebhook.Name, createdGitHubWebhook.ID)
 	fmt.Printf("     - URL: %s\n", createdGitHubWebhook.URL)
 	fmt.Printf("     - Events: %v\n", createdGitHubWebhook.Events)
@@ -248,14 +248,14 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 		return fmt.Errorf("failed to create Slack webhook: %w", err)
 	}
 
-	fmt.Printf("   ✓ Slack Webhook Created: %s (ID: %s)\n", 
+	fmt.Printf("   ✓ Slack Webhook Created: %s (ID: %s)\n",
 		createdSlackWebhook.Name, createdSlackWebhook.ID)
 	fmt.Printf("     - URL: %s\n", createdSlackWebhook.URL)
 	fmt.Printf("     - Events: %v\n", createdSlackWebhook.Events)
 
 	// Step 6: Test Integrations
 	fmt.Println("\n6. Testing Integration Connections...")
-	
+
 	// Test GitHub integration
 	githubTestResult, err := integrationEngine.TestIntegration(createdGitHubIntegration.ID)
 	if err != nil {
@@ -282,7 +282,7 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 
 	// Step 7: Integration Operations
 	fmt.Println("\n7. Performing Integration Operations...")
-	
+
 	// Simulate GitHub operations (these would normally connect to real APIs)
 	fmt.Printf("   ✓ GitHub Operations (simulated):\n")
 	githubOps := []string{"list_repositories", "list_issues", "list_pull_requests"}
@@ -299,7 +299,7 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 
 	// Step 8: Integration Management
 	fmt.Println("\n8. Managing Integrations...")
-	
+
 	// List all integrations
 	allIntegrations, err := integrationEngine.ListIntegrations(&integrations.IntegrationFilter{
 		Limit: 10,
@@ -310,7 +310,7 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 
 	fmt.Printf("   ✓ Active Integrations (%d total):\n", len(allIntegrations))
 	for _, integration := range allIntegrations {
-		fmt.Printf("     - %s (%s): %s\n", 
+		fmt.Printf("     - %s (%s): %s\n",
 			integration.Name, integration.Type, integration.Status)
 	}
 
@@ -324,13 +324,13 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 
 	fmt.Printf("   ✓ Active Webhooks (%d total):\n", len(allWebhooks))
 	for _, webhook := range allWebhooks {
-		fmt.Printf("     - %s: %s (%s)\n", 
+		fmt.Printf("     - %s: %s (%s)\n",
 			webhook.Name, webhook.URL, webhook.Status)
 	}
 
 	// Step 9: Health Monitoring
 	fmt.Println("\n9. Monitoring Integration Health...")
-	
+
 	// Get GitHub integration health
 	githubHealth, err := integrationEngine.GetIntegrationHealth(createdGitHubIntegration.ID)
 	if err != nil {
@@ -358,7 +358,7 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 
 	// Step 10: Integration Analytics
 	fmt.Println("\n10. Integration Analytics and Metrics...")
-	
+
 	// Get integration metrics
 	timeRange := &integrations.TimeRange{
 		Start: time.Now().Add(-24 * time.Hour),
@@ -401,7 +401,7 @@ func runIntegrationAPIsDemo(logger *logrus.Logger) error {
 		if i >= 3 { // Show only first 3
 			break
 		}
-		fmt.Printf("     %d. [%s] %s: %s\n", 
+		fmt.Printf("     %d. [%s] %s: %s\n",
 			i+1, logEntry.Level, logEntry.Operation, logEntry.Message)
 	}
 

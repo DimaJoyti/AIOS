@@ -11,7 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-
 // ValidationRule represents a validation rule
 type ValidationRule struct {
 	Name        string
@@ -162,7 +161,7 @@ func (v *DefaultResourceValidator) addDefaultRules() {
 
 			if parsedURI.Scheme == "file" {
 				path := parsedURI.Path
-				
+
 				// Check for absolute path requirements
 				if !filepath.IsAbs(path) && !strings.HasPrefix(path, "./") {
 					return fmt.Errorf("file paths must be absolute or relative with ./ prefix")
@@ -208,7 +207,7 @@ func (v *DefaultResourceValidator) addDefaultRules() {
 					"<script",
 					"</script>",
 				}
-				
+
 				for _, pattern := range suspiciousPatterns {
 					if strings.Contains(strings.ToLower(query), pattern) {
 						return fmt.Errorf("suspicious content detected in query parameters")
@@ -227,7 +226,7 @@ func (v *DefaultResourceValidator) addDefaultRules() {
 		Validator: func(uri string) error {
 			if strings.HasPrefix(uri, "data:") {
 				// Check data URI format
-				dataURIRegex := regexp.MustCompile(`^data:([^;,]+)(;[^,]*)?,(.*)`);
+				dataURIRegex := regexp.MustCompile(`^data:([^;,]+)(;[^,]*)?,(.*)`)
 				if !dataURIRegex.MatchString(uri) {
 					return fmt.Errorf("invalid data URI format")
 				}
@@ -241,7 +240,7 @@ func (v *DefaultResourceValidator) addDefaultRules() {
 				matches := dataURIRegex.FindStringSubmatch(uri)
 				if len(matches) > 1 {
 					mediaType := matches[1]
-					
+
 					// Allow only safe media types
 					allowedTypes := []string{
 						"text/plain",
@@ -255,7 +254,7 @@ func (v *DefaultResourceValidator) addDefaultRules() {
 						"image/gif",
 						"image/svg+xml",
 					}
-					
+
 					allowed := false
 					for _, allowedType := range allowedTypes {
 						if mediaType == allowedType {
@@ -263,7 +262,7 @@ func (v *DefaultResourceValidator) addDefaultRules() {
 							break
 						}
 					}
-					
+
 					if !allowed {
 						return fmt.Errorf("media type '%s' is not allowed in data URIs", mediaType)
 					}

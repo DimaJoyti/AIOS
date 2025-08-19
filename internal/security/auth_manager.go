@@ -18,16 +18,16 @@ import (
 
 // AuthManager handles authentication and authorization
 type AuthManager struct {
-	logger         *logrus.Logger
-	tracer         trace.Tracer
-	config         AuthConfig
-	sessions       map[string]*Session
-	users          map[string]*User
-	refreshTokens  map[string]*RefreshToken
-	mfaTokens      map[string]*MFAToken
-	mu             sync.RWMutex
-	running        bool
-	stopCh         chan struct{}
+	logger        *logrus.Logger
+	tracer        trace.Tracer
+	config        AuthConfig
+	sessions      map[string]*Session
+	users         map[string]*User
+	refreshTokens map[string]*RefreshToken
+	mfaTokens     map[string]*MFAToken
+	mu            sync.RWMutex
+	running       bool
+	stopCh        chan struct{}
 }
 
 // Session represents an active user session
@@ -88,10 +88,10 @@ type LoginRequest struct {
 
 // LoginResponse represents a login response
 type LoginResponse struct {
-	Token        string `json:"token"`
-	RefreshToken string `json:"refresh_token"`
+	Token        string    `json:"token"`
+	RefreshToken string    `json:"refresh_token"`
 	ExpiresAt    time.Time `json:"expires_at"`
-	User         *User  `json:"user"`
+	User         *User     `json:"user"`
 }
 
 // NewAuthManager creates a new authentication manager

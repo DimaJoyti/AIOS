@@ -397,10 +397,10 @@ func (r *ParallelRouter) Configure(options map[string]interface{}) error {
 
 // HealthBasedRouter routes based on node health
 type HealthBasedRouter struct {
-	healthChecker func(nodeID string) bool
+	healthChecker  func(nodeID string) bool
 	fallbackRouter Router
-	logger        *logrus.Logger
-	tracer        trace.Tracer
+	logger         *logrus.Logger
+	tracer         trace.Tracer
 }
 
 // NewHealthBasedRouter creates a new health-based router

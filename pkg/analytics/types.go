@@ -12,27 +12,27 @@ type AnalyticsEngine interface {
 	GetProjectMetrics(projectID string, timeRange *TimeRange) (*ProjectMetrics, error)
 	GetProjectTrends(projectID string, timeRange *TimeRange, granularity Granularity) ([]*TrendPoint, error)
 	GetProjectComparison(projectIDs []string, timeRange *TimeRange) (*ProjectComparison, error)
-	
+
 	// Team Analytics
 	GetTeamMetrics(teamID string, timeRange *TimeRange) (*TeamMetrics, error)
 	GetTeamProductivity(teamID string, timeRange *TimeRange) (*ProductivityMetrics, error)
 	GetTeamWorkload(teamID string, timeRange *TimeRange) (*WorkloadMetrics, error)
-	
+
 	// Task Analytics
 	GetTaskMetrics(projectID string, timeRange *TimeRange) (*TaskMetrics, error)
 	GetTaskDistribution(projectID string, timeRange *TimeRange) (*TaskDistribution, error)
 	GetTaskVelocity(projectID string, timeRange *TimeRange) (*VelocityMetrics, error)
-	
+
 	// Workflow Analytics
 	GetWorkflowMetrics(workflowID string, timeRange *TimeRange) (*WorkflowMetrics, error)
 	GetPipelineMetrics(pipelineID string, timeRange *TimeRange) (*PipelineMetrics, error)
 	GetAutomationMetrics(timeRange *TimeRange) (*AutomationMetrics, error)
-	
+
 	// Reports
 	GenerateReport(request *ReportRequest) (*Report, error)
 	GetReportTemplates() ([]*ReportTemplate, error)
 	ScheduleReport(schedule *ReportSchedule) error
-	
+
 	// Dashboards
 	GetDashboard(dashboardID string) (*Dashboard, error)
 	CreateDashboard(dashboard *Dashboard) (*Dashboard, error)
@@ -96,16 +96,16 @@ type BurndownPoint struct {
 
 // SprintMetrics contains sprint-specific metrics
 type SprintMetrics struct {
-	SprintID        string    `json:"sprint_id"`
-	SprintName      string    `json:"sprint_name"`
-	StartDate       time.Time `json:"start_date"`
-	EndDate         time.Time `json:"end_date"`
-	PlannedPoints   int       `json:"planned_points"`
-	CompletedPoints int       `json:"completed_points"`
-	Velocity        float64   `json:"velocity"`
-	CompletionRate  float64   `json:"completion_rate"`
-	TasksCompleted  int       `json:"tasks_completed"`
-	TasksCarriedOver int      `json:"tasks_carried_over"`
+	SprintID         string    `json:"sprint_id"`
+	SprintName       string    `json:"sprint_name"`
+	StartDate        time.Time `json:"start_date"`
+	EndDate          time.Time `json:"end_date"`
+	PlannedPoints    int       `json:"planned_points"`
+	CompletedPoints  int       `json:"completed_points"`
+	Velocity         float64   `json:"velocity"`
+	CompletionRate   float64   `json:"completion_rate"`
+	TasksCompleted   int       `json:"tasks_completed"`
+	TasksCarriedOver int       `json:"tasks_carried_over"`
 }
 
 // MilestoneStatus represents milestone progress
@@ -204,16 +204,16 @@ type WorkloadMetrics struct {
 
 // TaskMetrics contains task-related metrics
 type TaskMetrics struct {
-	ProjectID           string                 `json:"project_id"`
-	TimeRange           *TimeRange             `json:"time_range"`
-	TotalTasks          int                    `json:"total_tasks"`
-	CompletedTasks      int                    `json:"completed_tasks"`
-	CompletionRate      float64                `json:"completion_rate"`
-	AverageLeadTime     time.Duration          `json:"average_lead_time"`
-	AverageCycleTime    time.Duration          `json:"average_cycle_time"`
-	TaskDistribution    *TaskDistribution      `json:"task_distribution"`
-	VelocityMetrics     *VelocityMetrics       `json:"velocity_metrics"`
-	Metadata            map[string]interface{} `json:"metadata,omitempty"`
+	ProjectID        string                 `json:"project_id"`
+	TimeRange        *TimeRange             `json:"time_range"`
+	TotalTasks       int                    `json:"total_tasks"`
+	CompletedTasks   int                    `json:"completed_tasks"`
+	CompletionRate   float64                `json:"completion_rate"`
+	AverageLeadTime  time.Duration          `json:"average_lead_time"`
+	AverageCycleTime time.Duration          `json:"average_cycle_time"`
+	TaskDistribution *TaskDistribution      `json:"task_distribution"`
+	VelocityMetrics  *VelocityMetrics       `json:"velocity_metrics"`
+	Metadata         map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // TaskDistribution contains task distribution by various dimensions
@@ -227,32 +227,32 @@ type TaskDistribution struct {
 
 // VelocityMetrics contains velocity and throughput metrics
 type VelocityMetrics struct {
-	CurrentVelocity   float64        `json:"current_velocity"`
-	AverageVelocity   float64        `json:"average_velocity"`
-	VelocityTrend     []*TrendPoint  `json:"velocity_trend"`
-	Throughput        float64        `json:"throughput"`
-	LeadTimeP50       time.Duration  `json:"lead_time_p50"`
-	LeadTimeP95       time.Duration  `json:"lead_time_p95"`
-	CycleTimeP50      time.Duration  `json:"cycle_time_p50"`
-	CycleTimeP95      time.Duration  `json:"cycle_time_p95"`
-	PredictedVelocity float64        `json:"predicted_velocity"`
+	CurrentVelocity   float64       `json:"current_velocity"`
+	AverageVelocity   float64       `json:"average_velocity"`
+	VelocityTrend     []*TrendPoint `json:"velocity_trend"`
+	Throughput        float64       `json:"throughput"`
+	LeadTimeP50       time.Duration `json:"lead_time_p50"`
+	LeadTimeP95       time.Duration `json:"lead_time_p95"`
+	CycleTimeP50      time.Duration `json:"cycle_time_p50"`
+	CycleTimeP95      time.Duration `json:"cycle_time_p95"`
+	PredictedVelocity float64       `json:"predicted_velocity"`
 }
 
 // Workflow Analytics Types
 
 // WorkflowMetrics contains workflow execution metrics
 type WorkflowMetrics struct {
-	WorkflowID       string                 `json:"workflow_id"`
-	TimeRange        *TimeRange             `json:"time_range"`
-	TotalExecutions  int                    `json:"total_executions"`
-	SuccessfulRuns   int                    `json:"successful_runs"`
-	FailedRuns       int                    `json:"failed_runs"`
-	AverageRunTime   time.Duration          `json:"average_run_time"`
-	SuccessRate      float64                `json:"success_rate"`
-	ExecutionTrends  []*TrendPoint          `json:"execution_trends"`
-	ErrorDistribution map[string]int        `json:"error_distribution"`
-	PerformanceMetrics *PerformanceMetrics  `json:"performance_metrics"`
-	Metadata         map[string]interface{} `json:"metadata,omitempty"`
+	WorkflowID         string                 `json:"workflow_id"`
+	TimeRange          *TimeRange             `json:"time_range"`
+	TotalExecutions    int                    `json:"total_executions"`
+	SuccessfulRuns     int                    `json:"successful_runs"`
+	FailedRuns         int                    `json:"failed_runs"`
+	AverageRunTime     time.Duration          `json:"average_run_time"`
+	SuccessRate        float64                `json:"success_rate"`
+	ExecutionTrends    []*TrendPoint          `json:"execution_trends"`
+	ErrorDistribution  map[string]int         `json:"error_distribution"`
+	PerformanceMetrics *PerformanceMetrics    `json:"performance_metrics"`
+	Metadata           map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // PipelineMetrics contains CI/CD pipeline metrics
@@ -272,24 +272,24 @@ type PipelineMetrics struct {
 
 // StageMetrics contains pipeline stage metrics
 type StageMetrics struct {
-	StageName       string        `json:"stage_name"`
-	AverageTime     time.Duration `json:"average_time"`
-	SuccessRate     float64       `json:"success_rate"`
-	FailureReasons  map[string]int `json:"failure_reasons"`
-	PerformanceTrend []*TrendPoint `json:"performance_trend"`
+	StageName        string         `json:"stage_name"`
+	AverageTime      time.Duration  `json:"average_time"`
+	SuccessRate      float64        `json:"success_rate"`
+	FailureReasons   map[string]int `json:"failure_reasons"`
+	PerformanceTrend []*TrendPoint  `json:"performance_trend"`
 }
 
 // AutomationMetrics contains overall automation metrics
 type AutomationMetrics struct {
-	TimeRange           *TimeRange             `json:"time_range"`
-	TotalWorkflows      int                    `json:"total_workflows"`
-	ActiveWorkflows     int                    `json:"active_workflows"`
-	TotalExecutions     int                    `json:"total_executions"`
-	AutomationSavings   time.Duration          `json:"automation_savings"`
-	EfficiencyGain      float64                `json:"efficiency_gain"`
-	ROI                 float64                `json:"roi"`
-	AdoptionRate        float64                `json:"adoption_rate"`
-	Metadata            map[string]interface{} `json:"metadata,omitempty"`
+	TimeRange         *TimeRange             `json:"time_range"`
+	TotalWorkflows    int                    `json:"total_workflows"`
+	ActiveWorkflows   int                    `json:"active_workflows"`
+	TotalExecutions   int                    `json:"total_executions"`
+	AutomationSavings time.Duration          `json:"automation_savings"`
+	EfficiencyGain    float64                `json:"efficiency_gain"`
+	ROI               float64                `json:"roi"`
+	AdoptionRate      float64                `json:"adoption_rate"`
+	Metadata          map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // PerformanceMetrics contains performance-related metrics
@@ -321,13 +321,13 @@ type ReportRequest struct {
 type ReportType string
 
 const (
-	ReportTypeProject    ReportType = "project"
-	ReportTypeTeam       ReportType = "team"
-	ReportTypeTask       ReportType = "task"
-	ReportTypeWorkflow   ReportType = "workflow"
-	ReportTypePipeline   ReportType = "pipeline"
-	ReportTypeCustom     ReportType = "custom"
-	ReportTypeExecutive  ReportType = "executive"
+	ReportTypeProject     ReportType = "project"
+	ReportTypeTeam        ReportType = "team"
+	ReportTypeTask        ReportType = "task"
+	ReportTypeWorkflow    ReportType = "workflow"
+	ReportTypePipeline    ReportType = "pipeline"
+	ReportTypeCustom      ReportType = "custom"
+	ReportTypeExecutive   ReportType = "executive"
 	ReportTypeOperational ReportType = "operational"
 )
 
@@ -374,19 +374,19 @@ type ReportTemplate struct {
 
 // ReportSchedule represents a scheduled report
 type ReportSchedule struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	ReportType  ReportType             `json:"report_type"`
-	Schedule    string                 `json:"schedule"` // Cron expression
-	Recipients  []string               `json:"recipients"`
-	Filters     map[string]interface{} `json:"filters,omitempty"`
-	Format      ReportFormat           `json:"format"`
-	Enabled     bool                   `json:"enabled"`
-	LastRun     *time.Time             `json:"last_run,omitempty"`
-	NextRun     time.Time              `json:"next_run"`
-	CreatedBy   string                 `json:"created_by"`
-	CreatedAt   time.Time              `json:"created_at"`
-	UpdatedAt   time.Time              `json:"updated_at"`
+	ID         string                 `json:"id"`
+	Name       string                 `json:"name"`
+	ReportType ReportType             `json:"report_type"`
+	Schedule   string                 `json:"schedule"` // Cron expression
+	Recipients []string               `json:"recipients"`
+	Filters    map[string]interface{} `json:"filters,omitempty"`
+	Format     ReportFormat           `json:"format"`
+	Enabled    bool                   `json:"enabled"`
+	LastRun    *time.Time             `json:"last_run,omitempty"`
+	NextRun    time.Time              `json:"next_run"`
+	CreatedBy  string                 `json:"created_by"`
+	CreatedAt  time.Time              `json:"created_at"`
+	UpdatedAt  time.Time              `json:"updated_at"`
 }
 
 // Dashboard Types
@@ -410,7 +410,7 @@ type Dashboard struct {
 
 // DashboardLayout defines the layout configuration
 type DashboardLayout struct {
-	Type    string `json:"type"`    // grid, flex, custom
+	Type    string `json:"type"` // grid, flex, custom
 	Columns int    `json:"columns"`
 	Rows    int    `json:"rows"`
 	Gap     int    `json:"gap"`
@@ -434,14 +434,14 @@ type Widget struct {
 type WidgetType string
 
 const (
-	WidgetTypeChart     WidgetType = "chart"
-	WidgetTypeTable     WidgetType = "table"
-	WidgetTypeMetric    WidgetType = "metric"
-	WidgetTypeProgress  WidgetType = "progress"
-	WidgetTypeList      WidgetType = "list"
-	WidgetTypeCalendar  WidgetType = "calendar"
-	WidgetTypeKanban    WidgetType = "kanban"
-	WidgetTypeCustom    WidgetType = "custom"
+	WidgetTypeChart    WidgetType = "chart"
+	WidgetTypeTable    WidgetType = "table"
+	WidgetTypeMetric   WidgetType = "metric"
+	WidgetTypeProgress WidgetType = "progress"
+	WidgetTypeList     WidgetType = "list"
+	WidgetTypeCalendar WidgetType = "calendar"
+	WidgetTypeKanban   WidgetType = "kanban"
+	WidgetTypeCustom   WidgetType = "custom"
 )
 
 // WidgetPosition defines widget position in the dashboard
@@ -466,26 +466,26 @@ type DataSource struct {
 
 // Filter represents a dashboard filter
 type Filter struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Type        FilterType  `json:"type"`
-	Field       string      `json:"field"`
-	Options     []string    `json:"options,omitempty"`
+	ID           string      `json:"id"`
+	Name         string      `json:"name"`
+	Type         FilterType  `json:"type"`
+	Field        string      `json:"field"`
+	Options      []string    `json:"options,omitempty"`
 	DefaultValue interface{} `json:"default_value,omitempty"`
-	Required    bool        `json:"required"`
+	Required     bool        `json:"required"`
 }
 
 // FilterType defines the type of filter
 type FilterType string
 
 const (
-	FilterTypeSelect    FilterType = "select"
+	FilterTypeSelect      FilterType = "select"
 	FilterTypeMultiSelect FilterType = "multi_select"
-	FilterTypeDate      FilterType = "date"
-	FilterTypeDateRange FilterType = "date_range"
-	FilterTypeText      FilterType = "text"
-	FilterTypeNumber    FilterType = "number"
-	FilterTypeBoolean   FilterType = "boolean"
+	FilterTypeDate        FilterType = "date"
+	FilterTypeDateRange   FilterType = "date_range"
+	FilterTypeText        FilterType = "text"
+	FilterTypeNumber      FilterType = "number"
+	FilterTypeBoolean     FilterType = "boolean"
 )
 
 // DashboardFilter represents filters for dashboard queries

@@ -24,8 +24,8 @@ type DefaultSessionManager struct {
 
 // SessionManagerConfig represents session manager configuration
 type SessionManagerConfig struct {
-	MaxSessions    int           `json:"max_sessions"`
-	SessionTimeout time.Duration `json:"session_timeout"`
+	MaxSessions     int           `json:"max_sessions"`
+	SessionTimeout  time.Duration `json:"session_timeout"`
 	CleanupInterval time.Duration `json:"cleanup_interval"`
 }
 
@@ -74,8 +74,8 @@ func (sm *DefaultSessionManager) CreateSession(ctx context.Context, transport pr
 	sm.sessions[sessionID] = session
 
 	sm.logger.WithFields(logrus.Fields{
-		"session_id":    sessionID,
-		"remote_addr":   transport.GetRemoteAddress(),
+		"session_id":     sessionID,
+		"remote_addr":    transport.GetRemoteAddress(),
 		"total_sessions": len(sm.sessions),
 	}).Info("Session created")
 

@@ -140,20 +140,20 @@ type ClientInfo struct {
 
 // ServerInfo represents information about an MCP server
 type ServerInfo struct {
-	Name         string       `json:"name"`
-	Version      string       `json:"version"`
-	ProtocolVersion string    `json:"protocolVersion"`
-	Capabilities Capabilities `json:"capabilities"`
+	Name            string       `json:"name"`
+	Version         string       `json:"version"`
+	ProtocolVersion string       `json:"protocolVersion"`
+	Capabilities    Capabilities `json:"capabilities"`
 }
 
 // Capabilities represents MCP capabilities
 type Capabilities struct {
-	Logging      *LoggingCapability      `json:"logging,omitempty"`
-	Prompts      *PromptsCapability      `json:"prompts,omitempty"`
-	Resources    *ResourcesCapability    `json:"resources,omitempty"`
-	Tools        *ToolsCapability        `json:"tools,omitempty"`
-	Sampling     *SamplingCapability     `json:"sampling,omitempty"`
-	Experimental map[string]interface{}  `json:"experimental,omitempty"`
+	Logging      *LoggingCapability     `json:"logging,omitempty"`
+	Prompts      *PromptsCapability     `json:"prompts,omitempty"`
+	Resources    *ResourcesCapability   `json:"resources,omitempty"`
+	Tools        *ToolsCapability       `json:"tools,omitempty"`
+	Sampling     *SamplingCapability    `json:"sampling,omitempty"`
+	Experimental map[string]interface{} `json:"experimental,omitempty"`
 }
 
 // LoggingCapability represents logging capabilities
@@ -319,17 +319,17 @@ type EventEmitter interface {
 
 // ProtocolConfig represents MCP protocol configuration
 type ProtocolConfig struct {
-	Version              string                 `json:"version"`
-	MaxMessageSize       int                    `json:"max_message_size"`
-	RequestTimeout       time.Duration          `json:"request_timeout"`
-	SessionTimeout       time.Duration          `json:"session_timeout"`
-	MaxConcurrentSessions int                   `json:"max_concurrent_sessions"`
-	EnableCompression    bool                   `json:"enable_compression"`
-	EnableEncryption     bool                   `json:"enable_encryption"`
-	LogLevel             string                 `json:"log_level"`
-	Capabilities         Capabilities           `json:"capabilities"`
-	Security             SecurityConfig         `json:"security"`
-	Metadata             map[string]interface{} `json:"metadata"`
+	Version               string                 `json:"version"`
+	MaxMessageSize        int                    `json:"max_message_size"`
+	RequestTimeout        time.Duration          `json:"request_timeout"`
+	SessionTimeout        time.Duration          `json:"session_timeout"`
+	MaxConcurrentSessions int                    `json:"max_concurrent_sessions"`
+	EnableCompression     bool                   `json:"enable_compression"`
+	EnableEncryption      bool                   `json:"enable_encryption"`
+	LogLevel              string                 `json:"log_level"`
+	Capabilities          Capabilities           `json:"capabilities"`
+	Security              SecurityConfig         `json:"security"`
+	Metadata              map[string]interface{} `json:"metadata"`
 }
 
 // SecurityConfig represents security configuration
@@ -353,8 +353,8 @@ type TokenValidationConfig struct {
 
 // RateLimitConfig represents rate limiting configuration
 type RateLimitConfig struct {
-	Enabled         bool          `json:"enabled"`
-	RequestsPerMinute int         `json:"requests_per_minute"`
-	BurstSize       int           `json:"burst_size"`
-	WindowSize      time.Duration `json:"window_size"`
+	Enabled           bool          `json:"enabled"`
+	RequestsPerMinute int           `json:"requests_per_minute"`
+	BurstSize         int           `json:"burst_size"`
+	WindowSize        time.Duration `json:"window_size"`
 }

@@ -63,7 +63,7 @@ func NewDefaultEmbeddingManager(model string, logger *logrus.Logger) (EmbeddingM
 // initializeProvider initializes the embedding provider
 func (em *DefaultEmbeddingManager) initializeProvider() error {
 	embeddingManager := vectordb.NewEmbeddingManager(em.logger)
-	
+
 	var config *vectordb.EmbeddingConfig
 	switch em.config.Provider {
 	case "openai":
@@ -88,7 +88,7 @@ func (em *DefaultEmbeddingManager) initializeProvider() error {
 	if err != nil {
 		return fmt.Errorf("failed to create embedding provider: %w", err)
 	}
-	
+
 	em.provider = provider
 	return nil
 }

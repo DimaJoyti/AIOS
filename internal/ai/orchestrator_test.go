@@ -66,34 +66,34 @@ func TestOrchestratorRouteRequest(t *testing.T) {
 	ctx := context.Background()
 
 	tests := []struct {
-		name           string
-		requestType    string
+		name            string
+		requestType     string
 		expectedService string
-		expectError    bool
+		expectError     bool
 	}{
 		{
-			name:           "Chat request",
-			requestType:    "chat",
+			name:            "Chat request",
+			requestType:     "chat",
 			expectedService: "llm",
-			expectError:    false,
+			expectError:     false,
 		},
 		{
-			name:           "Vision request",
-			requestType:    "vision",
+			name:            "Vision request",
+			requestType:     "vision",
 			expectedService: "cv",
-			expectError:    false,
+			expectError:     false,
 		},
 		{
-			name:           "Optimization request",
-			requestType:    "optimization",
+			name:            "Optimization request",
+			requestType:     "optimization",
 			expectedService: "optimization",
-			expectError:    false,
+			expectError:     false,
 		},
 		{
-			name:           "Unknown request",
-			requestType:    "unknown",
+			name:            "Unknown request",
+			requestType:     "unknown",
 			expectedService: "",
-			expectError:    true,
+			expectError:     true,
 		},
 	}
 

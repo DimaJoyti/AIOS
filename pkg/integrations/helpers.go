@@ -255,7 +255,7 @@ func (ie *DefaultIntegrationEngine) logIntegrationEvent(integrationID string, le
 
 	ie.mu.Lock()
 	ie.logs = append(ie.logs, logEntry)
-	
+
 	// Keep only recent logs (simple cleanup)
 	if len(ie.logs) > 10000 {
 		ie.logs = ie.logs[1000:]
@@ -292,20 +292,20 @@ func (ie *DefaultIntegrationEngine) performHealthChecks() {
 // performIntegrationHealthCheck performs a health check on a specific integration
 func (ie *DefaultIntegrationEngine) performIntegrationHealthCheck(integration *Integration) {
 	start := time.Now()
-	
+
 	adapter, err := ie.GetAdapter(integration.Type)
 	if err != nil {
-		ie.updateHealthStatus(integration.ID, HealthStatusUnhealthy, 
+		ie.updateHealthStatus(integration.ID, HealthStatusUnhealthy,
 			fmt.Sprintf("Adapter not found: %s", integration.Type), []*HealthCheck{})
 		return
 	}
 
 	// Get adapter health
 	adapterHealth := adapter.GetHealth()
-	
+
 	// Perform connection test
 	var checks []*HealthCheck
-	
+
 	// Connection check
 	connectionCheck := &HealthCheck{
 		Name:      "connection",
@@ -365,7 +365,7 @@ func (ie *DefaultIntegrationEngine) updateHealthStatus(integrationID string, sta
 	}
 
 	now := time.Now()
-	
+
 	// Calculate uptime
 	if health.LastCheck.IsZero() {
 		health.Uptime = 0

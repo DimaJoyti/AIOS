@@ -36,47 +36,47 @@ type PerformanceMonitor struct {
 
 // ServiceMetrics tracks metrics for a specific AI service
 type ServiceMetrics struct {
-	ServiceName      string                 `json:"service_name"`
-	RequestCount     int64                  `json:"request_count"`
-	SuccessCount     int64                  `json:"success_count"`
-	ErrorCount       int64                  `json:"error_count"`
-	TotalLatency     time.Duration          `json:"total_latency"`
-	AverageLatency   time.Duration          `json:"average_latency"`
-	MinLatency       time.Duration          `json:"min_latency"`
-	MaxLatency       time.Duration          `json:"max_latency"`
-	ThroughputPerSec float64                `json:"throughput_per_sec"`
-	CacheHitRate     float64                `json:"cache_hit_rate"`
-	CacheHits        int64                  `json:"cache_hits"`
-	CacheMisses      int64                  `json:"cache_misses"`
-	LastUpdated      time.Time              `json:"last_updated"`
+	ServiceName      string         `json:"service_name"`
+	RequestCount     int64          `json:"request_count"`
+	SuccessCount     int64          `json:"success_count"`
+	ErrorCount       int64          `json:"error_count"`
+	TotalLatency     time.Duration  `json:"total_latency"`
+	AverageLatency   time.Duration  `json:"average_latency"`
+	MinLatency       time.Duration  `json:"min_latency"`
+	MaxLatency       time.Duration  `json:"max_latency"`
+	ThroughputPerSec float64        `json:"throughput_per_sec"`
+	CacheHitRate     float64        `json:"cache_hit_rate"`
+	CacheHits        int64          `json:"cache_hits"`
+	CacheMisses      int64          `json:"cache_misses"`
+	LastUpdated      time.Time      `json:"last_updated"`
 	Metadata         map[string]any `json:"metadata,omitempty"`
 }
 
 // ModelMetrics tracks metrics for a specific AI model
 type ModelMetrics struct {
-	ModelID          string                 `json:"model_id"`
-	RequestCount     int64                  `json:"request_count"`
-	TokensGenerated  int64                  `json:"tokens_generated"`
-	TokensPerSecond  float64                `json:"tokens_per_second"`
-	AverageLatency   time.Duration          `json:"average_latency"`
-	MemoryUsage      int64                  `json:"memory_usage"`
-	GPUUtilization   float64                `json:"gpu_utilization"`
-	LoadTime         time.Duration          `json:"load_time"`
-	LastUsed         time.Time              `json:"last_used"`
-	Metadata         map[string]any `json:"metadata,omitempty"`
+	ModelID         string         `json:"model_id"`
+	RequestCount    int64          `json:"request_count"`
+	TokensGenerated int64          `json:"tokens_generated"`
+	TokensPerSecond float64        `json:"tokens_per_second"`
+	AverageLatency  time.Duration  `json:"average_latency"`
+	MemoryUsage     int64          `json:"memory_usage"`
+	GPUUtilization  float64        `json:"gpu_utilization"`
+	LoadTime        time.Duration  `json:"load_time"`
+	LastUsed        time.Time      `json:"last_used"`
+	Metadata        map[string]any `json:"metadata,omitempty"`
 }
 
 // PerformanceAlert represents a performance alert
 type PerformanceAlert struct {
-	ID          string                 `json:"id"`
-	Type        string                 `json:"type"`
-	Severity    string                 `json:"severity"`
-	Service     string                 `json:"service"`
-	Model       string                 `json:"model,omitempty"`
-	Message     string                 `json:"message"`
-	Threshold   float64                `json:"threshold"`
-	ActualValue float64                `json:"actual_value"`
-	Timestamp   time.Time              `json:"timestamp"`
+	ID          string         `json:"id"`
+	Type        string         `json:"type"`
+	Severity    string         `json:"severity"`
+	Service     string         `json:"service"`
+	Model       string         `json:"model,omitempty"`
+	Message     string         `json:"message"`
+	Threshold   float64        `json:"threshold"`
+	ActualValue float64        `json:"actual_value"`
+	Timestamp   time.Time      `json:"timestamp"`
 	Metadata    map[string]any `json:"metadata,omitempty"`
 }
 
@@ -403,13 +403,13 @@ func (pm *PerformanceMonitor) addAlert(alert PerformanceAlert) {
 	}
 
 	pm.logger.WithFields(logrus.Fields{
-		"alert_id":   alert.ID,
-		"type":       alert.Type,
-		"severity":   alert.Severity,
-		"service":    alert.Service,
-		"model":      alert.Model,
-		"threshold":  alert.Threshold,
-		"actual":     alert.ActualValue,
+		"alert_id":  alert.ID,
+		"type":      alert.Type,
+		"severity":  alert.Severity,
+		"service":   alert.Service,
+		"model":     alert.Model,
+		"threshold": alert.Threshold,
+		"actual":    alert.ActualValue,
 	}).Warn("Performance alert triggered")
 }
 

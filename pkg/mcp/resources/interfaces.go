@@ -181,15 +181,15 @@ type TemplateResource interface {
 
 // FileInfo represents file information
 type FileInfo struct {
-	Path         string                 `json:"path"`
-	Name         string                 `json:"name"`
-	Size         int64                  `json:"size"`
-	ModTime      time.Time              `json:"mod_time"`
-	IsDirectory  bool                   `json:"is_directory"`
-	Permissions  string                 `json:"permissions"`
-	MimeType     string                 `json:"mime_type"`
-	Encoding     string                 `json:"encoding"`
-	Metadata     map[string]interface{} `json:"metadata"`
+	Path        string                 `json:"path"`
+	Name        string                 `json:"name"`
+	Size        int64                  `json:"size"`
+	ModTime     time.Time              `json:"mod_time"`
+	IsDirectory bool                   `json:"is_directory"`
+	Permissions string                 `json:"permissions"`
+	MimeType    string                 `json:"mime_type"`
+	Encoding    string                 `json:"encoding"`
+	Metadata    map[string]interface{} `json:"metadata"`
 }
 
 // APIResponse represents an API response

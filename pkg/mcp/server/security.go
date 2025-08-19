@@ -20,17 +20,17 @@ type SecurityManager interface {
 	ValidateToken(ctx context.Context, token string) (*TokenInfo, error)
 	RefreshToken(ctx context.Context, refreshToken string) (*AuthResult, error)
 	RevokeToken(ctx context.Context, token string) error
-	
+
 	// Authorization
 	Authorize(ctx context.Context, user *User, resource string, action string) error
 	CheckPermission(ctx context.Context, user *User, permission string) bool
-	
+
 	// User management
 	CreateUser(ctx context.Context, user *User) error
 	GetUser(ctx context.Context, userID string) (*User, error)
 	UpdateUser(ctx context.Context, user *User) error
 	DeleteUser(ctx context.Context, userID string) error
-	
+
 	// Session management
 	CreateSession(ctx context.Context, user *User) (*Session, error)
 	GetSession(ctx context.Context, sessionID string) (*Session, error)
@@ -39,7 +39,7 @@ type SecurityManager interface {
 
 // Credentials represents authentication credentials
 type Credentials struct {
-	Type     string                 `json:"type"`     // "password", "token", "api_key"
+	Type     string                 `json:"type"` // "password", "token", "api_key"
 	Username string                 `json:"username,omitempty"`
 	Password string                 `json:"password,omitempty"`
 	Token    string                 `json:"token,omitempty"`
@@ -68,17 +68,17 @@ type TokenInfo struct {
 
 // User represents a user
 type User struct {
-	ID          string                 `json:"id"`
-	Username    string                 `json:"username"`
-	Email       string                 `json:"email,omitempty"`
-	PasswordHash string                `json:"password_hash,omitempty"`
-	Permissions []string               `json:"permissions"`
-	Roles       []string               `json:"roles"`
-	Active      bool                   `json:"active"`
-	CreatedAt   time.Time              `json:"created_at"`
-	UpdatedAt   time.Time              `json:"updated_at"`
-	LastLogin   *time.Time             `json:"last_login,omitempty"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	ID           string                 `json:"id"`
+	Username     string                 `json:"username"`
+	Email        string                 `json:"email,omitempty"`
+	PasswordHash string                 `json:"password_hash,omitempty"`
+	Permissions  []string               `json:"permissions"`
+	Roles        []string               `json:"roles"`
+	Active       bool                   `json:"active"`
+	CreatedAt    time.Time              `json:"created_at"`
+	UpdatedAt    time.Time              `json:"updated_at"`
+	LastLogin    *time.Time             `json:"last_login,omitempty"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // Session represents a user session
@@ -145,7 +145,7 @@ func (sm *DefaultSecurityManager) Authenticate(ctx context.Context, credentials 
 func (sm *DefaultSecurityManager) authenticatePassword(ctx context.Context, credentials *Credentials) (*AuthResult, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
-	
+
 	// Find user by username
 	var user *User
 	for _, u := range sm.users {
@@ -154,35 +154,35 @@ func (sm *DefaultSecurityManager) authenticatePassword(ctx context.Context, cred
 			break
 		}
 	}
-	
+
 	if user == nil {
 		return &AuthResult{Success: false}, fmt.Errorf("user not found")
 	}
-	
+
 	if !user.Active {
 		return &AuthResult{Success: false}, fmt.Errorf("user account is disabled")
 	}
-	
+
 	// Verify password
 	if !sm.verifyPassword(credentials.Password, user.PasswordHash) {
 		return &AuthResult{Success: false}, fmt.Errorf("invalid password")
 	}
-	
+
 	// Generate tokens
 	accessToken, err := sm.generateToken(user)
 	if err != nil {
 		return &AuthResult{Success: false}, err
 	}
-	
+
 	refreshToken, err := sm.generateRefreshToken(user)
 	if err != nil {
 		return &AuthResult{Success: false}, err
 	}
-	
+
 	// Update last login
 	now := time.Now()
 	user.LastLogin = &now
-	
+
 	return &AuthResult{
 		Success:      true,
 		User:         user,
@@ -199,16 +199,16 @@ func (sm *DefaultSecurityManager) authenticateToken(ctx context.Context, credent
 	if err != nil {
 		return &AuthResult{Success: false}, err
 	}
-	
+
 	if !tokenInfo.Valid {
 		return &AuthResult{Success: false}, fmt.Errorf("invalid token")
 	}
-	
+
 	user, err := sm.GetUser(ctx, tokenInfo.UserID)
 	if err != nil {
 		return &AuthResult{Success: false}, err
 	}
-	
+
 	return &AuthResult{
 		Success:     true,
 		User:        user,
@@ -222,7 +222,7 @@ func (sm *DefaultSecurityManager) authenticateAPIKey(ctx context.Context, creden
 	if credentials.APIKey == "" {
 		return &AuthResult{Success: false}, fmt.Errorf("API key required")
 	}
-	
+
 	// For demo purposes, accept any non-empty API key
 	// In production, validate against stored API keys
 	return &AuthResult{
@@ -235,16 +235,16 @@ func (sm *DefaultSecurityManager) authenticateAPIKey(ctx context.Context, creden
 func (sm *DefaultSecurityManager) ValidateToken(ctx context.Context, token string) (*TokenInfo, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
-	
+
 	tokenInfo, exists := sm.tokens[token]
 	if !exists {
 		return &TokenInfo{Valid: false}, fmt.Errorf("token not found")
 	}
-	
+
 	if time.Now().After(tokenInfo.ExpiresAt) {
 		return &TokenInfo{Valid: false}, fmt.Errorf("token expired")
 	}
-	
+
 	return tokenInfo, nil
 }
 
@@ -253,7 +253,7 @@ func (sm *DefaultSecurityManager) RefreshToken(ctx context.Context, refreshToken
 	// Simple refresh token validation
 	// In production, implement proper refresh token management
 	return &AuthResult{
-		Success:     false,
+		Success: false,
 	}, fmt.Errorf("refresh token not implemented")
 }
 
@@ -261,7 +261,7 @@ func (sm *DefaultSecurityManager) RefreshToken(ctx context.Context, refreshToken
 func (sm *DefaultSecurityManager) RevokeToken(ctx context.Context, token string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
-	
+
 	delete(sm.tokens, token)
 	return nil
 }
@@ -271,16 +271,16 @@ func (sm *DefaultSecurityManager) Authorize(ctx context.Context, user *User, res
 	if !sm.config.EnableAuthorization {
 		return nil
 	}
-	
+
 	// Simple permission check
 	requiredPermission := fmt.Sprintf("%s:%s", resource, action)
-	
+
 	for _, permission := range user.Permissions {
 		if permission == requiredPermission || permission == "*" {
 			return nil
 		}
 	}
-	
+
 	return fmt.Errorf("access denied: insufficient permissions")
 }
 
@@ -298,14 +298,14 @@ func (sm *DefaultSecurityManager) CheckPermission(ctx context.Context, user *Use
 func (sm *DefaultSecurityManager) CreateUser(ctx context.Context, user *User) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
-	
+
 	if user.ID == "" {
 		user.ID = generateID()
 	}
-	
+
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
-	
+
 	sm.users[user.ID] = user
 	return nil
 }
@@ -314,12 +314,12 @@ func (sm *DefaultSecurityManager) CreateUser(ctx context.Context, user *User) er
 func (sm *DefaultSecurityManager) GetUser(ctx context.Context, userID string) (*User, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
-	
+
 	user, exists := sm.users[userID]
 	if !exists {
 		return nil, fmt.Errorf("user not found: %s", userID)
 	}
-	
+
 	return user, nil
 }
 
@@ -327,15 +327,15 @@ func (sm *DefaultSecurityManager) GetUser(ctx context.Context, userID string) (*
 func (sm *DefaultSecurityManager) UpdateUser(ctx context.Context, user *User) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
-	
+
 	existing, exists := sm.users[user.ID]
 	if !exists {
 		return fmt.Errorf("user not found: %s", user.ID)
 	}
-	
+
 	user.CreatedAt = existing.CreatedAt
 	user.UpdatedAt = time.Now()
-	
+
 	sm.users[user.ID] = user
 	return nil
 }
@@ -344,7 +344,7 @@ func (sm *DefaultSecurityManager) UpdateUser(ctx context.Context, user *User) er
 func (sm *DefaultSecurityManager) DeleteUser(ctx context.Context, userID string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
-	
+
 	delete(sm.users, userID)
 	return nil
 }
@@ -359,10 +359,10 @@ func (sm *DefaultSecurityManager) CreateSession(ctx context.Context, user *User)
 		ExpiresAt: time.Now().Add(sm.config.SessionExpiration),
 		Active:    true,
 	}
-	
+
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
-	
+
 	sm.sessions[session.ID] = session
 	return session, nil
 }
@@ -371,16 +371,16 @@ func (sm *DefaultSecurityManager) CreateSession(ctx context.Context, user *User)
 func (sm *DefaultSecurityManager) GetSession(ctx context.Context, sessionID string) (*Session, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
-	
+
 	session, exists := sm.sessions[sessionID]
 	if !exists {
 		return nil, fmt.Errorf("session not found: %s", sessionID)
 	}
-	
+
 	if time.Now().After(session.ExpiresAt) {
 		return nil, fmt.Errorf("session expired")
 	}
-	
+
 	return session, nil
 }
 
@@ -388,11 +388,11 @@ func (sm *DefaultSecurityManager) GetSession(ctx context.Context, sessionID stri
 func (sm *DefaultSecurityManager) InvalidateSession(ctx context.Context, sessionID string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
-	
+
 	if session, exists := sm.sessions[sessionID]; exists {
 		session.Active = false
 	}
-	
+
 	return nil
 }
 
@@ -410,7 +410,7 @@ func (sm *DefaultSecurityManager) hashPassword(password string) string {
 
 func (sm *DefaultSecurityManager) generateToken(user *User) (string, error) {
 	token := generateToken()
-	
+
 	tokenInfo := &TokenInfo{
 		UserID:      user.ID,
 		Username:    user.Username,
@@ -418,11 +418,11 @@ func (sm *DefaultSecurityManager) generateToken(user *User) (string, error) {
 		ExpiresAt:   time.Now().Add(sm.config.TokenExpiration),
 		Valid:       true,
 	}
-	
+
 	sm.mu.Lock()
 	sm.tokens[token] = tokenInfo
 	sm.mu.Unlock()
-	
+
 	return token, nil
 }
 

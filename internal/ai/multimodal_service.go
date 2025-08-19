@@ -35,9 +35,9 @@ func (s *MultiModalServiceImpl) ProcessMultiModal(ctx context.Context, request *
 
 	start := time.Now()
 	s.logger.WithFields(logrus.Fields{
-		"request_id":  request.ID,
-		"modalities":  request.Modalities,
-		"task":        request.Task,
+		"request_id": request.ID,
+		"modalities": request.Modalities,
+		"task":       request.Task,
 	}).Info("Processing multi-modal request")
 
 	if !s.config.MultiModalEnabled {
@@ -152,14 +152,14 @@ func (s *MultiModalServiceImpl) GenerateImageFromText(ctx context.Context, promp
 	images := s.generateImageFromText(prompt)
 
 	response := &models.ImageGenerationResponse{
-		Images:    images,
-		Prompt:    prompt,
-		Model:     s.config.ImageGenModel,
-		Width:     512,
-		Height:    512,
-		Steps:     20,
-		Guidance:  7.5,
-		Seed:      time.Now().UnixNano(),
+		Images:   images,
+		Prompt:   prompt,
+		Model:    s.config.ImageGenModel,
+		Width:    512,
+		Height:   512,
+		Steps:    20,
+		Guidance: 7.5,
+		Seed:     time.Now().UnixNano(),
 		Metadata: map[string]interface{}{
 			"processing_time": time.Since(start).Milliseconds(),
 			"prompt_length":   len(prompt),
@@ -322,8 +322,8 @@ func (s *MultiModalServiceImpl) CrossModalSearch(ctx context.Context, query stri
 
 	for i, modality := range modalities {
 		result := models.CrossModalResult{
-			ID:   fmt.Sprintf("%s_%d", modality, i),
-			Type: modality,
+			ID:    fmt.Sprintf("%s_%d", modality, i),
+			Type:  modality,
 			Score: 0.9 - float64(i)*0.1,
 			Metadata: map[string]interface{}{
 				"source": fmt.Sprintf("mock_%s_source", modality),

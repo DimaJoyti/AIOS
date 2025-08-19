@@ -33,7 +33,7 @@ func NewTestHelper(t *testing.T) *TestHelper {
 		t:       t,
 		cleanup: make([]func(), 0),
 	}
-	
+
 	t.Cleanup(helper.Cleanup)
 	return helper
 }
@@ -42,7 +42,7 @@ func NewTestHelper(t *testing.T) *TestHelper {
 func (h *TestHelper) Cleanup() {
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	
+
 	for i := len(h.cleanup) - 1; i >= 0; i-- {
 		h.cleanup[i]()
 	}
@@ -59,11 +59,11 @@ func (h *TestHelper) AddCleanup(fn func()) {
 func (h *TestHelper) TempDir() string {
 	dir, err := os.MkdirTemp("", "aios-test-*")
 	require.NoError(h.t, err)
-	
+
 	h.AddCleanup(func() {
 		os.RemoveAll(dir)
 	})
-	
+
 	return dir
 }
 
@@ -71,19 +71,19 @@ func (h *TestHelper) TempDir() string {
 func (h *TestHelper) TempFile(content string) string {
 	file, err := os.CreateTemp("", "aios-test-*.tmp")
 	require.NoError(h.t, err)
-	
+
 	if content != "" {
 		_, err = file.WriteString(content)
 		require.NoError(h.t, err)
 	}
-	
+
 	err = file.Close()
 	require.NoError(h.t, err)
-	
+
 	h.AddCleanup(func() {
 		os.Remove(file.Name())
 	})
-	
+
 	return file.Name()
 }
 
@@ -99,9 +99,9 @@ func (h *TestHelper) CreateTestFile(dir, filename, content string) string {
 func (h *TestHelper) AssertEventually(condition func() bool, timeout time.Duration, message string) {
 	ticker := time.NewTicker(10 * time.Millisecond)
 	defer ticker.Stop()
-	
+
 	timeoutCh := time.After(timeout)
-	
+
 	for {
 		select {
 		case <-ticker.C:
@@ -118,9 +118,9 @@ func (h *TestHelper) AssertEventually(condition func() bool, timeout time.Durati
 func (h *TestHelper) AssertNever(condition func() bool, duration time.Duration, message string) {
 	ticker := time.NewTicker(10 * time.Millisecond)
 	defer ticker.Stop()
-	
+
 	timeoutCh := time.After(duration)
-	
+
 	for {
 		select {
 		case <-ticker.C:
@@ -137,13 +137,13 @@ func (h *TestHelper) AssertNever(condition func() bool, duration time.Duration, 
 func (h *TestHelper) WithTimeout(timeout time.Duration, fn func(ctx context.Context)) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	
+
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
 		fn(ctx)
 	}()
-	
+
 	select {
 	case <-done:
 		// Function completed successfully
@@ -156,7 +156,7 @@ func (h *TestHelper) WithTimeout(timeout time.Duration, fn func(ctx context.Cont
 func (h *TestHelper) ConcurrentTest(tests ...func()) {
 	var wg sync.WaitGroup
 	errors := make(chan error, len(tests))
-	
+
 	for _, test := range tests {
 		wg.Add(1)
 		go func(testFn func()) {
@@ -169,10 +169,10 @@ func (h *TestHelper) ConcurrentTest(tests ...func()) {
 			testFn()
 		}(test)
 	}
-	
+
 	wg.Wait()
 	close(errors)
-	
+
 	for err := range errors {
 		h.t.Error(err)
 	}
@@ -192,7 +192,7 @@ func NewHTTPTestHelper(t *testing.T, handler http.Handler) *HTTPTestHelper {
 		server:     httptest.NewServer(handler),
 		client:     &http.Client{Timeout: 30 * time.Second},
 	}
-	
+
 	helper.AddCleanup(helper.server.Close)
 	return helper
 }
@@ -221,7 +221,7 @@ func (h *HTTPTestHelper) PUT(path string, body io.Reader) *http.Response {
 	req, err := http.NewRequest("PUT", h.server.URL+path, body)
 	require.NoError(h.t, err)
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	resp, err := h.client.Do(req)
 	require.NoError(h.t, err)
 	return resp
@@ -231,7 +231,7 @@ func (h *HTTPTestHelper) PUT(path string, body io.Reader) *http.Response {
 func (h *HTTPTestHelper) DELETE(path string) *http.Response {
 	req, err := http.NewRequest("DELETE", h.server.URL+path, nil)
 	require.NoError(h.t, err)
-	
+
 	resp, err := h.client.Do(req)
 	require.NoError(h.t, err)
 	return resp
@@ -240,18 +240,18 @@ func (h *HTTPTestHelper) DELETE(path string) *http.Response {
 // AssertJSONResponse asserts that the response contains expected JSON
 func (h *HTTPTestHelper) AssertJSONResponse(resp *http.Response, expectedStatus int, expected interface{}) {
 	defer resp.Body.Close()
-	
+
 	assert.Equal(h.t, expectedStatus, resp.StatusCode)
 	assert.Equal(h.t, "application/json", resp.Header.Get("Content-Type"))
-	
+
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(h.t, err)
-	
+
 	if expected != nil {
 		var actual interface{}
 		err = json.Unmarshal(body, &actual)
 		require.NoError(h.t, err)
-		
+
 		assert.Equal(h.t, expected, actual)
 	}
 }
@@ -259,16 +259,16 @@ func (h *HTTPTestHelper) AssertJSONResponse(resp *http.Response, expectedStatus 
 // AssertErrorResponse asserts that the response contains an error
 func (h *HTTPTestHelper) AssertErrorResponse(resp *http.Response, expectedStatus int, expectedMessage string) {
 	defer resp.Body.Close()
-	
+
 	assert.Equal(h.t, expectedStatus, resp.StatusCode)
-	
+
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(h.t, err)
-	
+
 	var errorResp map[string]interface{}
 	err = json.Unmarshal(body, &errorResp)
 	require.NoError(h.t, err)
-	
+
 	if expectedMessage != "" {
 		assert.Contains(h.t, errorResp["error"], expectedMessage)
 	}
@@ -316,11 +316,11 @@ func NewTestAssertions(t *testing.T) *TestAssertions {
 func (a *TestAssertions) AssertStructEqual(expected, actual interface{}, ignoreFields ...string) {
 	expectedVal := reflect.ValueOf(expected)
 	actualVal := reflect.ValueOf(actual)
-	
+
 	if expectedVal.Type() != actualVal.Type() {
 		a.t.Fatalf("Types don't match: expected %T, got %T", expected, actual)
 	}
-	
+
 	a.compareStructs(expectedVal, actualVal, ignoreFields, "")
 }
 
@@ -328,28 +328,28 @@ func (a *TestAssertions) compareStructs(expected, actual reflect.Value, ignoreFi
 	if expected.Type() != actual.Type() {
 		a.t.Fatalf("Types don't match at %s: expected %v, got %v", path, expected.Type(), actual.Type())
 	}
-	
+
 	switch expected.Kind() {
 	case reflect.Struct:
 		for i := 0; i < expected.NumField(); i++ {
 			field := expected.Type().Field(i)
 			fieldPath := path + "." + field.Name
-			
+
 			// Skip ignored fields
 			if a.shouldIgnoreField(field.Name, ignoreFields) {
 				continue
 			}
-			
+
 			expectedField := expected.Field(i)
 			actualField := actual.Field(i)
-			
+
 			a.compareStructs(expectedField, actualField, ignoreFields, fieldPath)
 		}
 	case reflect.Slice, reflect.Array:
 		if expected.Len() != actual.Len() {
 			a.t.Fatalf("Slice lengths don't match at %s: expected %d, got %d", path, expected.Len(), actual.Len())
 		}
-		
+
 		for i := 0; i < expected.Len(); i++ {
 			a.compareStructs(expected.Index(i), actual.Index(i), ignoreFields, fmt.Sprintf("%s[%d]", path, i))
 		}
@@ -357,15 +357,15 @@ func (a *TestAssertions) compareStructs(expected, actual reflect.Value, ignoreFi
 		if expected.Len() != actual.Len() {
 			a.t.Fatalf("Map lengths don't match at %s: expected %d, got %d", path, expected.Len(), actual.Len())
 		}
-		
+
 		for _, key := range expected.MapKeys() {
 			expectedVal := expected.MapIndex(key)
 			actualVal := actual.MapIndex(key)
-			
+
 			if !actualVal.IsValid() {
 				a.t.Fatalf("Key %v not found in actual map at %s", key.Interface(), path)
 			}
-			
+
 			a.compareStructs(expectedVal, actualVal, ignoreFields, fmt.Sprintf("%s[%v]", path, key.Interface()))
 		}
 	default:
@@ -390,11 +390,11 @@ func GetCallerInfo() (string, int) {
 	if !ok {
 		return "unknown", 0
 	}
-	
+
 	// Get just the filename, not the full path
 	parts := strings.Split(file, "/")
 	filename := parts[len(parts)-1]
-	
+
 	return filename, line
 }
 
@@ -419,7 +419,7 @@ func SetEnv(t *testing.T, key, value string) {
 	oldValue := os.Getenv(key)
 	err := os.Setenv(key, value)
 	require.NoError(t, err)
-	
+
 	t.Cleanup(func() {
 		if oldValue == "" {
 			os.Unsetenv(key)

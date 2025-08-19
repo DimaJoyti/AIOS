@@ -248,7 +248,7 @@ func (die *DefaultDataIntegrationEngine) logDataSourceEvent(sourceID string, lev
 
 	die.mu.Lock()
 	die.logs = append(die.logs, logEntry)
-	
+
 	// Keep only recent logs (simple cleanup)
 	if len(die.logs) > 10000 {
 		die.logs = die.logs[1000:]
@@ -285,20 +285,20 @@ func (die *DefaultDataIntegrationEngine) performHealthChecks() {
 // performDataSourceHealthCheck performs a health check on a specific data source
 func (die *DefaultDataIntegrationEngine) performDataSourceHealthCheck(source *DataSource) {
 	start := time.Now()
-	
+
 	connector, err := die.GetConnector(source.Type)
 	if err != nil {
-		die.updateHealthStatus(source.ID, HealthStatusUnhealthy, 
+		die.updateHealthStatus(source.ID, HealthStatusUnhealthy,
 			fmt.Sprintf("Connector not found: %s", source.Type), []*HealthCheck{})
 		return
 	}
 
 	// Get connector health
 	connectorHealth := connector.GetHealth()
-	
+
 	// Perform connection test
 	var checks []*HealthCheck
-	
+
 	// Connection check
 	connectionCheck := &HealthCheck{
 		Name:      "connection",
@@ -358,7 +358,7 @@ func (die *DefaultDataIntegrationEngine) updateHealthStatus(sourceID string, sta
 	}
 
 	now := time.Now()
-	
+
 	// Calculate uptime
 	if health.LastCheck.IsZero() {
 		health.Uptime = 0

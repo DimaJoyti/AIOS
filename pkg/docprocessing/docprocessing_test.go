@@ -480,7 +480,7 @@ func TestReaderSource(t *testing.T) {
 
 	t.Run("AddReaderAndGetDocument", func(t *testing.T) {
 		source := NewReaderSource(logger)
-		
+
 		content := "This is test content"
 		reader := strings.NewReader(content)
 		metadata := map[string]interface{}{

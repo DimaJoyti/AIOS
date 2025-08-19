@@ -14,14 +14,14 @@ import (
 
 // AuditLogger handles security audit logging
 type AuditLogger struct {
-	logger      *logrus.Logger
-	tracer      trace.Tracer
-	config      AuditConfig
-	logs        []*models.AuditLog
-	logsCount   int
-	mu          sync.RWMutex
-	running     bool
-	stopCh      chan struct{}
+	logger    *logrus.Logger
+	tracer    trace.Tracer
+	config    AuditConfig
+	logs      []*models.AuditLog
+	logsCount int
+	mu        sync.RWMutex
+	running   bool
+	stopCh    chan struct{}
 }
 
 // NewAuditLogger creates a new audit logger

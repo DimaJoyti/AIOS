@@ -54,7 +54,7 @@ func (ce *DefaultCollaborationEngine) SendMessage(message *Message) (*Message, e
 	ce.mu.Lock()
 	ce.messages[message.ID] = message
 	ce.messagesByChannel[message.ChannelID] = append(ce.messagesByChannel[message.ChannelID], message.ID)
-	
+
 	// Update channel's last message
 	channel.LastMessage = message
 	channel.UpdatedAt = time.Now()

@@ -429,7 +429,7 @@ func (wm *WorkspaceManager) updateWorkspaceStats() {
 	defer wm.mu.Unlock()
 
 	// Update workspace statistics
-	for _, _ = range wm.workspaces {
+	for range wm.workspaces {
 		// TODO: Update actual window counts from window manager
 		// For now, keep existing counts
 	}

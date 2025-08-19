@@ -40,10 +40,10 @@ type FrameworkConfig struct {
 	ParallelExecution bool                    `json:"parallel_execution"`
 	MaxConcurrency    int                     `json:"max_concurrency"`
 	TestTimeout       time.Duration           `json:"test_timeout"`
-	Environment       map[string]any  `json:"environment"`
-	Coverage          map[string]any  `json:"coverage"`
-	Reporting         map[string]any  `json:"reporting"`
-	Performance       map[string]any  `json:"performance"`
+	Environment       map[string]any          `json:"environment"`
+	Coverage          map[string]any          `json:"coverage"`
+	Reporting         map[string]any          `json:"reporting"`
+	Performance       map[string]any          `json:"performance"`
 	Property          property.PropertyConfig `json:"property"`
 	EnabledFeatures   []string                `json:"enabled_features"`
 }
@@ -61,16 +61,16 @@ type TestSuite struct {
 
 // TestCase represents an individual test
 type TestCase struct {
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Function    func() error           `json:"-"`
-	Setup       func() error           `json:"-"`
-	Teardown    func() error           `json:"-"`
-	Timeout     time.Duration          `json:"timeout"`
-	Tags        []string               `json:"tags"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Function    func() error   `json:"-"`
+	Setup       func() error   `json:"-"`
+	Teardown    func() error   `json:"-"`
+	Timeout     time.Duration  `json:"timeout"`
+	Tags        []string       `json:"tags"`
 	Properties  map[string]any `json:"properties"`
-	Skip        bool                   `json:"skip"`
-	SkipReason  string                 `json:"skip_reason"`
+	Skip        bool           `json:"skip"`
+	SkipReason  string         `json:"skip_reason"`
 }
 
 // TestResult represents the result of running tests

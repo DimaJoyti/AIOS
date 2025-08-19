@@ -23,7 +23,7 @@ func (bds *BalancedDistributionStrategy) GetDescription() string {
 
 func (bds *BalancedDistributionStrategy) DistributeWindows(windows []*models.Window, monitors map[string]*Monitor) map[string][]*models.Window {
 	distribution := make(map[string][]*models.Window)
-	
+
 	// Initialize distribution map
 	connectedMonitors := make([]*Monitor, 0)
 	for _, monitor := range monitors {
@@ -32,23 +32,23 @@ func (bds *BalancedDistributionStrategy) DistributeWindows(windows []*models.Win
 			distribution[monitor.ID] = make([]*models.Window, 0)
 		}
 	}
-	
+
 	if len(connectedMonitors) == 0 {
 		return distribution
 	}
-	
+
 	// Sort monitors by ID for consistent distribution
 	sort.Slice(connectedMonitors, func(i, j int) bool {
 		return connectedMonitors[i].ID < connectedMonitors[j].ID
 	})
-	
+
 	// Distribute windows round-robin
 	for i, window := range windows {
 		monitorIndex := i % len(connectedMonitors)
 		monitorID := connectedMonitors[monitorIndex].ID
 		distribution[monitorID] = append(distribution[monitorID], window)
 	}
-	
+
 	return distribution
 }
 
@@ -67,11 +67,11 @@ func (pfds *PrimaryFocusedDistributionStrategy) GetDescription() string {
 
 func (pfds *PrimaryFocusedDistributionStrategy) DistributeWindows(windows []*models.Window, monitors map[string]*Monitor) map[string][]*models.Window {
 	distribution := make(map[string][]*models.Window)
-	
+
 	// Initialize distribution map
 	var primaryMon *Monitor
 	secondaryMonitors := make([]*Monitor, 0)
-	
+
 	for _, monitor := range monitors {
 		if monitor.IsConnected {
 			distribution[monitor.ID] = make([]*models.Window, 0)
@@ -82,24 +82,24 @@ func (pfds *PrimaryFocusedDistributionStrategy) DistributeWindows(windows []*mod
 			}
 		}
 	}
-	
+
 	if primaryMon == nil {
 		// Fall back to balanced distribution if no primary monitor
 		balanced := &BalancedDistributionStrategy{}
 		return balanced.DistributeWindows(windows, monitors)
 	}
-	
+
 	// Calculate primary monitor capacity (e.g., 70% of windows)
 	primaryCapacity := int(float64(len(windows)) * 0.7)
 	if primaryCapacity < 1 {
 		primaryCapacity = len(windows)
 	}
-	
+
 	// Place windows on primary monitor
 	for i := 0; i < primaryCapacity && i < len(windows); i++ {
 		distribution[primaryMon.ID] = append(distribution[primaryMon.ID], windows[i])
 	}
-	
+
 	// Distribute remaining windows to secondary monitors
 	remainingWindows := windows[primaryCapacity:]
 	if len(remainingWindows) > 0 && len(secondaryMonitors) > 0 {
@@ -109,7 +109,7 @@ func (pfds *PrimaryFocusedDistributionStrategy) DistributeWindows(windows []*mod
 			distribution[monitorID] = append(distribution[monitorID], window)
 		}
 	}
-	
+
 	return distribution
 }
 
@@ -132,18 +132,18 @@ func (aods *AIOptimizedDistributionStrategy) DistributeWindows(windows []*models
 		balanced := &BalancedDistributionStrategy{}
 		return balanced.DistributeWindows(windows, monitors)
 	}
-	
+
 	// Analyze context for AI optimization
 	distributionContext := aods.analyzeDistributionContext(windows, monitors)
-	
+
 	// Get AI recommendation
 	recommendation := aods.getAIRecommendation(distributionContext)
-	
+
 	// Apply AI recommendation or fall back to balanced
 	if recommendation != nil {
 		return aods.applyAIRecommendation(windows, monitors, recommendation)
 	}
-	
+
 	// Fall back to balanced distribution
 	balanced := &BalancedDistributionStrategy{}
 	return balanced.DistributeWindows(windows, monitors)
@@ -151,21 +151,21 @@ func (aods *AIOptimizedDistributionStrategy) DistributeWindows(windows []*models
 
 func (aods *AIOptimizedDistributionStrategy) analyzeDistributionContext(windows []*models.Window, monitors map[string]*Monitor) map[string]interface{} {
 	analysisContext := make(map[string]interface{})
-	
+
 	// Window analysis
 	analysisContext["window_count"] = len(windows)
 	analysisContext["window_types"] = aods.analyzeWindowTypes(windows)
 	analysisContext["window_sizes"] = aods.analyzeWindowSizes(windows)
-	
+
 	// Monitor analysis
 	analysisContext["monitor_count"] = len(monitors)
 	analysisContext["monitor_resolutions"] = aods.analyzeMonitorResolutions(monitors)
 	analysisContext["monitor_layout"] = aods.analyzeMonitorLayout(monitors)
-	
+
 	// Temporal context
 	analysisContext["time_of_day"] = time.Now().Hour()
 	analysisContext["day_of_week"] = time.Now().Weekday().String()
-	
+
 	return analysisContext
 }
 
@@ -181,11 +181,11 @@ func (aods *AIOptimizedDistributionStrategy) analyzeWindowSizes(windows []*model
 	if len(windows) == 0 {
 		return map[string]interface{}{}
 	}
-	
+
 	totalArea := 0
 	minArea := windows[0].Size.Width * windows[0].Size.Height
 	maxArea := minArea
-	
+
 	for _, window := range windows {
 		area := window.Size.Width * window.Size.Height
 		totalArea += area
@@ -196,7 +196,7 @@ func (aods *AIOptimizedDistributionStrategy) analyzeWindowSizes(windows []*model
 			maxArea = area
 		}
 	}
-	
+
 	return map[string]interface{}{
 		"average_area": totalArea / len(windows),
 		"min_area":     minArea,
@@ -221,7 +221,7 @@ func (aods *AIOptimizedDistributionStrategy) analyzeMonitorLayout(monitors map[s
 			connectedCount++
 		}
 	}
-	
+
 	switch connectedCount {
 	case 1:
 		return "single"
@@ -237,8 +237,8 @@ func (aods *AIOptimizedDistributionStrategy) analyzeMonitorLayout(monitors map[s
 func (aods *AIOptimizedDistributionStrategy) getAIRecommendation(analysisContext map[string]interface{}) map[string]interface{} {
 	// Create AI request for distribution recommendation
 	aiRequest := &models.AIRequest{
-		ID:   fmt.Sprintf("window-distribution-%d", time.Now().Unix()),
-		Type: "recommendation",
+		ID:    fmt.Sprintf("window-distribution-%d", time.Now().Unix()),
+		Type:  "recommendation",
 		Input: fmt.Sprintf("Optimize window distribution for context: %+v", analysisContext),
 		Parameters: map[string]interface{}{
 			"task":    "window_distribution",
@@ -247,33 +247,33 @@ func (aods *AIOptimizedDistributionStrategy) getAIRecommendation(analysisContext
 		Timeout:   3 * time.Second,
 		Timestamp: time.Now(),
 	}
-	
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	
+
 	response, err := aods.aiOrchestrator.ProcessRequest(ctx, aiRequest)
 	if err != nil {
 		return nil
 	}
-	
+
 	// Parse AI response
 	if result, ok := response.Result.(map[string]interface{}); ok {
 		return result
 	}
-	
+
 	return nil
 }
 
 func (aods *AIOptimizedDistributionStrategy) applyAIRecommendation(windows []*models.Window, monitors map[string]*Monitor, recommendation map[string]interface{}) map[string][]*models.Window {
 	distribution := make(map[string][]*models.Window)
-	
+
 	// Initialize distribution map
 	for _, monitor := range monitors {
 		if monitor.IsConnected {
 			distribution[monitor.ID] = make([]*models.Window, 0)
 		}
 	}
-	
+
 	// Try to parse AI recommendation
 	if monitorAssignments, ok := recommendation["monitor_assignments"].(map[string]interface{}); ok {
 		// Apply AI-recommended assignments
@@ -290,18 +290,18 @@ func (aods *AIOptimizedDistributionStrategy) applyAIRecommendation(windows []*mo
 				}
 			}
 		}
-		
+
 		// Check if all windows were assigned
 		totalAssigned := 0
 		for _, windowList := range distribution {
 			totalAssigned += len(windowList)
 		}
-		
+
 		if totalAssigned == len(windows) {
 			return distribution
 		}
 	}
-	
+
 	// If AI recommendation couldn't be applied, fall back to balanced
 	balanced := &BalancedDistributionStrategy{}
 	return balanced.DistributeWindows(windows, monitors)
@@ -315,12 +315,12 @@ type ApplicationAwareDistributionStrategy struct {
 func NewApplicationAwareDistributionStrategy() *ApplicationAwareDistributionStrategy {
 	return &ApplicationAwareDistributionStrategy{
 		applicationRules: map[string]string{
-			"code_editor":    "primary",
-			"web_browser":    "secondary",
-			"terminal":       "primary",
-			"media_player":   "secondary",
-			"communication":  "secondary",
-			"design_tool":    "primary",
+			"code_editor":   "primary",
+			"web_browser":   "secondary",
+			"terminal":      "primary",
+			"media_player":  "secondary",
+			"communication": "secondary",
+			"design_tool":   "primary",
 			"game":          "primary",
 		},
 	}
@@ -336,7 +336,7 @@ func (aads *ApplicationAwareDistributionStrategy) GetDescription() string {
 
 func (aads *ApplicationAwareDistributionStrategy) DistributeWindows(windows []*models.Window, monitors map[string]*Monitor) map[string][]*models.Window {
 	distribution := make(map[string][]*models.Window)
-	
+
 	// Find primary and secondary monitors
 	var primaryMonitor, secondaryMonitor *Monitor
 	for _, monitor := range monitors {
@@ -349,7 +349,7 @@ func (aads *ApplicationAwareDistributionStrategy) DistributeWindows(windows []*m
 			}
 		}
 	}
-	
+
 	// Distribute windows based on application rules
 	for _, window := range windows {
 		targetMonitor := aads.selectMonitorForApplication(window.Application, primaryMonitor, secondaryMonitor)
@@ -360,7 +360,7 @@ func (aads *ApplicationAwareDistributionStrategy) DistributeWindows(windows []*m
 			distribution[primaryMonitor.ID] = append(distribution[primaryMonitor.ID], window)
 		}
 	}
-	
+
 	return distribution
 }
 
@@ -376,7 +376,7 @@ func (aads *ApplicationAwareDistributionStrategy) selectMonitorForApplication(ap
 			return primary // Fall back to primary if no secondary
 		}
 	}
-	
+
 	// Default to primary monitor
 	return primary
 }
@@ -408,7 +408,7 @@ func (cads *ContextAwareDistributionStrategy) GetDescription() string {
 func (cads *ContextAwareDistributionStrategy) DistributeWindows(windows []*models.Window, monitors map[string]*Monitor) map[string][]*models.Window {
 	// Determine current context
 	strategy := cads.selectStrategyForContext()
-	
+
 	// Apply the selected strategy
 	switch strategy {
 	case "balanced":
@@ -433,7 +433,7 @@ func (cads *ContextAwareDistributionStrategy) DistributeWindows(windows []*model
 
 func (cads *ContextAwareDistributionStrategy) selectStrategyForContext() string {
 	hour := time.Now().Hour()
-	
+
 	switch {
 	case hour >= 6 && hour < 12:
 		return cads.timeBasedRules["morning"]
