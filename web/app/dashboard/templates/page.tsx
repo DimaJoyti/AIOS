@@ -57,6 +57,7 @@ interface TemplateConfig {
 }
 
 export default function TemplatesPage() {
+  const [mounted, setMounted] = useState(false)
   const [templates, setTemplates] = useState<PromptTemplate[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -69,6 +70,10 @@ export default function TemplatesPage() {
 
   useEffect(() => {
     loadTemplates()
+  }, [])
+
+  useEffect(() => {
+    setMounted(true)
   }, [])
 
   const loadTemplates = async () => {
@@ -275,6 +280,10 @@ export default function TemplatesPage() {
         </div>
       </div>
     )
+  }
+
+  if (!mounted) {
+    return null
   }
 
   return (
