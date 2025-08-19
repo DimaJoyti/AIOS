@@ -1,0 +1,55 @@
+# Build stage
+FROM golang:1.22-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache git ca-certificates tzdata
+
+# Set working directory
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build the enhanced MCP service
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o aios-mcp-enhanced ./cmd/aios-mcp-enhanced
+
+# Final stage
+FROM alpine:latest
+
+# Install runtime dependencies
+RUN apk --no-cache add ca-certificates tzdata
+
+# Create app user
+RUN addgroup -g 1001 -S aios && \
+    adduser -u 1001 -S aios -G aios
+
+# Set working directory
+WORKDIR /app
+
+# Copy binary from builder
+COPY --from=builder /app/aios-mcp-enhanced .
+
+# Copy configuration files
+COPY --from=builder /app/configs ./configs
+
+# Create necessary directories
+RUN mkdir -p /app/data && chown -R aios:aios /app
+
+# Switch to app user
+USER aios
+
+# Expose ports
+EXPOSE 8051 8052
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8052/health || exit 1
+
+# Run the service
+CMD ["./aios-mcp-enhanced"]

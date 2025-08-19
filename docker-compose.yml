@@ -83,6 +83,51 @@ services:
     networks:
       - aios-network
 
+  # Enhanced AIOS Services with Archon Integration (Go-based)
+  aios-knowledge:
+    build:
+      context: .
+      dockerfile: deployments/Dockerfile.knowledge
+    container_name: aios-knowledge
+    restart: unless-stopped
+    ports:
+      - "8181:8181"
+    environment:
+      - AIOS_ENV=production
+      - AIOS_LOG_LEVEL=info
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    depends_on:
+      - postgres
+    volumes:
+      - ./configs:/app/configs:ro
+      - aios_knowledge_data:/app/data
+    networks:
+      - aios-network
+
+  aios-mcp-enhanced:
+    build:
+      context: .
+      dockerfile: deployments/Dockerfile.mcp-enhanced
+    container_name: aios-mcp-enhanced
+    restart: unless-stopped
+    ports:
+      - "8051:8051"
+      - "8052:8052"  # Management port
+    environment:
+      - AIOS_ENV=production
+      - AIOS_LOG_LEVEL=info
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY:-}
+      - AIOS_KNOWLEDGE_URL=http://aios-knowledge:8181
+    depends_on:
+      - aios-knowledge
+    volumes:
+      - ./configs:/app/configs:ro
+    networks:
+      - aios-network
+
   # Infrastructure Services
   postgres:
     image: postgres:16-alpine
@@ -235,4 +280,6 @@ volumes:
   aios_data:
     driver: local
   aios_models:
+    driver: local
+  aios_knowledge_data:
     driver: local

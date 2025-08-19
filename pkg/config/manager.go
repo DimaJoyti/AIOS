@@ -35,6 +35,7 @@ type Config struct {
 	Health      HealthConfig      `mapstructure:"health"`
 	Backup      BackupConfig      `mapstructure:"backup"`
 	Monitoring  MonitoringConfig  `mapstructure:"monitoring"`
+	Services    ServicesConfig    `mapstructure:"services"`
 }
 
 // ServerConfig contains HTTP server configuration
@@ -110,11 +111,13 @@ type RedisConfig struct {
 
 // AIConfig contains AI services configuration
 type AIConfig struct {
-	Enabled      bool               `mapstructure:"enabled"`
-	Debug        bool               `mapstructure:"debug"`
-	LLM          LLMConfig          `mapstructure:"llm"`
-	CV           CVConfig           `mapstructure:"cv"`
-	Optimization OptimizationConfig `mapstructure:"optimization"`
+	Enabled            bool               `mapstructure:"enabled"`
+	Debug              bool               `mapstructure:"debug"`
+	MaxConcurrentTasks int                `mapstructure:"max_concurrent_tasks"`
+	TaskTimeout        time.Duration      `mapstructure:"task_timeout"`
+	LLM                LLMConfig          `mapstructure:"llm"`
+	CV                 CVConfig           `mapstructure:"cv"`
+	Optimization       OptimizationConfig `mapstructure:"optimization"`
 }
 
 // LLMConfig contains language model configuration
@@ -142,6 +145,38 @@ type OptimizationConfig struct {
 	CollectionInterval time.Duration `mapstructure:"collection_interval"`
 	AnalysisInterval   time.Duration `mapstructure:"analysis_interval"`
 	AutoApply          bool          `mapstructure:"auto_apply"`
+}
+
+// ServicesConfig contains configuration for integrated services
+type ServicesConfig struct {
+	Knowledge KnowledgeServiceConfig `mapstructure:"knowledge"`
+	MCP       MCPServiceConfig       `mapstructure:"mcp"`
+	Agents    AgentsServiceConfig    `mapstructure:"agents"`
+}
+
+// KnowledgeServiceConfig contains knowledge service configuration
+type KnowledgeServiceConfig struct {
+	Enabled     bool   `mapstructure:"enabled"`
+	Host        string `mapstructure:"host"`
+	Port        int    `mapstructure:"port"`
+	SupabaseURL string `mapstructure:"supabase_url"`
+	SupabaseKey string `mapstructure:"supabase_key"`
+}
+
+// MCPServiceConfig contains MCP service configuration
+type MCPServiceConfig struct {
+	Enabled bool   `mapstructure:"enabled"`
+	Host    string `mapstructure:"host"`
+	Port    int    `mapstructure:"port"`
+}
+
+// AgentsServiceConfig contains agents service configuration
+type AgentsServiceConfig struct {
+	Enabled            bool          `mapstructure:"enabled"`
+	Host               string        `mapstructure:"host"`
+	Port               int           `mapstructure:"port"`
+	MaxConcurrentTasks int           `mapstructure:"max_concurrent_tasks"`
+	TaskTimeout        time.Duration `mapstructure:"task_timeout"`
 }
 
 // SecurityConfig contains security configuration

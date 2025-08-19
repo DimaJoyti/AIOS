@@ -1,5 +1,6 @@
 web/node_modules
-build/bin
+build
+bin
 web/package-lock.json
 CLAUDE.md
 .claude
@@ -23,3 +24,4 @@ web/out/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.mypy_cache/3.13
